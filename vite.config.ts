@@ -12,4 +12,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // SSR no Vercel: sem isso o deploy vira só estático e F5 em /painel dá 404.
+  nitro: {
+    preset: "vercel",
+  },
 });
