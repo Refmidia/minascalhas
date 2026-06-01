@@ -58,7 +58,8 @@ export const Route = createFileRoute("/api/agendamentos")({
         const data = parsed.data;
 
         // --- Integração MySQL (Prisma) ---------------------------------
-        // import { prisma } from "@/lib/db.server";
+        // import { getPrisma } from "@/lib/db.server";
+        // const prisma = await getPrisma();
         // const agendamento = await prisma.agendamento.create({
         //   data: {
         //     nome: data.nome,
