@@ -150,12 +150,21 @@ export function DashRadio() {
   const playTitle = loading ? "Conectando…" : playing ? "Pausar rádio" : "Tocar rádio";
 
   return (
-    <div
-      ref={rootRef}
-      className="dash-topbar__radio-wrap dash-sidebar__radio dash-radio-root"
-      id="dash-radio-root"
-      data-turbo-permanent
-    >
+    <>
+      {/* Fora da sidebar: continua tocando quando o menu está minimizado */}
+      <audio
+        ref={audioRef}
+        id="dash-radio-player"
+        preload="none"
+        playsInline
+        className="dash-radio-player-host"
+      />
+      <div
+        ref={rootRef}
+        className="dash-topbar__radio-wrap dash-sidebar__radio dash-radio-root"
+        id="dash-radio-root"
+        data-turbo-permanent
+      >
       <button
         type="button"
         className={`dash-topbar__radio-btn${playing ? " is-playing" : ""}${loading ? " is-loading" : ""}`}
@@ -203,7 +212,7 @@ export function DashRadio() {
           />
         </div>
       ) : null}
-      <audio ref={audioRef} id="dash-radio-player" preload="none" playsInline className="d-none" />
-    </div>
+      </div>
+    </>
   );
 }

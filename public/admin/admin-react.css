@@ -237,10 +237,11 @@ body.dashboard-app--react #menu-top.dash-topbar {
   }
 
   body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__brand {
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     gap: 0;
-    padding: 0 0.35rem !important;
+    padding: 0.35rem 0.25rem !important;
   }
 
   body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__brand-logo {
@@ -261,28 +262,9 @@ body.dashboard-app--react #menu-top.dash-topbar {
     object-fit: contain;
   }
 
+  /* Rádio some na barra mini; o player fica no DOM e segue tocando */
   body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio {
-    display: inline-flex !important;
-    align-items: center;
-    flex-shrink: 0;
-    margin-left: 0;
-  }
-
-  body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio .dash-radio-root {
-    margin-left: 0;
-    gap: 0.25rem;
-  }
-
-  body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio .dash-topbar__radio-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 0.9rem;
-  }
-
-  body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio .dash-radio-volume-panel--slider-only {
-    right: 0;
-    left: auto;
-    width: min(180px, 72vw);
+    display: none !important;
   }
 
   body.dashboard-app--react.dashboard-sidebar-mini .dash-nav-link {
@@ -489,6 +471,16 @@ body.dashboard-app--react .dash-topbar__dropdown-panel a:hover,
 body.dashboard-app--react .dash-topbar__dropdown-panel button:hover {
   background: var(--dash-nav-hover);
   color: var(--primary);
+}
+
+body.dashboard-app--react .dash-radio-player-host {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Rádio na sidebar — alinhado ao Alex (botão na barra do logo) */
