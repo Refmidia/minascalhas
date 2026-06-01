@@ -240,7 +240,7 @@ export function AdminShell() {
               <DashBrandLogo />
             </Link>
           </div>
-          <DashRadio hidden={sidebarMini && !navMobile} />
+          <DashRadio />
         </div>
 
         <nav className="dash-sidebar__nav">

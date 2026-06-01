@@ -30,13 +30,8 @@ function volumeIcon(v: number): string {
   return "bi-volume-up-fill";
 }
 
-type Props = {
-  /** Oculto quando a sidebar está minimizada (somente ícones). */
-  hidden?: boolean;
-};
-
 /** Play/pause na antena; volume só ao clicar no ícone de som (como no Alex). */
-export function DashRadio({ hidden = false }: Props) {
+export function DashRadio() {
   const rootRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -124,16 +119,11 @@ export function DashRadio({ hidden = false }: Props) {
   }, [applyVolume]);
 
   useEffect(() => {
-    if (hidden) return;
     if (sessionStorage.getItem(STORAGE_KEY) === "1") {
       void play();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hidden]);
-
-  useEffect(() => {
-    if (hidden) pause();
-  }, [hidden, pause]);
+  }, []);
 
   useEffect(() => {
     document.body.classList.toggle("dash-radio-playing", playing);
@@ -158,8 +148,6 @@ export function DashRadio({ hidden = false }: Props) {
 
   const showVolBtn = playing || loading;
   const playTitle = loading ? "Conectando…" : playing ? "Pausar rádio" : "Tocar rádio";
-
-  if (hidden) return null;
 
   return (
     <div

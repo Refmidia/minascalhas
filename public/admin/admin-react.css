@@ -262,7 +262,27 @@ body.dashboard-app--react #menu-top.dash-topbar {
   }
 
   body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio {
-    display: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 0;
+  }
+
+  body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio .dash-radio-root {
+    margin-left: 0;
+    gap: 0.25rem;
+  }
+
+  body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio .dash-topbar__radio-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  body.dashboard-app--react.dashboard-sidebar-mini .dash-sidebar__radio .dash-radio-volume-panel--slider-only {
+    right: 0;
+    left: auto;
+    width: min(180px, 72vw);
   }
 
   body.dashboard-app--react.dashboard-sidebar-mini .dash-nav-link {
