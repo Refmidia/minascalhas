@@ -1,0 +1,38 @@
+// Prisma schema — MySQL
+// Gere o client com:  npx prisma generate
+// (no Cursor, conectado ao banco real)
+//
+// IMPORTANTE: este schema descreve a tabela `agendamentos` esperada.
+// Se já existe uma tabela equivalente no banco, NÃO rode `prisma db push`
+// nem migrations destrutivas — use `prisma db pull` para sincronizar.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Agendamento {
+  id         String   @id @default(cuid())
+  nome       String   @db.VarChar(120)
+  cpfCnpj    String?  @map("cpf_cnpj") @db.VarChar(20)
+  telefone   String   @db.VarChar(20)
+  endereco   String   @db.VarChar(180)
+  bairro     String   @db.VarChar(80)
+  cep        String?  @db.VarChar(10)
+  numero     String   @db.VarChar(10)
+  data       DateTime
+  hora       String   @db.VarChar(5)
+  observacao String?  @db.Text
+  origem     String   @default("site") @db.VarChar(20)
+  status     String   @default("pendente") @db.VarChar(20)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([data])
+  @@index([status])
+  @@map("agendamentos")
+}
