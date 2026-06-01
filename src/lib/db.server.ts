@@ -29,8 +29,9 @@ export async function getPrisma(): Promise<PrismaClientLike> {
 
   // Import dinâmico para evitar erro de tipos quando o client ainda
   // não foi gerado.
-  const mod: { PrismaClient: new (opts?: unknown) => PrismaClientLike } =
-    await import("@prisma/client");
+  const mod = (await import("@prisma/client")) as unknown as {
+    PrismaClient: new (opts?: unknown) => PrismaClientLike;
+  };
 
   _client = new mod.PrismaClient({ log: ["warn", "error"] });
   if (process.env.NODE_ENV !== "production") {
