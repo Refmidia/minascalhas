@@ -7,6 +7,14 @@ export type Service = {
   image: string;
 };
 
+/** Card da home — dados do painel (produtos ativos + capa). */
+export type ProdutoSiteHome = {
+  slug: string;
+  title: string;
+  description: string;
+  image: string;
+};
+
 export type GalleryItem = {
   image: string;
   label: string;

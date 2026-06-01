@@ -1,0 +1,497 @@
+/**
+
+ * Página Agendar visita — tema claro por padrão; escuro só com data-bs-theme="dark".
+
+ */
+
+
+
+body.dashboard-app--react .dashboard-page--agendar.dash-form-page--pro {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.85rem;
+
+  width: 100%;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar > .dash-form-page__hero {
+
+  flex-shrink: 0;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-form-page__cta {
+
+  align-self: center;
+
+}
+
+
+
+/* --- Tema claro (padrão) --- */
+
+body.dashboard-app--react .dashboard-page--agendar .dash-page-body--solo {
+
+  background: var(--dash-page-bg, #f8fafc) !important;
+
+  border: 1px solid var(--dash-card-border, #e8ecf4) !important;
+
+  border-radius: 14px !important;
+
+  padding: 0.85rem !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel {
+
+  background: linear-gradient(
+
+    145deg,
+
+    var(--dash-card-bg, #fff) 0%,
+
+    rgba(22, 202, 133, 0.05) 100%
+
+  ) !important;
+
+  border: 1px solid var(--dash-card-border, #e8ecf4) !important;
+
+  border-radius: 12px !important;
+
+  padding: 0.75rem 0.85rem !important;
+
+  margin-bottom: 0.65rem !important;
+
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-form-page__panel-last {
+
+  margin-bottom: 0 !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel-title {
+
+  color: var(--text-secundary, #2a3342) !important;
+
+  font-size: 0.8125rem !important;
+
+  font-weight: 700 !important;
+
+  margin-bottom: 0.65rem !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel-title .bi {
+
+  color: var(--primary, #16ca85) !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__label {
+
+  display: block;
+
+  margin-bottom: 0.3rem;
+
+  font-size: 0.6875rem !important;
+
+  font-weight: 700 !important;
+
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
+
+  color: var(--dash-muted, #64748b) !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__input,
+
+body.dashboard-app--react .dashboard-page--agendar .form-control {
+
+  min-height: 38px !important;
+
+  border-radius: 8px !important;
+
+  border: 1px solid var(--dash-card-border, #e2e8f0) !important;
+
+  background: #fff !important;
+
+  color: var(--text-secundary, #2a3342) !important;
+
+  font-size: 0.875rem !important;
+
+  box-shadow: none !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .form-control::placeholder {
+
+  color: #94a3b8;
+
+  opacity: 1;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .form-control:focus {
+
+  border-color: var(--primary, #16ca85) !important;
+
+  box-shadow: 0 0 0 3px rgba(22, 202, 133, 0.15) !important;
+
+  outline: none !important;
+
+  background: #fff !important;
+
+  color: var(--text-secundary, #2a3342) !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar input[type="date"],
+
+body.dashboard-app--react .dashboard-page--agendar input[type="time"] {
+
+  color-scheme: light;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-input-group-cep {
+
+  flex-wrap: nowrap;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-input-group-cep .form-control {
+
+  border-top-right-radius: 0 !important;
+
+  border-bottom-right-radius: 0 !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-input-group-cep .visitas-orc-add-btn {
+
+  border-top-left-radius: 0 !important;
+
+  border-bottom-left-radius: 0 !important;
+
+  min-width: 42px;
+
+  min-height: 38px;
+
+  padding: 0 0.65rem;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: #fff !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-input-group-cep .visitas-orc-add-btn .bi {
+
+  font-size: 1rem;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-doc-hint {
+
+  margin-top: 0.25rem;
+
+  font-size: 0.7rem;
+
+  line-height: 1.35;
+
+  color: var(--dash-muted, #64748b);
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-form-page__actions {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 0.5rem;
+
+  justify-content: flex-end;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-cancel {
+
+  min-height: 40px;
+
+  padding: 0 1.1rem;
+
+  border-radius: 8px;
+
+  border: 1px solid var(--dash-card-border, #cbd5e1) !important;
+
+  background: #fff !important;
+
+  color: var(--text-secundary, #475569) !important;
+
+  font-weight: 600;
+
+  font-size: 0.875rem;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-cancel:hover {
+
+  background: #f8fafc !important;
+
+  border-color: #94a3b8 !important;
+
+  color: #1e293b !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-save {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 0.4rem;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .alert-success {
+
+  background: rgba(22, 202, 133, 0.1) !important;
+
+  border: 1px solid rgba(22, 202, 133, 0.3) !important;
+
+  color: #0d9660 !important;
+
+}
+
+
+
+body.dashboard-app--react .dashboard-page--agendar .alert-danger {
+
+  background: rgba(239, 68, 68, 0.08) !important;
+
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+
+  color: #b91c1c !important;
+
+}
+
+
+
+/* --- Tema escuro --- */
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-page-body--solo {
+
+  background: var(--dash-page-bg, #0d1117) !important;
+
+  border-color: var(--dash-card-border, #2a3342) !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel {
+
+  background: linear-gradient(
+
+    145deg,
+
+    #1b222e 0%,
+
+    rgba(22, 202, 133, 0.08) 100%
+
+  ) !important;
+
+  border-color: #2a3342 !important;
+
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel-title {
+
+  color: #f1f5f9 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__label {
+
+  color: #94a3b8 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__input,
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .form-control {
+
+  border-color: var(--border-imputs, #313c4d) !important;
+
+  background: var(--background-imputs, #1c2330) !important;
+
+  color: var(--text-secundary, #e2e8f0) !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .form-control::placeholder {
+
+  color: #64748b;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .form-control:focus {
+
+  background: var(--background-imputs, #1c2330) !important;
+
+  color: #f1f5f9 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar input[type="date"],
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar input[type="time"] {
+
+  color-scheme: dark;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-doc-hint {
+
+  color: #64748b;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-cancel {
+
+  border-color: #2a3342 !important;
+
+  background: #1c2330 !important;
+
+  color: #cbd5e1 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-cancel:hover {
+
+  background: #232c3a !important;
+
+  border-color: #3d4a5e !important;
+
+  color: #e6edf3 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-form-page__title {
+
+  color: #f1f5f9 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-form-page__desc {
+
+  color: #94a3b8 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .alert-success {
+
+  background: rgba(22, 202, 133, 0.12) !important;
+
+  border-color: rgba(22, 202, 133, 0.35) !important;
+
+  color: #6ee7b7 !important;
+
+}
+
+
+
+html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .alert-danger {
+
+  background: rgba(239, 68, 68, 0.12) !important;
+
+  border-color: rgba(239, 68, 68, 0.35) !important;
+
+  color: #fca5a5 !important;
+
+}
+
+

@@ -1,0 +1,110 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+
+import { INVENTARIO_STATUS } from "@/lib/agendamento-constants";
+import { dbErrorMessage, serializeInventario } from "@/lib/agendamento.server";
+import { getAdminSessionFromRequest, isAdminRequest } from "@/lib/auth.server";
+import { getPrisma } from "@/lib/db.server";
+import { jsonResponse } from "@/lib/http.server";
+
+const patchSchema = z.object({
+  status: z.enum(INVENTARIO_STATUS),
+});
+
+export const Route = createFileRoute("/api/agendamentos/$id")({
+  server: {
+    handlers: {
+      DELETE: async ({ request, params }) => {
+        if (!isAdminRequest(request)) {
+          return jsonResponse({ ok: false, message: "Não autorizado." }, 401);
+        }
+
+        const session = getAdminSessionFromRequest(request);
+        if (!session || session.visao !== "admin") {
+          return jsonResponse({ ok: false, message: "Somente admin pode cancelar." }, 403);
+        }
+
+        const id = Number(params.id);
+        if (!Number.isFinite(id) || id < 1) {
+          return jsonResponse({ ok: false, message: "ID inválido." }, 400);
+        }
+
+        try {
+          const prisma = await getPrisma();
+          await prisma.inventario.delete({ where: { id } });
+          return jsonResponse({ ok: true });
+        } catch (err) {
+          console.error("[DELETE /api/agendamentos/$id]", err);
+          const code =
+            err && typeof err === "object" && "code" in err
+              ? (err as { code: string }).code
+              : "";
+          if (code === "P2025") {
+            return jsonResponse({ ok: false, message: "Agendamento não encontrado." }, 404);
+          }
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
+
+      PATCH: async ({ request, params }) => {
+        if (!isAdminRequest(request)) {
+          return jsonResponse({ ok: false, message: "Não autorizado." }, 401);
+        }
+
+        const id = Number(params.id);
+        if (!Number.isFinite(id) || id < 1) {
+          return jsonResponse({ ok: false, message: "ID inválido." }, 400);
+        }
+
+        let body: unknown;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse({ ok: false, message: "JSON inválido." }, 400);
+        }
+
+        const parsed = patchSchema.safeParse(body);
+        if (!parsed.success) {
+          return jsonResponse({ ok: false, message: "Status inválido." }, 422);
+        }
+
+        const allowed: Record<string, string[]> = {
+          agendado: ["orcamentado"],
+          orcamentado: ["confirmado"],
+          "orçamentado": ["confirmado"],
+          confirmado: ["finalizado"],
+        };
+
+        try {
+          const prisma = await getPrisma();
+          const row = await prisma.inventario.findUnique({ where: { id } });
+          if (!row) {
+            return jsonResponse({ ok: false, message: "Agendamento não encontrado." }, 404);
+          }
+          const st = row.status;
+          const next = parsed.data.status;
+          const can = allowed[st]?.includes(next);
+          if (!can && st !== next) {
+            return jsonResponse({ ok: false, message: "Transição de status inválida." }, 422);
+          }
+
+          const updated = await prisma.inventario.update({
+            where: { id },
+            data: { status: next },
+          });
+          return jsonResponse({ ok: true, item: serializeInventario(updated) });
+        } catch (err) {
+          console.error("[PATCH /api/agendamentos/$id]", err);
+          const code =
+            err && typeof err === "object" && "code" in err
+              ? (err as { code: string }).code
+              : "";
+          if (code === "P2025") {
+            return jsonResponse({ ok: false, message: "Agendamento não encontrado." }, 404);
+          }
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
+    },
+  },
+});

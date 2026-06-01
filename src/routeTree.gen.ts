@@ -9,11 +9,66 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PainelRouteImport } from './routes/painel'
+import { Route as OsRouteImport } from './routes/os'
+import { Route as PainelRouteRouteImport } from './routes/painel/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PainelIndexRouteImport } from './routes/painel/index'
+import { Route as PainelVisitasRouteImport } from './routes/painel/visitas'
+import { Route as PainelUsuariosRouteImport } from './routes/painel/usuarios'
+import { Route as PainelProdutosGaleriaRouteImport } from './routes/painel/produtos-galeria'
+import { Route as PainelProdutosRouteImport } from './routes/painel/produtos'
+import { Route as PainelPontoControleRouteImport } from './routes/painel/ponto-controle'
+import { Route as PainelPontoRouteImport } from './routes/painel/ponto'
+import { Route as PainelOrcamentadoRouteImport } from './routes/painel/orcamentado'
+import { Route as PainelMaterialRouteImport } from './routes/painel/material'
+import { Route as PainelLogsRouteImport } from './routes/painel/logs'
+import { Route as PainelInicioFornecedorRouteImport } from './routes/painel/inicio-fornecedor'
+import { Route as PainelFuncionariosRouteImport } from './routes/painel/funcionarios'
+import { Route as PainelFornecedoresRouteImport } from './routes/painel/fornecedores'
+import { Route as PainelFinanceiroRouteImport } from './routes/painel/financeiro'
+import { Route as PainelFinalizadoRouteImport } from './routes/painel/finalizado'
+import { Route as PainelConfirmadoRouteImport } from './routes/painel/confirmado'
+import { Route as PainelClientesRouteImport } from './routes/painel/clientes'
+import { Route as PainelAgendarRouteImport } from './routes/painel/agendar'
+import { Route as ApiOsRouteImport } from './routes/api/os'
 import { Route as ApiAgendamentosRouteImport } from './routes/api/agendamentos'
+import { Route as ApiAgendamentosIdRouteImport } from './routes/api/agendamentos/$id'
+import { Route as ApiAdminVisaoRouteImport } from './routes/api/admin/visao'
+import { Route as ApiAdminUsuariosRouteImport } from './routes/api/admin/usuarios'
+import { Route as ApiAdminSessionRouteImport } from './routes/api/admin/session'
+import { Route as ApiAdminProdutosMenuRouteImport } from './routes/api/admin/produtos-menu'
+import { Route as ApiAdminProdutosRouteImport } from './routes/api/admin/produtos'
+import { Route as ApiAdminPontoControleRouteImport } from './routes/api/admin/ponto-controle'
+import { Route as ApiAdminPontoRouteImport } from './routes/api/admin/ponto'
+import { Route as ApiAdminMateriaisRouteImport } from './routes/api/admin/materiais'
+import { Route as ApiAdminLogsRouteImport } from './routes/api/admin/logs'
+import { Route as ApiAdminLogoutRouteImport } from './routes/api/admin/logout'
+import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
+import { Route as ApiAdminImpersonarRouteImport } from './routes/api/admin/impersonar'
+import { Route as ApiAdminFuncionariosPagamentoRouteImport } from './routes/api/admin/funcionarios-pagamento'
+import { Route as ApiAdminFornecedoresRouteImport } from './routes/api/admin/fornecedores'
+import { Route as ApiAdminFornecedorPortalRouteImport } from './routes/api/admin/fornecedor-portal'
+import { Route as ApiAdminFornecedorInicioRouteImport } from './routes/api/admin/fornecedor-inicio'
+import { Route as ApiAdminFinanceiroRouteImport } from './routes/api/admin/financeiro'
+import { Route as ApiAdminDashboardRouteImport } from './routes/api/admin/dashboard'
+import { Route as ApiAdminConsultaDocumentoRouteImport } from './routes/api/admin/consulta-documento'
+import { Route as ApiAdminConsultaCnpjRouteImport } from './routes/api/admin/consulta-cnpj'
+import { Route as ApiAdminClientesRouteImport } from './routes/api/admin/clientes'
+import { Route as ApiAgendamentosIdOrcamentoRouteImport } from './routes/api/agendamentos/$id/orcamento'
+import { Route as ApiAgendamentosIdConfirmarMontagemRouteImport } from './routes/api/agendamentos/$id/confirmar-montagem'
+import { Route as ApiAgendamentosIdClienteRouteImport } from './routes/api/agendamentos/$id/cliente'
+import { Route as ApiAdminUsuariosIdRouteImport } from './routes/api/admin/usuarios/$id'
+import { Route as ApiAdminProdutosIdRouteImport } from './routes/api/admin/produtos/$id'
+import { Route as ApiAdminUsuariosIdThumbRouteImport } from './routes/api/admin/usuarios/$id/thumb'
+import { Route as ApiAdminProdutosIdFotosRouteImport } from './routes/api/admin/produtos/$id/fotos'
+import { Route as ApiAdminProdutosIdFotosFotoIdRouteImport } from './routes/api/admin/produtos/$id/fotos/$fotoId'
 
-const PainelRoute = PainelRouteImport.update({
+const OsRoute = OsRouteImport.update({
+  id: '/os',
+  path: '/os',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelRouteRoute = PainelRouteRouteImport.update({
   id: '/painel',
   path: '/painel',
   getParentRoute: () => rootRouteImport,
@@ -23,49 +78,640 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelIndexRoute = PainelIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelVisitasRoute = PainelVisitasRouteImport.update({
+  id: '/visitas',
+  path: '/visitas',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelUsuariosRoute = PainelUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelProdutosGaleriaRoute = PainelProdutosGaleriaRouteImport.update({
+  id: '/produtos-galeria',
+  path: '/produtos-galeria',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelProdutosRoute = PainelProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelPontoControleRoute = PainelPontoControleRouteImport.update({
+  id: '/ponto-controle',
+  path: '/ponto-controle',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelPontoRoute = PainelPontoRouteImport.update({
+  id: '/ponto',
+  path: '/ponto',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelOrcamentadoRoute = PainelOrcamentadoRouteImport.update({
+  id: '/orcamentado',
+  path: '/orcamentado',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelMaterialRoute = PainelMaterialRouteImport.update({
+  id: '/material',
+  path: '/material',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelLogsRoute = PainelLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelInicioFornecedorRoute = PainelInicioFornecedorRouteImport.update({
+  id: '/inicio-fornecedor',
+  path: '/inicio-fornecedor',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelFuncionariosRoute = PainelFuncionariosRouteImport.update({
+  id: '/funcionarios',
+  path: '/funcionarios',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelFornecedoresRoute = PainelFornecedoresRouteImport.update({
+  id: '/fornecedores',
+  path: '/fornecedores',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelFinanceiroRoute = PainelFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelFinalizadoRoute = PainelFinalizadoRouteImport.update({
+  id: '/finalizado',
+  path: '/finalizado',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelConfirmadoRoute = PainelConfirmadoRouteImport.update({
+  id: '/confirmado',
+  path: '/confirmado',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelClientesRoute = PainelClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelAgendarRoute = PainelAgendarRouteImport.update({
+  id: '/agendar',
+  path: '/agendar',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const ApiOsRoute = ApiOsRouteImport.update({
+  id: '/api/os',
+  path: '/api/os',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgendamentosRoute = ApiAgendamentosRouteImport.update({
   id: '/api/agendamentos',
   path: '/api/agendamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgendamentosIdRoute = ApiAgendamentosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAgendamentosRoute,
+} as any)
+const ApiAdminVisaoRoute = ApiAdminVisaoRouteImport.update({
+  id: '/api/admin/visao',
+  path: '/api/admin/visao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsuariosRoute = ApiAdminUsuariosRouteImport.update({
+  id: '/api/admin/usuarios',
+  path: '/api/admin/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminSessionRoute = ApiAdminSessionRouteImport.update({
+  id: '/api/admin/session',
+  path: '/api/admin/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminProdutosMenuRoute = ApiAdminProdutosMenuRouteImport.update({
+  id: '/api/admin/produtos-menu',
+  path: '/api/admin/produtos-menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminProdutosRoute = ApiAdminProdutosRouteImport.update({
+  id: '/api/admin/produtos',
+  path: '/api/admin/produtos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminPontoControleRoute = ApiAdminPontoControleRouteImport.update({
+  id: '/api/admin/ponto-controle',
+  path: '/api/admin/ponto-controle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminPontoRoute = ApiAdminPontoRouteImport.update({
+  id: '/api/admin/ponto',
+  path: '/api/admin/ponto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminMateriaisRoute = ApiAdminMateriaisRouteImport.update({
+  id: '/api/admin/materiais',
+  path: '/api/admin/materiais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminLogsRoute = ApiAdminLogsRouteImport.update({
+  id: '/api/admin/logs',
+  path: '/api/admin/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminLogoutRoute = ApiAdminLogoutRouteImport.update({
+  id: '/api/admin/logout',
+  path: '/api/admin/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminLoginRoute = ApiAdminLoginRouteImport.update({
+  id: '/api/admin/login',
+  path: '/api/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminImpersonarRoute = ApiAdminImpersonarRouteImport.update({
+  id: '/api/admin/impersonar',
+  path: '/api/admin/impersonar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminFuncionariosPagamentoRoute =
+  ApiAdminFuncionariosPagamentoRouteImport.update({
+    id: '/api/admin/funcionarios-pagamento',
+    path: '/api/admin/funcionarios-pagamento',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminFornecedoresRoute = ApiAdminFornecedoresRouteImport.update({
+  id: '/api/admin/fornecedores',
+  path: '/api/admin/fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminFornecedorPortalRoute =
+  ApiAdminFornecedorPortalRouteImport.update({
+    id: '/api/admin/fornecedor-portal',
+    path: '/api/admin/fornecedor-portal',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminFornecedorInicioRoute =
+  ApiAdminFornecedorInicioRouteImport.update({
+    id: '/api/admin/fornecedor-inicio',
+    path: '/api/admin/fornecedor-inicio',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminFinanceiroRoute = ApiAdminFinanceiroRouteImport.update({
+  id: '/api/admin/financeiro',
+  path: '/api/admin/financeiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminDashboardRoute = ApiAdminDashboardRouteImport.update({
+  id: '/api/admin/dashboard',
+  path: '/api/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminConsultaDocumentoRoute =
+  ApiAdminConsultaDocumentoRouteImport.update({
+    id: '/api/admin/consulta-documento',
+    path: '/api/admin/consulta-documento',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminConsultaCnpjRoute = ApiAdminConsultaCnpjRouteImport.update({
+  id: '/api/admin/consulta-cnpj',
+  path: '/api/admin/consulta-cnpj',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminClientesRoute = ApiAdminClientesRouteImport.update({
+  id: '/api/admin/clientes',
+  path: '/api/admin/clientes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgendamentosIdOrcamentoRoute =
+  ApiAgendamentosIdOrcamentoRouteImport.update({
+    id: '/orcamento',
+    path: '/orcamento',
+    getParentRoute: () => ApiAgendamentosIdRoute,
+  } as any)
+const ApiAgendamentosIdConfirmarMontagemRoute =
+  ApiAgendamentosIdConfirmarMontagemRouteImport.update({
+    id: '/confirmar-montagem',
+    path: '/confirmar-montagem',
+    getParentRoute: () => ApiAgendamentosIdRoute,
+  } as any)
+const ApiAgendamentosIdClienteRoute =
+  ApiAgendamentosIdClienteRouteImport.update({
+    id: '/cliente',
+    path: '/cliente',
+    getParentRoute: () => ApiAgendamentosIdRoute,
+  } as any)
+const ApiAdminUsuariosIdRoute = ApiAdminUsuariosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminUsuariosRoute,
+} as any)
+const ApiAdminProdutosIdRoute = ApiAdminProdutosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminProdutosRoute,
+} as any)
+const ApiAdminUsuariosIdThumbRoute = ApiAdminUsuariosIdThumbRouteImport.update({
+  id: '/thumb',
+  path: '/thumb',
+  getParentRoute: () => ApiAdminUsuariosIdRoute,
+} as any)
+const ApiAdminProdutosIdFotosRoute = ApiAdminProdutosIdFotosRouteImport.update({
+  id: '/fotos',
+  path: '/fotos',
+  getParentRoute: () => ApiAdminProdutosIdRoute,
+} as any)
+const ApiAdminProdutosIdFotosFotoIdRoute =
+  ApiAdminProdutosIdFotosFotoIdRouteImport.update({
+    id: '/$fotoId',
+    path: '/$fotoId',
+    getParentRoute: () => ApiAdminProdutosIdFotosRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/painel': typeof PainelRoute
-  '/api/agendamentos': typeof ApiAgendamentosRoute
+  '/painel': typeof PainelRouteRouteWithChildren
+  '/os': typeof OsRoute
+  '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
+  '/api/os': typeof ApiOsRoute
+  '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/clientes': typeof PainelClientesRoute
+  '/painel/confirmado': typeof PainelConfirmadoRoute
+  '/painel/finalizado': typeof PainelFinalizadoRoute
+  '/painel/financeiro': typeof PainelFinanceiroRoute
+  '/painel/fornecedores': typeof PainelFornecedoresRoute
+  '/painel/funcionarios': typeof PainelFuncionariosRoute
+  '/painel/inicio-fornecedor': typeof PainelInicioFornecedorRoute
+  '/painel/logs': typeof PainelLogsRoute
+  '/painel/material': typeof PainelMaterialRoute
+  '/painel/orcamentado': typeof PainelOrcamentadoRoute
+  '/painel/ponto': typeof PainelPontoRoute
+  '/painel/ponto-controle': typeof PainelPontoControleRoute
+  '/painel/produtos': typeof PainelProdutosRoute
+  '/painel/produtos-galeria': typeof PainelProdutosGaleriaRoute
+  '/painel/usuarios': typeof PainelUsuariosRoute
+  '/painel/visitas': typeof PainelVisitasRoute
+  '/painel/': typeof PainelIndexRoute
+  '/api/admin/clientes': typeof ApiAdminClientesRoute
+  '/api/admin/consulta-cnpj': typeof ApiAdminConsultaCnpjRoute
+  '/api/admin/consulta-documento': typeof ApiAdminConsultaDocumentoRoute
+  '/api/admin/dashboard': typeof ApiAdminDashboardRoute
+  '/api/admin/financeiro': typeof ApiAdminFinanceiroRoute
+  '/api/admin/fornecedor-inicio': typeof ApiAdminFornecedorInicioRoute
+  '/api/admin/fornecedor-portal': typeof ApiAdminFornecedorPortalRoute
+  '/api/admin/fornecedores': typeof ApiAdminFornecedoresRoute
+  '/api/admin/funcionarios-pagamento': typeof ApiAdminFuncionariosPagamentoRoute
+  '/api/admin/impersonar': typeof ApiAdminImpersonarRoute
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/admin/logs': typeof ApiAdminLogsRoute
+  '/api/admin/materiais': typeof ApiAdminMateriaisRoute
+  '/api/admin/ponto': typeof ApiAdminPontoRoute
+  '/api/admin/ponto-controle': typeof ApiAdminPontoControleRoute
+  '/api/admin/produtos': typeof ApiAdminProdutosRouteWithChildren
+  '/api/admin/produtos-menu': typeof ApiAdminProdutosMenuRoute
+  '/api/admin/session': typeof ApiAdminSessionRoute
+  '/api/admin/usuarios': typeof ApiAdminUsuariosRouteWithChildren
+  '/api/admin/visao': typeof ApiAdminVisaoRoute
+  '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
+  '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
+  '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
+  '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
+  '/api/agendamentos/$id/confirmar-montagem': typeof ApiAgendamentosIdConfirmarMontagemRoute
+  '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
+  '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
+  '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
+  '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/painel': typeof PainelRoute
-  '/api/agendamentos': typeof ApiAgendamentosRoute
+  '/os': typeof OsRoute
+  '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
+  '/api/os': typeof ApiOsRoute
+  '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/clientes': typeof PainelClientesRoute
+  '/painel/confirmado': typeof PainelConfirmadoRoute
+  '/painel/finalizado': typeof PainelFinalizadoRoute
+  '/painel/financeiro': typeof PainelFinanceiroRoute
+  '/painel/fornecedores': typeof PainelFornecedoresRoute
+  '/painel/funcionarios': typeof PainelFuncionariosRoute
+  '/painel/inicio-fornecedor': typeof PainelInicioFornecedorRoute
+  '/painel/logs': typeof PainelLogsRoute
+  '/painel/material': typeof PainelMaterialRoute
+  '/painel/orcamentado': typeof PainelOrcamentadoRoute
+  '/painel/ponto': typeof PainelPontoRoute
+  '/painel/ponto-controle': typeof PainelPontoControleRoute
+  '/painel/produtos': typeof PainelProdutosRoute
+  '/painel/produtos-galeria': typeof PainelProdutosGaleriaRoute
+  '/painel/usuarios': typeof PainelUsuariosRoute
+  '/painel/visitas': typeof PainelVisitasRoute
+  '/painel': typeof PainelIndexRoute
+  '/api/admin/clientes': typeof ApiAdminClientesRoute
+  '/api/admin/consulta-cnpj': typeof ApiAdminConsultaCnpjRoute
+  '/api/admin/consulta-documento': typeof ApiAdminConsultaDocumentoRoute
+  '/api/admin/dashboard': typeof ApiAdminDashboardRoute
+  '/api/admin/financeiro': typeof ApiAdminFinanceiroRoute
+  '/api/admin/fornecedor-inicio': typeof ApiAdminFornecedorInicioRoute
+  '/api/admin/fornecedor-portal': typeof ApiAdminFornecedorPortalRoute
+  '/api/admin/fornecedores': typeof ApiAdminFornecedoresRoute
+  '/api/admin/funcionarios-pagamento': typeof ApiAdminFuncionariosPagamentoRoute
+  '/api/admin/impersonar': typeof ApiAdminImpersonarRoute
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/admin/logs': typeof ApiAdminLogsRoute
+  '/api/admin/materiais': typeof ApiAdminMateriaisRoute
+  '/api/admin/ponto': typeof ApiAdminPontoRoute
+  '/api/admin/ponto-controle': typeof ApiAdminPontoControleRoute
+  '/api/admin/produtos': typeof ApiAdminProdutosRouteWithChildren
+  '/api/admin/produtos-menu': typeof ApiAdminProdutosMenuRoute
+  '/api/admin/session': typeof ApiAdminSessionRoute
+  '/api/admin/usuarios': typeof ApiAdminUsuariosRouteWithChildren
+  '/api/admin/visao': typeof ApiAdminVisaoRoute
+  '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
+  '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
+  '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
+  '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
+  '/api/agendamentos/$id/confirmar-montagem': typeof ApiAgendamentosIdConfirmarMontagemRoute
+  '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
+  '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
+  '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
+  '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/painel': typeof PainelRoute
-  '/api/agendamentos': typeof ApiAgendamentosRoute
+  '/painel': typeof PainelRouteRouteWithChildren
+  '/os': typeof OsRoute
+  '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
+  '/api/os': typeof ApiOsRoute
+  '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/clientes': typeof PainelClientesRoute
+  '/painel/confirmado': typeof PainelConfirmadoRoute
+  '/painel/finalizado': typeof PainelFinalizadoRoute
+  '/painel/financeiro': typeof PainelFinanceiroRoute
+  '/painel/fornecedores': typeof PainelFornecedoresRoute
+  '/painel/funcionarios': typeof PainelFuncionariosRoute
+  '/painel/inicio-fornecedor': typeof PainelInicioFornecedorRoute
+  '/painel/logs': typeof PainelLogsRoute
+  '/painel/material': typeof PainelMaterialRoute
+  '/painel/orcamentado': typeof PainelOrcamentadoRoute
+  '/painel/ponto': typeof PainelPontoRoute
+  '/painel/ponto-controle': typeof PainelPontoControleRoute
+  '/painel/produtos': typeof PainelProdutosRoute
+  '/painel/produtos-galeria': typeof PainelProdutosGaleriaRoute
+  '/painel/usuarios': typeof PainelUsuariosRoute
+  '/painel/visitas': typeof PainelVisitasRoute
+  '/painel/': typeof PainelIndexRoute
+  '/api/admin/clientes': typeof ApiAdminClientesRoute
+  '/api/admin/consulta-cnpj': typeof ApiAdminConsultaCnpjRoute
+  '/api/admin/consulta-documento': typeof ApiAdminConsultaDocumentoRoute
+  '/api/admin/dashboard': typeof ApiAdminDashboardRoute
+  '/api/admin/financeiro': typeof ApiAdminFinanceiroRoute
+  '/api/admin/fornecedor-inicio': typeof ApiAdminFornecedorInicioRoute
+  '/api/admin/fornecedor-portal': typeof ApiAdminFornecedorPortalRoute
+  '/api/admin/fornecedores': typeof ApiAdminFornecedoresRoute
+  '/api/admin/funcionarios-pagamento': typeof ApiAdminFuncionariosPagamentoRoute
+  '/api/admin/impersonar': typeof ApiAdminImpersonarRoute
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/logout': typeof ApiAdminLogoutRoute
+  '/api/admin/logs': typeof ApiAdminLogsRoute
+  '/api/admin/materiais': typeof ApiAdminMateriaisRoute
+  '/api/admin/ponto': typeof ApiAdminPontoRoute
+  '/api/admin/ponto-controle': typeof ApiAdminPontoControleRoute
+  '/api/admin/produtos': typeof ApiAdminProdutosRouteWithChildren
+  '/api/admin/produtos-menu': typeof ApiAdminProdutosMenuRoute
+  '/api/admin/session': typeof ApiAdminSessionRoute
+  '/api/admin/usuarios': typeof ApiAdminUsuariosRouteWithChildren
+  '/api/admin/visao': typeof ApiAdminVisaoRoute
+  '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
+  '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
+  '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
+  '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
+  '/api/agendamentos/$id/confirmar-montagem': typeof ApiAgendamentosIdConfirmarMontagemRoute
+  '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
+  '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
+  '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
+  '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/painel' | '/api/agendamentos'
+  fullPaths:
+    | '/'
+    | '/painel'
+    | '/os'
+    | '/api/agendamentos'
+    | '/api/os'
+    | '/painel/agendar'
+    | '/painel/clientes'
+    | '/painel/confirmado'
+    | '/painel/finalizado'
+    | '/painel/financeiro'
+    | '/painel/fornecedores'
+    | '/painel/funcionarios'
+    | '/painel/inicio-fornecedor'
+    | '/painel/logs'
+    | '/painel/material'
+    | '/painel/orcamentado'
+    | '/painel/ponto'
+    | '/painel/ponto-controle'
+    | '/painel/produtos'
+    | '/painel/produtos-galeria'
+    | '/painel/usuarios'
+    | '/painel/visitas'
+    | '/painel/'
+    | '/api/admin/clientes'
+    | '/api/admin/consulta-cnpj'
+    | '/api/admin/consulta-documento'
+    | '/api/admin/dashboard'
+    | '/api/admin/financeiro'
+    | '/api/admin/fornecedor-inicio'
+    | '/api/admin/fornecedor-portal'
+    | '/api/admin/fornecedores'
+    | '/api/admin/funcionarios-pagamento'
+    | '/api/admin/impersonar'
+    | '/api/admin/login'
+    | '/api/admin/logout'
+    | '/api/admin/logs'
+    | '/api/admin/materiais'
+    | '/api/admin/ponto'
+    | '/api/admin/ponto-controle'
+    | '/api/admin/produtos'
+    | '/api/admin/produtos-menu'
+    | '/api/admin/session'
+    | '/api/admin/usuarios'
+    | '/api/admin/visao'
+    | '/api/agendamentos/$id'
+    | '/api/admin/produtos/$id'
+    | '/api/admin/usuarios/$id'
+    | '/api/agendamentos/$id/cliente'
+    | '/api/agendamentos/$id/confirmar-montagem'
+    | '/api/agendamentos/$id/orcamento'
+    | '/api/admin/produtos/$id/fotos'
+    | '/api/admin/usuarios/$id/thumb'
+    | '/api/admin/produtos/$id/fotos/$fotoId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/painel' | '/api/agendamentos'
-  id: '__root__' | '/' | '/painel' | '/api/agendamentos'
+  to:
+    | '/'
+    | '/os'
+    | '/api/agendamentos'
+    | '/api/os'
+    | '/painel/agendar'
+    | '/painel/clientes'
+    | '/painel/confirmado'
+    | '/painel/finalizado'
+    | '/painel/financeiro'
+    | '/painel/fornecedores'
+    | '/painel/funcionarios'
+    | '/painel/inicio-fornecedor'
+    | '/painel/logs'
+    | '/painel/material'
+    | '/painel/orcamentado'
+    | '/painel/ponto'
+    | '/painel/ponto-controle'
+    | '/painel/produtos'
+    | '/painel/produtos-galeria'
+    | '/painel/usuarios'
+    | '/painel/visitas'
+    | '/painel'
+    | '/api/admin/clientes'
+    | '/api/admin/consulta-cnpj'
+    | '/api/admin/consulta-documento'
+    | '/api/admin/dashboard'
+    | '/api/admin/financeiro'
+    | '/api/admin/fornecedor-inicio'
+    | '/api/admin/fornecedor-portal'
+    | '/api/admin/fornecedores'
+    | '/api/admin/funcionarios-pagamento'
+    | '/api/admin/impersonar'
+    | '/api/admin/login'
+    | '/api/admin/logout'
+    | '/api/admin/logs'
+    | '/api/admin/materiais'
+    | '/api/admin/ponto'
+    | '/api/admin/ponto-controle'
+    | '/api/admin/produtos'
+    | '/api/admin/produtos-menu'
+    | '/api/admin/session'
+    | '/api/admin/usuarios'
+    | '/api/admin/visao'
+    | '/api/agendamentos/$id'
+    | '/api/admin/produtos/$id'
+    | '/api/admin/usuarios/$id'
+    | '/api/agendamentos/$id/cliente'
+    | '/api/agendamentos/$id/confirmar-montagem'
+    | '/api/agendamentos/$id/orcamento'
+    | '/api/admin/produtos/$id/fotos'
+    | '/api/admin/usuarios/$id/thumb'
+    | '/api/admin/produtos/$id/fotos/$fotoId'
+  id:
+    | '__root__'
+    | '/'
+    | '/painel'
+    | '/os'
+    | '/api/agendamentos'
+    | '/api/os'
+    | '/painel/agendar'
+    | '/painel/clientes'
+    | '/painel/confirmado'
+    | '/painel/finalizado'
+    | '/painel/financeiro'
+    | '/painel/fornecedores'
+    | '/painel/funcionarios'
+    | '/painel/inicio-fornecedor'
+    | '/painel/logs'
+    | '/painel/material'
+    | '/painel/orcamentado'
+    | '/painel/ponto'
+    | '/painel/ponto-controle'
+    | '/painel/produtos'
+    | '/painel/produtos-galeria'
+    | '/painel/usuarios'
+    | '/painel/visitas'
+    | '/painel/'
+    | '/api/admin/clientes'
+    | '/api/admin/consulta-cnpj'
+    | '/api/admin/consulta-documento'
+    | '/api/admin/dashboard'
+    | '/api/admin/financeiro'
+    | '/api/admin/fornecedor-inicio'
+    | '/api/admin/fornecedor-portal'
+    | '/api/admin/fornecedores'
+    | '/api/admin/funcionarios-pagamento'
+    | '/api/admin/impersonar'
+    | '/api/admin/login'
+    | '/api/admin/logout'
+    | '/api/admin/logs'
+    | '/api/admin/materiais'
+    | '/api/admin/ponto'
+    | '/api/admin/ponto-controle'
+    | '/api/admin/produtos'
+    | '/api/admin/produtos-menu'
+    | '/api/admin/session'
+    | '/api/admin/usuarios'
+    | '/api/admin/visao'
+    | '/api/agendamentos/$id'
+    | '/api/admin/produtos/$id'
+    | '/api/admin/usuarios/$id'
+    | '/api/agendamentos/$id/cliente'
+    | '/api/agendamentos/$id/confirmar-montagem'
+    | '/api/agendamentos/$id/orcamento'
+    | '/api/admin/produtos/$id/fotos'
+    | '/api/admin/usuarios/$id/thumb'
+    | '/api/admin/produtos/$id/fotos/$fotoId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PainelRoute: typeof PainelRoute
-  ApiAgendamentosRoute: typeof ApiAgendamentosRoute
+  PainelRouteRoute: typeof PainelRouteRouteWithChildren
+  OsRoute: typeof OsRoute
+  ApiAgendamentosRoute: typeof ApiAgendamentosRouteWithChildren
+  ApiOsRoute: typeof ApiOsRoute
+  ApiAdminClientesRoute: typeof ApiAdminClientesRoute
+  ApiAdminConsultaCnpjRoute: typeof ApiAdminConsultaCnpjRoute
+  ApiAdminConsultaDocumentoRoute: typeof ApiAdminConsultaDocumentoRoute
+  ApiAdminDashboardRoute: typeof ApiAdminDashboardRoute
+  ApiAdminFinanceiroRoute: typeof ApiAdminFinanceiroRoute
+  ApiAdminFornecedorInicioRoute: typeof ApiAdminFornecedorInicioRoute
+  ApiAdminFornecedorPortalRoute: typeof ApiAdminFornecedorPortalRoute
+  ApiAdminFornecedoresRoute: typeof ApiAdminFornecedoresRoute
+  ApiAdminFuncionariosPagamentoRoute: typeof ApiAdminFuncionariosPagamentoRoute
+  ApiAdminImpersonarRoute: typeof ApiAdminImpersonarRoute
+  ApiAdminLoginRoute: typeof ApiAdminLoginRoute
+  ApiAdminLogoutRoute: typeof ApiAdminLogoutRoute
+  ApiAdminLogsRoute: typeof ApiAdminLogsRoute
+  ApiAdminMateriaisRoute: typeof ApiAdminMateriaisRoute
+  ApiAdminPontoRoute: typeof ApiAdminPontoRoute
+  ApiAdminPontoControleRoute: typeof ApiAdminPontoControleRoute
+  ApiAdminProdutosRoute: typeof ApiAdminProdutosRouteWithChildren
+  ApiAdminProdutosMenuRoute: typeof ApiAdminProdutosMenuRoute
+  ApiAdminSessionRoute: typeof ApiAdminSessionRoute
+  ApiAdminUsuariosRoute: typeof ApiAdminUsuariosRouteWithChildren
+  ApiAdminVisaoRoute: typeof ApiAdminVisaoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/os': {
+      id: '/os'
+      path: '/os'
+      fullPath: '/os'
+      preLoaderRoute: typeof OsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/painel': {
       id: '/painel'
       path: '/painel'
       fullPath: '/painel'
-      preLoaderRoute: typeof PainelRouteImport
+      preLoaderRoute: typeof PainelRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -75,6 +721,139 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/': {
+      id: '/painel/'
+      path: '/'
+      fullPath: '/painel/'
+      preLoaderRoute: typeof PainelIndexRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/visitas': {
+      id: '/painel/visitas'
+      path: '/visitas'
+      fullPath: '/painel/visitas'
+      preLoaderRoute: typeof PainelVisitasRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/usuarios': {
+      id: '/painel/usuarios'
+      path: '/usuarios'
+      fullPath: '/painel/usuarios'
+      preLoaderRoute: typeof PainelUsuariosRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/produtos-galeria': {
+      id: '/painel/produtos-galeria'
+      path: '/produtos-galeria'
+      fullPath: '/painel/produtos-galeria'
+      preLoaderRoute: typeof PainelProdutosGaleriaRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/produtos': {
+      id: '/painel/produtos'
+      path: '/produtos'
+      fullPath: '/painel/produtos'
+      preLoaderRoute: typeof PainelProdutosRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/ponto-controle': {
+      id: '/painel/ponto-controle'
+      path: '/ponto-controle'
+      fullPath: '/painel/ponto-controle'
+      preLoaderRoute: typeof PainelPontoControleRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/ponto': {
+      id: '/painel/ponto'
+      path: '/ponto'
+      fullPath: '/painel/ponto'
+      preLoaderRoute: typeof PainelPontoRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/orcamentado': {
+      id: '/painel/orcamentado'
+      path: '/orcamentado'
+      fullPath: '/painel/orcamentado'
+      preLoaderRoute: typeof PainelOrcamentadoRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/material': {
+      id: '/painel/material'
+      path: '/material'
+      fullPath: '/painel/material'
+      preLoaderRoute: typeof PainelMaterialRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/logs': {
+      id: '/painel/logs'
+      path: '/logs'
+      fullPath: '/painel/logs'
+      preLoaderRoute: typeof PainelLogsRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/inicio-fornecedor': {
+      id: '/painel/inicio-fornecedor'
+      path: '/inicio-fornecedor'
+      fullPath: '/painel/inicio-fornecedor'
+      preLoaderRoute: typeof PainelInicioFornecedorRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/funcionarios': {
+      id: '/painel/funcionarios'
+      path: '/funcionarios'
+      fullPath: '/painel/funcionarios'
+      preLoaderRoute: typeof PainelFuncionariosRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/fornecedores': {
+      id: '/painel/fornecedores'
+      path: '/fornecedores'
+      fullPath: '/painel/fornecedores'
+      preLoaderRoute: typeof PainelFornecedoresRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/financeiro': {
+      id: '/painel/financeiro'
+      path: '/financeiro'
+      fullPath: '/painel/financeiro'
+      preLoaderRoute: typeof PainelFinanceiroRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/finalizado': {
+      id: '/painel/finalizado'
+      path: '/finalizado'
+      fullPath: '/painel/finalizado'
+      preLoaderRoute: typeof PainelFinalizadoRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/confirmado': {
+      id: '/painel/confirmado'
+      path: '/confirmado'
+      fullPath: '/painel/confirmado'
+      preLoaderRoute: typeof PainelConfirmadoRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/clientes': {
+      id: '/painel/clientes'
+      path: '/clientes'
+      fullPath: '/painel/clientes'
+      preLoaderRoute: typeof PainelClientesRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/agendar': {
+      id: '/painel/agendar'
+      path: '/agendar'
+      fullPath: '/painel/agendar'
+      preLoaderRoute: typeof PainelAgendarRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/api/os': {
+      id: '/api/os'
+      path: '/api/os'
+      fullPath: '/api/os'
+      preLoaderRoute: typeof ApiOsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agendamentos': {
       id: '/api/agendamentos'
       path: '/api/agendamentos'
@@ -82,14 +861,389 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgendamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agendamentos/$id': {
+      id: '/api/agendamentos/$id'
+      path: '/$id'
+      fullPath: '/api/agendamentos/$id'
+      preLoaderRoute: typeof ApiAgendamentosIdRouteImport
+      parentRoute: typeof ApiAgendamentosRoute
+    }
+    '/api/admin/visao': {
+      id: '/api/admin/visao'
+      path: '/api/admin/visao'
+      fullPath: '/api/admin/visao'
+      preLoaderRoute: typeof ApiAdminVisaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/usuarios': {
+      id: '/api/admin/usuarios'
+      path: '/api/admin/usuarios'
+      fullPath: '/api/admin/usuarios'
+      preLoaderRoute: typeof ApiAdminUsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/session': {
+      id: '/api/admin/session'
+      path: '/api/admin/session'
+      fullPath: '/api/admin/session'
+      preLoaderRoute: typeof ApiAdminSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/produtos-menu': {
+      id: '/api/admin/produtos-menu'
+      path: '/api/admin/produtos-menu'
+      fullPath: '/api/admin/produtos-menu'
+      preLoaderRoute: typeof ApiAdminProdutosMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/produtos': {
+      id: '/api/admin/produtos'
+      path: '/api/admin/produtos'
+      fullPath: '/api/admin/produtos'
+      preLoaderRoute: typeof ApiAdminProdutosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/ponto-controle': {
+      id: '/api/admin/ponto-controle'
+      path: '/api/admin/ponto-controle'
+      fullPath: '/api/admin/ponto-controle'
+      preLoaderRoute: typeof ApiAdminPontoControleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/ponto': {
+      id: '/api/admin/ponto'
+      path: '/api/admin/ponto'
+      fullPath: '/api/admin/ponto'
+      preLoaderRoute: typeof ApiAdminPontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/materiais': {
+      id: '/api/admin/materiais'
+      path: '/api/admin/materiais'
+      fullPath: '/api/admin/materiais'
+      preLoaderRoute: typeof ApiAdminMateriaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/logs': {
+      id: '/api/admin/logs'
+      path: '/api/admin/logs'
+      fullPath: '/api/admin/logs'
+      preLoaderRoute: typeof ApiAdminLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/logout': {
+      id: '/api/admin/logout'
+      path: '/api/admin/logout'
+      fullPath: '/api/admin/logout'
+      preLoaderRoute: typeof ApiAdminLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/login': {
+      id: '/api/admin/login'
+      path: '/api/admin/login'
+      fullPath: '/api/admin/login'
+      preLoaderRoute: typeof ApiAdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/impersonar': {
+      id: '/api/admin/impersonar'
+      path: '/api/admin/impersonar'
+      fullPath: '/api/admin/impersonar'
+      preLoaderRoute: typeof ApiAdminImpersonarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/funcionarios-pagamento': {
+      id: '/api/admin/funcionarios-pagamento'
+      path: '/api/admin/funcionarios-pagamento'
+      fullPath: '/api/admin/funcionarios-pagamento'
+      preLoaderRoute: typeof ApiAdminFuncionariosPagamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/fornecedores': {
+      id: '/api/admin/fornecedores'
+      path: '/api/admin/fornecedores'
+      fullPath: '/api/admin/fornecedores'
+      preLoaderRoute: typeof ApiAdminFornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/fornecedor-portal': {
+      id: '/api/admin/fornecedor-portal'
+      path: '/api/admin/fornecedor-portal'
+      fullPath: '/api/admin/fornecedor-portal'
+      preLoaderRoute: typeof ApiAdminFornecedorPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/fornecedor-inicio': {
+      id: '/api/admin/fornecedor-inicio'
+      path: '/api/admin/fornecedor-inicio'
+      fullPath: '/api/admin/fornecedor-inicio'
+      preLoaderRoute: typeof ApiAdminFornecedorInicioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/financeiro': {
+      id: '/api/admin/financeiro'
+      path: '/api/admin/financeiro'
+      fullPath: '/api/admin/financeiro'
+      preLoaderRoute: typeof ApiAdminFinanceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/dashboard': {
+      id: '/api/admin/dashboard'
+      path: '/api/admin/dashboard'
+      fullPath: '/api/admin/dashboard'
+      preLoaderRoute: typeof ApiAdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/consulta-documento': {
+      id: '/api/admin/consulta-documento'
+      path: '/api/admin/consulta-documento'
+      fullPath: '/api/admin/consulta-documento'
+      preLoaderRoute: typeof ApiAdminConsultaDocumentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/consulta-cnpj': {
+      id: '/api/admin/consulta-cnpj'
+      path: '/api/admin/consulta-cnpj'
+      fullPath: '/api/admin/consulta-cnpj'
+      preLoaderRoute: typeof ApiAdminConsultaCnpjRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/clientes': {
+      id: '/api/admin/clientes'
+      path: '/api/admin/clientes'
+      fullPath: '/api/admin/clientes'
+      preLoaderRoute: typeof ApiAdminClientesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agendamentos/$id/orcamento': {
+      id: '/api/agendamentos/$id/orcamento'
+      path: '/orcamento'
+      fullPath: '/api/agendamentos/$id/orcamento'
+      preLoaderRoute: typeof ApiAgendamentosIdOrcamentoRouteImport
+      parentRoute: typeof ApiAgendamentosIdRoute
+    }
+    '/api/agendamentos/$id/confirmar-montagem': {
+      id: '/api/agendamentos/$id/confirmar-montagem'
+      path: '/confirmar-montagem'
+      fullPath: '/api/agendamentos/$id/confirmar-montagem'
+      preLoaderRoute: typeof ApiAgendamentosIdConfirmarMontagemRouteImport
+      parentRoute: typeof ApiAgendamentosIdRoute
+    }
+    '/api/agendamentos/$id/cliente': {
+      id: '/api/agendamentos/$id/cliente'
+      path: '/cliente'
+      fullPath: '/api/agendamentos/$id/cliente'
+      preLoaderRoute: typeof ApiAgendamentosIdClienteRouteImport
+      parentRoute: typeof ApiAgendamentosIdRoute
+    }
+    '/api/admin/usuarios/$id': {
+      id: '/api/admin/usuarios/$id'
+      path: '/$id'
+      fullPath: '/api/admin/usuarios/$id'
+      preLoaderRoute: typeof ApiAdminUsuariosIdRouteImport
+      parentRoute: typeof ApiAdminUsuariosRoute
+    }
+    '/api/admin/produtos/$id': {
+      id: '/api/admin/produtos/$id'
+      path: '/$id'
+      fullPath: '/api/admin/produtos/$id'
+      preLoaderRoute: typeof ApiAdminProdutosIdRouteImport
+      parentRoute: typeof ApiAdminProdutosRoute
+    }
+    '/api/admin/usuarios/$id/thumb': {
+      id: '/api/admin/usuarios/$id/thumb'
+      path: '/thumb'
+      fullPath: '/api/admin/usuarios/$id/thumb'
+      preLoaderRoute: typeof ApiAdminUsuariosIdThumbRouteImport
+      parentRoute: typeof ApiAdminUsuariosIdRoute
+    }
+    '/api/admin/produtos/$id/fotos': {
+      id: '/api/admin/produtos/$id/fotos'
+      path: '/fotos'
+      fullPath: '/api/admin/produtos/$id/fotos'
+      preLoaderRoute: typeof ApiAdminProdutosIdFotosRouteImport
+      parentRoute: typeof ApiAdminProdutosIdRoute
+    }
+    '/api/admin/produtos/$id/fotos/$fotoId': {
+      id: '/api/admin/produtos/$id/fotos/$fotoId'
+      path: '/$fotoId'
+      fullPath: '/api/admin/produtos/$id/fotos/$fotoId'
+      preLoaderRoute: typeof ApiAdminProdutosIdFotosFotoIdRouteImport
+      parentRoute: typeof ApiAdminProdutosIdFotosRoute
+    }
   }
 }
 
+interface PainelRouteRouteChildren {
+  PainelAgendarRoute: typeof PainelAgendarRoute
+  PainelClientesRoute: typeof PainelClientesRoute
+  PainelConfirmadoRoute: typeof PainelConfirmadoRoute
+  PainelFinalizadoRoute: typeof PainelFinalizadoRoute
+  PainelFinanceiroRoute: typeof PainelFinanceiroRoute
+  PainelFornecedoresRoute: typeof PainelFornecedoresRoute
+  PainelFuncionariosRoute: typeof PainelFuncionariosRoute
+  PainelInicioFornecedorRoute: typeof PainelInicioFornecedorRoute
+  PainelLogsRoute: typeof PainelLogsRoute
+  PainelMaterialRoute: typeof PainelMaterialRoute
+  PainelOrcamentadoRoute: typeof PainelOrcamentadoRoute
+  PainelPontoRoute: typeof PainelPontoRoute
+  PainelPontoControleRoute: typeof PainelPontoControleRoute
+  PainelProdutosRoute: typeof PainelProdutosRoute
+  PainelProdutosGaleriaRoute: typeof PainelProdutosGaleriaRoute
+  PainelUsuariosRoute: typeof PainelUsuariosRoute
+  PainelVisitasRoute: typeof PainelVisitasRoute
+  PainelIndexRoute: typeof PainelIndexRoute
+}
+
+const PainelRouteRouteChildren: PainelRouteRouteChildren = {
+  PainelAgendarRoute: PainelAgendarRoute,
+  PainelClientesRoute: PainelClientesRoute,
+  PainelConfirmadoRoute: PainelConfirmadoRoute,
+  PainelFinalizadoRoute: PainelFinalizadoRoute,
+  PainelFinanceiroRoute: PainelFinanceiroRoute,
+  PainelFornecedoresRoute: PainelFornecedoresRoute,
+  PainelFuncionariosRoute: PainelFuncionariosRoute,
+  PainelInicioFornecedorRoute: PainelInicioFornecedorRoute,
+  PainelLogsRoute: PainelLogsRoute,
+  PainelMaterialRoute: PainelMaterialRoute,
+  PainelOrcamentadoRoute: PainelOrcamentadoRoute,
+  PainelPontoRoute: PainelPontoRoute,
+  PainelPontoControleRoute: PainelPontoControleRoute,
+  PainelProdutosRoute: PainelProdutosRoute,
+  PainelProdutosGaleriaRoute: PainelProdutosGaleriaRoute,
+  PainelUsuariosRoute: PainelUsuariosRoute,
+  PainelVisitasRoute: PainelVisitasRoute,
+  PainelIndexRoute: PainelIndexRoute,
+}
+
+const PainelRouteRouteWithChildren = PainelRouteRoute._addFileChildren(
+  PainelRouteRouteChildren,
+)
+
+interface ApiAgendamentosIdRouteChildren {
+  ApiAgendamentosIdClienteRoute: typeof ApiAgendamentosIdClienteRoute
+  ApiAgendamentosIdConfirmarMontagemRoute: typeof ApiAgendamentosIdConfirmarMontagemRoute
+  ApiAgendamentosIdOrcamentoRoute: typeof ApiAgendamentosIdOrcamentoRoute
+}
+
+const ApiAgendamentosIdRouteChildren: ApiAgendamentosIdRouteChildren = {
+  ApiAgendamentosIdClienteRoute: ApiAgendamentosIdClienteRoute,
+  ApiAgendamentosIdConfirmarMontagemRoute:
+    ApiAgendamentosIdConfirmarMontagemRoute,
+  ApiAgendamentosIdOrcamentoRoute: ApiAgendamentosIdOrcamentoRoute,
+}
+
+const ApiAgendamentosIdRouteWithChildren =
+  ApiAgendamentosIdRoute._addFileChildren(ApiAgendamentosIdRouteChildren)
+
+interface ApiAgendamentosRouteChildren {
+  ApiAgendamentosIdRoute: typeof ApiAgendamentosIdRouteWithChildren
+}
+
+const ApiAgendamentosRouteChildren: ApiAgendamentosRouteChildren = {
+  ApiAgendamentosIdRoute: ApiAgendamentosIdRouteWithChildren,
+}
+
+const ApiAgendamentosRouteWithChildren = ApiAgendamentosRoute._addFileChildren(
+  ApiAgendamentosRouteChildren,
+)
+
+interface ApiAdminProdutosIdFotosRouteChildren {
+  ApiAdminProdutosIdFotosFotoIdRoute: typeof ApiAdminProdutosIdFotosFotoIdRoute
+}
+
+const ApiAdminProdutosIdFotosRouteChildren: ApiAdminProdutosIdFotosRouteChildren =
+  {
+    ApiAdminProdutosIdFotosFotoIdRoute: ApiAdminProdutosIdFotosFotoIdRoute,
+  }
+
+const ApiAdminProdutosIdFotosRouteWithChildren =
+  ApiAdminProdutosIdFotosRoute._addFileChildren(
+    ApiAdminProdutosIdFotosRouteChildren,
+  )
+
+interface ApiAdminProdutosIdRouteChildren {
+  ApiAdminProdutosIdFotosRoute: typeof ApiAdminProdutosIdFotosRouteWithChildren
+}
+
+const ApiAdminProdutosIdRouteChildren: ApiAdminProdutosIdRouteChildren = {
+  ApiAdminProdutosIdFotosRoute: ApiAdminProdutosIdFotosRouteWithChildren,
+}
+
+const ApiAdminProdutosIdRouteWithChildren =
+  ApiAdminProdutosIdRoute._addFileChildren(ApiAdminProdutosIdRouteChildren)
+
+interface ApiAdminProdutosRouteChildren {
+  ApiAdminProdutosIdRoute: typeof ApiAdminProdutosIdRouteWithChildren
+}
+
+const ApiAdminProdutosRouteChildren: ApiAdminProdutosRouteChildren = {
+  ApiAdminProdutosIdRoute: ApiAdminProdutosIdRouteWithChildren,
+}
+
+const ApiAdminProdutosRouteWithChildren =
+  ApiAdminProdutosRoute._addFileChildren(ApiAdminProdutosRouteChildren)
+
+interface ApiAdminUsuariosIdRouteChildren {
+  ApiAdminUsuariosIdThumbRoute: typeof ApiAdminUsuariosIdThumbRoute
+}
+
+const ApiAdminUsuariosIdRouteChildren: ApiAdminUsuariosIdRouteChildren = {
+  ApiAdminUsuariosIdThumbRoute: ApiAdminUsuariosIdThumbRoute,
+}
+
+const ApiAdminUsuariosIdRouteWithChildren =
+  ApiAdminUsuariosIdRoute._addFileChildren(ApiAdminUsuariosIdRouteChildren)
+
+interface ApiAdminUsuariosRouteChildren {
+  ApiAdminUsuariosIdRoute: typeof ApiAdminUsuariosIdRouteWithChildren
+}
+
+const ApiAdminUsuariosRouteChildren: ApiAdminUsuariosRouteChildren = {
+  ApiAdminUsuariosIdRoute: ApiAdminUsuariosIdRouteWithChildren,
+}
+
+const ApiAdminUsuariosRouteWithChildren =
+  ApiAdminUsuariosRoute._addFileChildren(ApiAdminUsuariosRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PainelRoute: PainelRoute,
-  ApiAgendamentosRoute: ApiAgendamentosRoute,
+  PainelRouteRoute: PainelRouteRouteWithChildren,
+  OsRoute: OsRoute,
+  ApiAgendamentosRoute: ApiAgendamentosRouteWithChildren,
+  ApiOsRoute: ApiOsRoute,
+  ApiAdminClientesRoute: ApiAdminClientesRoute,
+  ApiAdminConsultaCnpjRoute: ApiAdminConsultaCnpjRoute,
+  ApiAdminConsultaDocumentoRoute: ApiAdminConsultaDocumentoRoute,
+  ApiAdminDashboardRoute: ApiAdminDashboardRoute,
+  ApiAdminFinanceiroRoute: ApiAdminFinanceiroRoute,
+  ApiAdminFornecedorInicioRoute: ApiAdminFornecedorInicioRoute,
+  ApiAdminFornecedorPortalRoute: ApiAdminFornecedorPortalRoute,
+  ApiAdminFornecedoresRoute: ApiAdminFornecedoresRoute,
+  ApiAdminFuncionariosPagamentoRoute: ApiAdminFuncionariosPagamentoRoute,
+  ApiAdminImpersonarRoute: ApiAdminImpersonarRoute,
+  ApiAdminLoginRoute: ApiAdminLoginRoute,
+  ApiAdminLogoutRoute: ApiAdminLogoutRoute,
+  ApiAdminLogsRoute: ApiAdminLogsRoute,
+  ApiAdminMateriaisRoute: ApiAdminMateriaisRoute,
+  ApiAdminPontoRoute: ApiAdminPontoRoute,
+  ApiAdminPontoControleRoute: ApiAdminPontoControleRoute,
+  ApiAdminProdutosRoute: ApiAdminProdutosRouteWithChildren,
+  ApiAdminProdutosMenuRoute: ApiAdminProdutosMenuRoute,
+  ApiAdminSessionRoute: ApiAdminSessionRoute,
+  ApiAdminUsuariosRoute: ApiAdminUsuariosRouteWithChildren,
+  ApiAdminVisaoRoute: ApiAdminVisaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

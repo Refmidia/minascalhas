@@ -10,8 +10,7 @@ export type AgendamentoResponse = {
  * Envia um agendamento para a API REST.
  *
  * Em produção esta rota é servida pelo backend próprio (MySQL via Prisma).
- * Veja `src/routes/api/agendamentos.ts` para o handler de exemplo e
- * `prisma/schema.prisma` para a estrutura da tabela.
+ * Persiste na tabela `inventario` (MySQL Hostinger). Ver `prisma/schema.prisma`.
  */
 export async function enviarAgendamento(
   payload: AgendamentoPayload,

@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+
 import { Header } from "@/components/site/Header";
+import { getProdutosSiteHome } from "@/lib/produtos-site.functions";
 import { Hero } from "@/components/site/Hero";
 import { BenefitsBar } from "@/components/site/BenefitsBar";
 import { ServicesSection } from "@/components/site/ServicesSection";
@@ -10,7 +13,17 @@ import { ContactSection } from "@/components/site/ContactSection";
 import { Footer } from "@/components/site/Footer";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 
+type IndexSearch = {
+  painel?: "login";
+};
+
 export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>): IndexSearch => ({
+    painel: search.painel === "login" ? "login" : undefined,
+  }),
+  loader: async () => ({
+    servicos: await getProdutosSiteHome(),
+  }),
   head: () => ({
     meta: [
       { title: "Alex Calhas — Calhas, rufos e pingadeiras com instalação profissional" },
@@ -28,13 +41,21 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { servicos } = Route.useLoaderData();
+  const { painel } = Route.useSearch();
+  const [loginOpen, setLoginOpen] = useState(painel === "login");
+
+  useEffect(() => {
+    if (painel === "login") setLoginOpen(true);
+  }, [painel]);
+
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header painelLoginOpen={loginOpen} onPainelLoginOpenChange={setLoginOpen} />
       <main>
         <Hero />
         <BenefitsBar />
-        <ServicesSection />
+        <ServicesSection items={servicos} />
         <GallerySection />
         <DifferentialsSection />
         <AppointmentForm />

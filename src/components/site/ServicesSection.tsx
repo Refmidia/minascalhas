@@ -1,7 +1,12 @@
 import { ArrowUpRight } from "lucide-react";
-import { SERVICES } from "@/data/site";
 
-export function ServicesSection() {
+import type { ProdutoSiteHome } from "@/types/site";
+
+type ServicesSectionProps = {
+  items: ProdutoSiteHome[];
+};
+
+export function ServicesSection({ items }: ServicesSectionProps) {
   return (
     <section id="servicos" className="bg-brand-green-mist py-24 lg:py-32 mt-24" aria-labelledby="servicos-title">
       <div className="mx-auto max-w-7xl px-6">
@@ -15,7 +20,7 @@ export function ServicesSection() {
         </div>
 
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SERVICES.map((s) => (
+          {items.map((s) => (
             <article key={s.slug} className="group bg-white rounded-[22px] overflow-hidden shadow-sm hover:shadow-xl border border-brand-border/60 transition">
               <div className="aspect-[4/3] overflow-hidden">
                 <img

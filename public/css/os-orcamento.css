@@ -1,0 +1,195 @@
+/* Layout do orçamento para cliente — espelha Alex app/views/os.php */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+.os-orc-body {
+  margin: 0;
+  padding: 20px;
+  background: #dcdcdc;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+}
+
+.os-orc-body--embed {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #fff !important;
+}
+
+.os-orc-page {
+  width: 794px;
+  min-height: 1123px;
+  background: #fff;
+  margin: auto;
+  border: 2px solid #000;
+  padding: 18px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.os-orc-body--embed .os-orc-page {
+  margin: 0 !important;
+  border: none !important;
+}
+
+.os-orc-header {
+  text-align: center;
+  border-bottom: 10px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.os-orc-header img {
+  width: 230px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 5px;
+}
+
+.os-orc-company-info {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: bold;
+}
+
+.os-orc-company-small {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.os-orc-title {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  margin: 10px 0;
+  letter-spacing: 2px;
+}
+
+.os-orc-section-title {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 4px;
+}
+
+.os-orc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.os-orc-info-table td,
+.os-orc-info-table th,
+.os-orc-products-table td,
+.os-orc-products-table th,
+.os-orc-payment-table td,
+.os-orc-payment-table th {
+  border: 1px solid #000;
+  padding: 4px;
+  font-size: 12px;
+}
+
+.os-orc-info-table td {
+  height: 24px;
+}
+
+.os-orc-label {
+  font-weight: bold;
+  width: 170px;
+}
+
+.os-orc-products-table th {
+  background: #efefef;
+  text-align: left;
+}
+
+.os-orc-products-table td {
+  height: 24px;
+}
+
+.os-orc-products-table .center {
+  text-align: center;
+}
+
+.os-orc-products-table .right {
+  text-align: right;
+}
+
+.os-orc-bottom {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.os-orc-payment-box {
+  width: 45%;
+}
+
+.os-orc-totals {
+  width: 50%;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.os-orc-totals table td {
+  border: none;
+  padding: 5px 0;
+  font-size: 16px;
+}
+
+.os-orc-totals .value {
+  text-align: right;
+  width: 180px;
+}
+
+.os-orc-total-final {
+  margin-top: 20px;
+  font-size: 26px;
+}
+
+.os-orc-obs-box {
+  border: 1px solid #000;
+  min-height: 80px;
+  padding: 10px;
+  font-size: 12px;
+  white-space: pre-line;
+}
+
+.os-orc-print-actions {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.os-orc-print-btn {
+  border: none;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.os-orc-print-btn:hover {
+  background: #15803d;
+}
+
+@media print {
+  .os-orc-body {
+    background: #fff;
+    padding: 0;
+  }
+
+  .os-orc-page {
+    border: none;
+  }
+
+  .os-orc-print-actions {
+    display: none !important;
+  }
+}

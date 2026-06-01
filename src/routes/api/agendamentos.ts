@@ -1,51 +1,79 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+
+import {
+  buildInventarioCreateData,
+  dbErrorMessage,
+  inventarioWhereStatus,
+  serializeInventario,
+} from "@/lib/agendamento.server";
+import { getAdminSessionFromRequest, isAdminRequest } from "@/lib/auth.server";
+import { getPrisma } from "@/lib/db.server";
+import { jsonResponse, PUBLIC_CORS } from "@/lib/http.server";
 import { agendamentoSchema } from "@/lib/validation";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-} as const;
+const corsJson = (data: unknown, status = 200) =>
+  jsonResponse(data, status, PUBLIC_CORS);
 
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json", ...CORS },
-  });
+const listQuerySchema = z.object({
+  status: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(500).optional(),
+});
 
-/**
- * POST /api/agendamentos
- *
- * Recebe um agendamento e persiste no MySQL.
- *
- * Esta rota está preparada para integração com Prisma + MySQL.
- * Para ativar a persistência:
- *
- * 1. Configure `DATABASE_URL` no `.env` (ver `.env.example`).
- * 2. Rode `npx prisma generate` (e `npx prisma db push` no Cursor,
- *    apenas se a tabela ainda não existir — nunca rode migrations
- *    destrutivas sobre uma base existente sem confirmação).
- * 3. Descomente o bloco Prisma abaixo.
- *
- * Mantemos um stub seguro para que o build atual rode em ambientes
- * sem MySQL disponível (ex.: preview/edge).
- */
 export const Route = createFileRoute("/api/agendamentos")({
   server: {
     handlers: {
-      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
+      OPTIONS: async () => new Response(null, { status: 204, headers: PUBLIC_CORS }),
+
+      GET: async ({ request }) => {
+        if (!isAdminRequest(request)) {
+          return jsonResponse({ ok: false, message: "Não autorizado." }, 401);
+        }
+
+        const url = new URL(request.url);
+        const parsedQuery = listQuerySchema.safeParse({
+          status: url.searchParams.get("status") ?? undefined,
+          limit: url.searchParams.get("limit") ?? 200,
+        });
+        if (!parsedQuery.success) {
+          return jsonResponse({ ok: false, message: "Parâmetros inválidos." }, 400);
+        }
+
+        const { status, limit = 200 } = parsedQuery.data;
+
+        try {
+          const prisma = await getPrisma();
+          const session = getAdminSessionFromRequest(request);
+          const statusWhere = inventarioWhereStatus(status);
+          const funcWhere =
+            session?.visao === "funcionário" ? { funcionario: session.userId } : {};
+          const where = { ...statusWhere, ...funcWhere };
+          const rows = await prisma.inventario.findMany({
+            where: Object.keys(where).length ? where : undefined,
+            orderBy: { id: "desc" },
+            take: limit,
+          });
+          return jsonResponse({
+            ok: true,
+            items: rows.map(serializeInventario),
+          });
+        } catch (err) {
+          console.error("[GET /api/agendamentos]", err);
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
 
       POST: async ({ request }) => {
         let body: unknown;
         try {
           body = await request.json();
         } catch {
-          return json({ ok: false, message: "JSON inválido." }, 400);
+          return corsJson({ ok: false, message: "JSON inválido." }, 400);
         }
 
         const parsed = agendamentoSchema.safeParse(body);
         if (!parsed.success) {
-          return json(
+          return corsJson(
             {
               ok: false,
               message: "Dados inválidos.",
@@ -55,36 +83,34 @@ export const Route = createFileRoute("/api/agendamentos")({
           );
         }
 
-        const data = parsed.data;
+        try {
+          const prisma = await getPrisma();
+          const data = parsed.data;
+          const dup = await prisma.inventario.findFirst({
+            where: {
+              status: "agendado",
+              numero: data.numero.slice(0, 50),
+              bairro: data.bairro.slice(0, 50),
+            },
+          });
+          if (dup) {
+            return corsJson(
+              { ok: false, message: "Já existe uma visita agendada para esse endereço." },
+              409,
+            );
+          }
 
-        // --- Integração MySQL (Prisma) ---------------------------------
-        // import { getPrisma } from "@/lib/db.server";
-        // const prisma = await getPrisma();
-        // const agendamento = await prisma.agendamento.create({
-        //   data: {
-        //     nome: data.nome,
-        //     cpfCnpj: data.cpfCnpj || null,
-        //     telefone: data.telefone,
-        //     endereco: data.endereco,
-        //     bairro: data.bairro,
-        //     cep: data.cep || null,
-        //     numero: data.numero,
-        //     data: new Date(`${data.data}T${data.hora}:00`),
-        //     hora: data.hora,
-        //     observacao: data.observacao || null,
-        //     origem: data.origem,
-        //   },
-        // });
-        // return json({ ok: true, id: agendamento.id });
-        // ---------------------------------------------------------------
-
-        console.log("[/api/agendamentos] novo agendamento:", data);
-
-        return json({
-          ok: true,
-          id: `mock-${Date.now()}`,
-          message: "Agendamento recebido.",
-        });
+          const session = getAdminSessionFromRequest(request);
+          const funcionarioId =
+            session?.visao === "funcionário" ? session.userId : null;
+          const row = await prisma.inventario.create({
+            data: buildInventarioCreateData(data, funcionarioId),
+          });
+          return corsJson({ ok: true, id: row.id, message: "Agendamento recebido." });
+        } catch (err) {
+          console.error("[POST /api/agendamentos]", err);
+          return corsJson({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
       },
     },
   },
