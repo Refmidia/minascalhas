@@ -79,3 +79,15 @@ export function waUrl(number: string, msg?: string): string {
   if (!msg?.trim()) return base;
   return `${base}?text=${encodeURIComponent(msg)}`;
 }
+
+/** Título, favicon e compartilhamento (aba do navegador / WhatsApp). */
+export const SITE_META = {
+  name: "Alex Calhas",
+  description:
+    "Calhas, rufos, pingadeiras e condutores com fabricação sob medida e instalação profissional em Tarumã e região.",
+  logoPreto: "/images/logo/logo-preto.png",
+  ogImagePath: "/images/logo/logo-preto.png",
+  get ogImageUrl() {
+    return `${HOME_SITE.mediaBaseUrl}${this.ogImagePath}`;
+  },
+};

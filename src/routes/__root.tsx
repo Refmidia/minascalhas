@@ -7,10 +7,10 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { SITE_META } from "@/data/home-config";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +37,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -77,28 +74,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "A modern, responsive landing page for Alex Calhas, showcasing services and facilitating appointment scheduling." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "A modern, responsive landing page for Alex Calhas, showcasing services and facilitating appointment scheduling." },
+      { title: SITE_META.name },
+      { name: "description", content: SITE_META.description },
+      { name: "author", content: SITE_META.name },
+      { property: "og:title", content: SITE_META.name },
+      { property: "og:description", content: SITE_META.description },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "A modern, responsive landing page for Alex Calhas, showcasing services and facilitating appointment scheduling." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8f0f2f5e-4578-4537-9358-7aaec3fe7867/id-preview-5046556e--7b17c579-d820-4671-8912-2f6220397951.lovable.app-1780329615170.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8f0f2f5e-4578-4537-9358-7aaec3fe7867/id-preview-5046556e--7b17c579-d820-4671-8912-2f6220397951.lovable.app-1780329615170.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: SITE_META.name },
+      { name: "twitter:description", content: SITE_META.description },
+      { property: "og:image", content: SITE_META.ogImageUrl },
+      { name: "twitter:image", content: SITE_META.ogImageUrl },
     ],
     links: [
       {
         rel: "icon",
         type: "image/png",
-        href: "/favicon.png",
+        href: SITE_META.logoPreto,
       },
       {
         rel: "apple-touch-icon",
-        href: "/favicon.png",
+        href: SITE_META.logoPreto,
       },
       {
         rel: "stylesheet",
@@ -114,7 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
