@@ -123,6 +123,86 @@ body.dashboard-app--react .dashboard-wrap > .dashboard-main-col {
   flex-direction: column;
 }
 
+/* Responsivo: tabelas no desktop, cards no mobile */
+body.dashboard-app--react .dashboard-data-mobile {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  body.dashboard-app--react .dashboard-data-desktop {
+    display: none !important;
+  }
+  body.dashboard-app--react .dashboard-data-mobile {
+    display: block !important;
+  }
+}
+
+body.dashboard-app--react .inv-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+body.dashboard-app--react .inv-card {
+  border: 1px solid var(--dash-card-border, #e8ecf4);
+  background: var(--dash-card-bg, #fff);
+  border-radius: 14px;
+  padding: 0.85rem 0.9rem;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+body.dashboard-app--react .inv-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  margin-bottom: 0.65rem;
+}
+
+body.dashboard-app--react .inv-card__title {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+body.dashboard-app--react .inv-card__name {
+  font-size: 0.95rem;
+  line-height: 1.2;
+  color: var(--text-secundary);
+  word-break: break-word;
+}
+
+body.dashboard-app--react .inv-card__actions {
+  flex-shrink: 0;
+}
+
+body.dashboard-app--react .inv-card__body {
+  display: grid;
+  gap: 0.55rem;
+}
+
+body.dashboard-app--react .inv-mobile-kv {
+  display: grid;
+  grid-template-columns: 7.25rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.5rem;
+}
+
+body.dashboard-app--react .inv-mobile-kv__label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-secundary);
+  opacity: 0.75;
+}
+
+body.dashboard-app--react .inv-mobile-kv__value {
+  min-width: 0;
+}
+
 /* Mesmo offset do PHP: conteúdo abaixo da topbar fixa */
 body.dashboard-app--react .dashboard-content {
   flex: 1;
@@ -148,6 +228,12 @@ body.dashboard-app--react .dashboard-content-inner {
   min-height: auto !important;
   height: auto;
   box-sizing: border-box;
+}
+
+@media (max-width: 899px) {
+  body.dashboard-app--react .dashboard-content-inner {
+    padding: 0.85rem 0.9rem 2rem !important;
+  }
 }
 
 /* Dashboard — cards e seções alinhados (4 colunas iguais) */
@@ -177,6 +263,18 @@ body.dashboard-app--react .analytics-section .analytics-metrics {
   gap: 0.75rem !important;
   width: 100%;
   min-width: 0;
+}
+
+@media (max-width: 899px) {
+  body.dashboard-app--react .analytics-section .analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  body.dashboard-app--react .analytics-section .analytics-metrics {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 body.dashboard-app--react .analytics-section .metric-card {

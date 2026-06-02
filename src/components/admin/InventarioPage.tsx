@@ -48,6 +48,15 @@ function MateriaisDetalhes({ item }: { item: AgendamentoItem }) {
   );
 }
 
+function MobileKeyValue({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="inv-mobile-kv">
+      <span className="inv-mobile-kv__label">{label}</span>
+      <span className="inv-mobile-kv__value">{value}</span>
+    </div>
+  );
+}
+
 export function InventarioPage({ variant }: { variant: InventarioVariant }) {
   const meta = INVENTARIO_LISTING_META[
     variant === "visitas" ? "agendado" : variant
@@ -458,6 +467,49 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                   </table>
                 </div>
               </div>
+
+              <div className="dashboard-data-mobile inv-cards" aria-label={`${meta.title} (modo celular)`}>
+                {pageItems.map((item) => (
+                  <article key={item.id} className="inv-card">
+                    <header className="inv-card__head">
+                      <div className="inv-card__title">
+                        <span className="inv-id-badge">#{item.id}</span>
+                        <strong className="inv-card__name">{item.nome}</strong>
+                      </div>
+                      <div className="inv-card__actions">{renderActions(item)}</div>
+                    </header>
+
+                    <div className="inv-card__body">
+                      <MobileKeyValue label="Telefone" value={<TelefoneCell telefone={item.telefone} />} />
+                      <MobileKeyValue label="Endereço" value={<EnderecoCell item={item} />} />
+                      {showVisita ? (
+                        <MobileKeyValue
+                          label="Visita"
+                          value={<VisitaDatetime data={item.dataVisita} hora={item.horaVisita} />}
+                        />
+                      ) : null}
+                      {showMontagem ? (
+                        <MobileKeyValue label="Montagem" value={item.dataMontagem || "—"} />
+                      ) : null}
+                      {showValor ? (
+                        <MobileKeyValue
+                          label="Valor"
+                          value={
+                            <span className="inv-valor-tag">
+                              {Number(item.valor).toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              })}
+                            </span>
+                          }
+                        />
+                      ) : null}
+                      {showDetalhes ? <MobileKeyValue label="Detalhes" value={<MateriaisDetalhes item={item} />} /> : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
               <InvPagination
                 page={pageSafe}
                 totalPages={totalPages}
