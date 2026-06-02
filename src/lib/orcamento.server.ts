@@ -68,12 +68,21 @@ export type OrcamentoDescontoCalc = {
   total: number;
 };
 
+/**
+ * Base do cálculo de desconto.
+ * % e R$ usam sempre o subtotal dos materiais; só o modo "total" usa valor digitado manualmente.
+ */
 export function baseOrcamento(
   subtotal: number,
   valorBaseManual: number,
   valorMostrarRaw: string,
+  descontoSource: OrcamentoModoDesconto,
 ): number {
-  if (valorBaseManual > 0) return valorBaseManual;
+  if (descontoSource === "total") {
+    if (valorBaseManual > 0) return valorBaseManual;
+    if (subtotal > 0) return subtotal;
+    return parseMoneyBr(valorMostrarRaw);
+  }
   if (subtotal > 0) return subtotal;
   return parseMoneyBr(valorMostrarRaw);
 }
@@ -87,7 +96,7 @@ export function calcDescontoOrcamento(
   descontoValorRaw: string,
   valorMostrarRaw: string,
 ): OrcamentoDescontoCalc {
-  const base = baseOrcamento(subtotal, valorBaseManual, valorMostrarRaw);
+  const base = baseOrcamento(subtotal, valorBaseManual, valorMostrarRaw, descontoSource);
   let descontoValor = parseMoneyBr(descontoValorRaw);
   let descontoPct = parseMoneyBr(descontoPctRaw);
   let total = Math.max(0, base - descontoValor);
@@ -144,6 +153,57 @@ export function normalizarFormaPagamento(raw: string): string {
   if (v === "débito") v = "debito";
   if (v === "crédito") v = "credito";
   return ["pix", "debito", "credito"].includes(v) ? v : "";
+}
+
+/**
+ * Garante total gravado/exibido coerente com a soma dos materiais.
+ * Corrige valor inflado (ex.: 36.425 quando o subtotal é 383,42).
+ */
+export function garantirTotalOrcamentoConsistente(
+  subtotal: number,
+  modo: OrcamentoModoDesconto,
+  descontoPercentRaw: unknown,
+  descontoValorRaw: unknown,
+  valorTotalCandidato: unknown,
+): { percent: number; valor: number; total: number } {
+  const sub = Math.round(Math.max(0, subtotal) * 100) / 100;
+  if (sub <= 0) {
+    const manual = parseMoneyBr(valorTotalCandidato);
+    return { percent: 0, valor: 0, total: manual > 0 ? manual : 0 };
+  }
+
+  let resolved = resolverDescontoOrcamento(
+    sub,
+    descontoPercentRaw,
+    descontoValorRaw,
+    modo,
+    valorTotalCandidato,
+  );
+
+  if (resolved.total > sub + 0.009) {
+    resolved = resolverDescontoOrcamento(sub, descontoPercentRaw, descontoValorRaw, "percent");
+    if (resolved.total > sub + 0.009) {
+      resolved = { percent: 0, valor: 0, total: sub };
+    }
+  }
+
+  return resolved;
+}
+
+/** Valor para lista/WhatsApp quando o campo gravado diverge da soma dos itens. */
+export function valorOrcamentoParaExibicao(
+  valorGravado: number,
+  descontoPercent: number,
+  itens: OrcamentoLinha[],
+): number {
+  const subtotal = inventarioSubtotalOrcamento(itens);
+  if (subtotal <= 0) return Math.max(0, valorGravado);
+  const valor = Math.max(0, valorGravado);
+  if (valor > 0 && valor <= subtotal + 0.009) return valor;
+  if (descontoPercent > 0) {
+    return resolverDescontoOrcamento(subtotal, descontoPercent, 0, "percent").total;
+  }
+  return subtotal;
 }
 
 export function resolverDescontoOrcamento(

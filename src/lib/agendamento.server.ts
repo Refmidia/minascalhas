@@ -1,5 +1,5 @@
 import type { AgendamentoInput, AgendamentoSiteInput } from "@/lib/validation";
-import { parseOrcamentoJson } from "@/lib/orcamento.server";
+import { parseOrcamentoJson, valorOrcamentoParaExibicao } from "@/lib/orcamento.server";
 
 export { INVENTARIO_STATUS, type InventarioStatus } from "@/lib/agendamento-constants";
 
@@ -25,6 +25,14 @@ export function dataInputParaDb(isoDate: string): string {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeInventario(row: any) {
+  const orcamentoItens = parseOrcamentoJson(row.orcamento);
+  const valorGravado = row.valor != null ? Number(row.valor) : 0;
+  const descontoPercent = row.descontoPercent != null ? Number(row.descontoPercent) : 0;
+  const valor =
+    orcamentoItens.length > 0
+      ? valorOrcamentoParaExibicao(valorGravado, descontoPercent, orcamentoItens)
+      : valorGravado;
+
   return {
     id: Number(row.id),
     status: row.status,
@@ -39,12 +47,12 @@ export function serializeInventario(row: any) {
     horaVisita: row.horaVisita,
     observacao: row.observacao ?? null,
     funcionario: row.funcionario ?? null,
-    valor: row.valor != null ? Number(row.valor) : 0,
-    descontoPercent: row.descontoPercent != null ? Number(row.descontoPercent) : 0,
+    valor,
+    descontoPercent,
     formaPagamento: row.formaPagamento ?? null,
     dataMontagem: row.dataMontagem ?? null,
-    orcamentoItens: parseOrcamentoJson(row.orcamento),
-    materiaisCount: parseOrcamentoJson(row.orcamento).length,
+    orcamentoItens,
+    materiaisCount: orcamentoItens.length,
   };
 }
 

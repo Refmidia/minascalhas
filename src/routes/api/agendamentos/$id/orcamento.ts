@@ -12,11 +12,11 @@ import {
   sessionEhAdmin,
 } from "@/lib/inventario-permissions.server";
 import {
+  garantirTotalOrcamentoConsistente,
   inventarioSubtotalOrcamento,
   normalizarFormaPagamento,
   normalizarModoDesconto,
   parseOrcamentoJson,
-  resolverDescontoOrcamento,
   type OrcamentoLinha,
 } from "@/lib/orcamento.server";
 
@@ -142,11 +142,11 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
           const linhas = normalizeLinhas(parsed.data.partData);
           const subtotal = inventarioSubtotalOrcamento(linhas);
           const modo = normalizarModoDesconto(parsed.data.descontoModo ?? "percent");
-          const resolved = resolverDescontoOrcamento(
+          const resolved = garantirTotalOrcamentoConsistente(
             subtotal,
+            modo,
             parsed.data.descontoPercent,
             parsed.data.descontoValor,
-            modo,
             parsed.data.valor,
           );
 
@@ -220,11 +220,11 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
           const linhas = normalizeLinhas(parsed.data.partData);
           const subtotal = inventarioSubtotalOrcamento(linhas);
           const modo = normalizarModoDesconto(parsed.data.descontoModo ?? "percent");
-          const resolved = resolverDescontoOrcamento(
+          const resolved = garantirTotalOrcamentoConsistente(
             subtotal,
+            modo,
             parsed.data.descontoPercent,
             parsed.data.descontoValor,
-            modo,
             parsed.data.valor,
           );
 

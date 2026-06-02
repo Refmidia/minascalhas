@@ -6,6 +6,7 @@ import {
   calcDescontoOrcamento,
   formatDescontoPctOrc,
   formatDescontoValorOrc,
+  garantirTotalOrcamentoConsistente,
   inventarioSubtotalOrcamento,
   parseMoneyBr,
   sanitizarNumeroBr,
@@ -47,7 +48,12 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   }, [subtotal, descontoPct, descontoValor, valorMostrar]);
 
   const sincronizarDescontoPar = useCallback(() => {
-    const base = baseOrcamento(subtotal, valorBaseManualRef.current, valorMostrar);
+    const base = baseOrcamento(
+      subtotal,
+      valorBaseManualRef.current,
+      valorMostrar,
+      descontoSourceRef.current,
+    );
     if (base <= 0 && descontoSourceRef.current !== "total") return;
 
     const desc = getDesc();
@@ -74,6 +80,9 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     if (carregandoRef.current) return;
     if (partData.length === 0) return;
     valorBaseManualRef.current = 0;
+    if (descontoSourceRef.current === "total") {
+      descontoSourceRef.current = "percent";
+    }
     sincronizarDescontoPar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [partData]);
@@ -94,12 +103,13 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   const onValorTotalBlur = useCallback(() => {
     campoFocadoRef.current = null;
     if (syncingRef.current) return;
-    const n = parseMoneyBr(valorMostrar);
+    let n = parseMoneyBr(valorMostrar);
+    if (subtotal > 0 && n > subtotal) n = subtotal;
     setValorMostrar(n > 0 ? formatDescontoValorOrc(n) : "");
     descontoSourceRef.current = "total";
     valorBaseManualRef.current = n;
     sincronizarDescontoPar();
-  }, [valorMostrar, sincronizarDescontoPar]);
+  }, [valorMostrar, subtotal, sincronizarDescontoPar]);
 
   const onValorTotalFocus = useCallback(() => {
     campoFocadoRef.current = "total";
@@ -110,6 +120,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       if (syncingRef.current) return;
       setDescontoPct(sanitizarNumeroBr(raw));
       descontoSourceRef.current = "percent";
+      valorBaseManualRef.current = 0;
       sincronizarDescontoPar();
     },
     [sincronizarDescontoPar],
@@ -118,9 +129,10 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   const onDescontoPctBlur = useCallback(() => {
     campoFocadoRef.current = null;
     if (syncingRef.current) return;
+    valorBaseManualRef.current = 0;
+    descontoSourceRef.current = "percent";
     const desc = getDesc();
     setDescontoPct(desc.descontoPct > 0 ? formatDescontoPctOrc(desc.descontoPct) : "");
-    descontoSourceRef.current = "percent";
     sincronizarDescontoPar();
   }, [getDesc, sincronizarDescontoPar]);
 
@@ -133,6 +145,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       if (syncingRef.current) return;
       setDescontoValor(sanitizarNumeroBr(raw));
       descontoSourceRef.current = "valor";
+      valorBaseManualRef.current = 0;
       sincronizarDescontoPar();
     },
     [sincronizarDescontoPar],
@@ -141,9 +154,10 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   const onDescontoValorBlur = useCallback(() => {
     campoFocadoRef.current = null;
     if (syncingRef.current) return;
+    valorBaseManualRef.current = 0;
+    descontoSourceRef.current = "valor";
     const desc = getDesc();
     setDescontoValor(desc.descontoValor > 0 ? formatDescontoValorOrc(desc.descontoValor) : "");
-    descontoSourceRef.current = "valor";
     sincronizarDescontoPar();
   }, [getDesc, sincronizarDescontoPar]);
 
@@ -208,13 +222,21 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       setPartData(data.partData);
       setCpfCnpj(data.cpfCnpj.replace(/\D/g, "") === "00000000000" ? "" : data.cpfCnpj);
       setObservacao(data.observacao);
-      setDescontoPct(
-        data.descontoPercent > 0
-          ? formatDescontoPctOrc(data.descontoPercent)
-          : "",
+      const sub = inventarioSubtotalOrcamento(data.partData);
+      const resolved = garantirTotalOrcamentoConsistente(
+        sub,
+        "percent",
+        data.descontoPercent,
+        0,
+        data.valor,
       );
-      setDescontoValor("");
-      setValorMostrar(formatDescontoValorOrc(data.valor));
+      setDescontoPct(
+        resolved.percent > 0 ? formatDescontoPctOrc(resolved.percent) : "",
+      );
+      setDescontoValor(
+        resolved.valor > 0 ? formatDescontoValorOrc(resolved.valor) : "",
+      );
+      setValorMostrar(formatDescontoValorOrc(resolved.total));
       setFormaPagamento("");
       descontoSourceRef.current = "percent";
       valorBaseManualRef.current = 0;
@@ -227,17 +249,25 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
 
   const buildPayload = useCallback(() => {
     const desc = getDesc();
+    const modo = descontoSourceRef.current;
+    const resolved = garantirTotalOrcamentoConsistente(
+      subtotal,
+      modo,
+      desc.descontoPct,
+      desc.descontoValor,
+      desc.total,
+    );
     return {
       partData,
       formaPagamento,
-      descontoModo: "total" as const,
-      descontoPercent: desc.descontoPct,
-      descontoValor: desc.descontoValor,
-      valor: desc.total,
+      descontoModo: modo,
+      descontoPercent: resolved.percent,
+      descontoValor: resolved.valor,
+      valor: resolved.total,
       cpfCnpj,
       observacao,
     };
-  }, [partData, formaPagamento, getDesc, cpfCnpj, observacao]);
+  }, [partData, formaPagamento, getDesc, subtotal, cpfCnpj, observacao]);
 
   const onMetrosInput = useCallback((raw: string) => {
     let v = raw.replace(/[^\d,.]/g, "");
