@@ -20,6 +20,9 @@ const ADMIN_ONLY = [
   "/painel/agendar",
 ];
 
+/** Rotas permitidas ao funcionário. */
+const FUNC_ALLOWED_PREFIXES = ["/painel/ponto", "/painel/visitas", "/painel/funcionarios"];
+
 /** Rotas permitidas ao fornecedor (demais redireciona para o portal). */
 const FORNECEDOR_ALLOWED_PREFIXES = ["/painel/inicio-fornecedor", "/painel/fornecedores"];
 
@@ -39,7 +42,9 @@ function pathBloqueado(pathname: string, visao: AdminVisao): boolean {
   if (visao === "admin") return false;
 
   if (visao === "funcionário") {
-    return ADMIN_ONLY.some((rota) => p === rota || p.startsWith(`${rota}/`));
+    return !FUNC_ALLOWED_PREFIXES.some(
+      (prefix) => p === prefix || p.startsWith(`${prefix}/`) || p.startsWith(`${prefix}?`),
+    );
   }
 
   if (visao === "fornecedor") {
