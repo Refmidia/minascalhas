@@ -83,9 +83,7 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
       GET: async ({ request }) => {
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
-        if (!session || session.visao !== "admin") {
-          return jsonResponse({ ok: false, message: "Acesso apenas na visão administrador." }, 403);
-        }
+        if (!session) return jsonResponse({ ok: false }, 401);
 
         const url = new URL(request.url);
         const semana = pagamentoInicioSemana(url.searchParams.get("semana") ?? ymdLocal(new Date()));
@@ -93,6 +91,54 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
         const modal = url.searchParams.get("modal") === "1";
 
         try {
+          // Funcionário: somente leitura, somente o próprio histórico.
+          if (session.visao === "funcionário") {
+            const de =
+              url.searchParams.get("de")?.trim() ||
+              ymdLocal(new Date(Date.now() - 180 * 86400000));
+            const ate = url.searchParams.get("ate")?.trim() || ymdLocal(new Date());
+
+            const uid = session.userId;
+
+            if (modal) {
+              return jsonResponse(
+                { ok: false, message: "Acesso apenas na visão administrador." },
+                403,
+              );
+            }
+
+            const [cardsAll, historico] = await Promise.all([
+              montarCardsSemana(semana),
+              listarPagamentosHistorico(de, ate, uid),
+            ]);
+
+            const cards = cardsAll.filter((c) => c.usuario_id === uid);
+            const totalHistorico = historico.reduce((s, h) => s + h.valor, 0);
+
+            return jsonResponse({
+              ok: true,
+              semana,
+              updated_at: new Date().toLocaleString("pt-BR"),
+              ...semanaNav(semana),
+              cards,
+              pendentes: cards.filter((c) => !c.pago).length,
+              historico,
+              total_historico: totalHistorico,
+              funcionarios: [{ id: uid, nome: session.nome }],
+              semanas_mapa: [],
+              mapa_pagamentos: { [uid]: {} },
+              empreita_dias_mapa: { [uid]: {} },
+              resumo_funcionarios: [],
+              total_resumo_periodo: totalHistorico,
+              filtro: { de, ate, usuario: uid },
+            });
+          }
+
+          // Admin: visão de administração completa.
+          if (session.visao !== "admin") {
+            return jsonResponse({ ok: false, message: "Acesso apenas na visão administrador." }, 403);
+          }
+
           if (modal && usuarioId > 0) {
             const dados = await montarDadosSemana(usuarioId, semana);
             if (!dados) return jsonResponse({ ok: false, message: "Funcionário não encontrado." }, 404);

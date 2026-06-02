@@ -45,11 +45,20 @@ export const Route = createFileRoute("/api/agendamentos")({
           const prisma = await getPrisma();
           const session = getAdminSessionFromRequest(request);
           const statusWhere = inventarioWhereStatus(status);
-          const funcWhere =
-            session?.visao === "funcionário" ? { funcionario: session.userId } : {};
-          const where = { ...statusWhere, ...funcWhere };
+          const whereBase = { ...statusWhere };
+          const where =
+            session?.visao === "funcionário"
+              ? {
+                  AND: [
+                    whereBase,
+                    {
+                      OR: [{ funcionario: session.userId }, { funcionario: null }],
+                    },
+                  ],
+                }
+              : whereBase;
           const rows = await prisma.inventario.findMany({
-            where: Object.keys(where).length ? where : undefined,
+            where: Object.keys(where).length ? (where as never) : undefined,
             orderBy: { id: "desc" },
             take: limit,
           });

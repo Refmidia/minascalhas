@@ -5,6 +5,7 @@ import { DiasPagosStrip } from "@/components/admin/DiasPagosStrip";
 import { UserThumb } from "@/components/admin/UserThumb";
 import { FuncionarioPagamentoModal } from "@/components/admin/FuncionarioPagamentoModal";
 import { DashPageHero } from "@/components/admin/DashPageHero";
+import { useAdminAuth } from "@/components/admin/admin-auth";
 import {
   formatMoeda,
   pagamentoFormatarSemana,
@@ -96,10 +97,13 @@ function contarDiasMapa(
 export function FuncionariosPage() {
   const navigate = useNavigate({ from: FuncionariosRoute.fullPath });
   const search = FuncionariosRoute.useSearch();
+  const { user } = useAdminAuth();
+  const isAdminVisao = user?.visao === "admin";
   const semana = search.semana ?? ymdLocal(new Date());
   const de = search.de ?? defaultDe();
   const ate = search.ate ?? ymdLocal(new Date());
   const usuarioFiltro = search.usuario ?? 0;
+  const usuarioFiltroEfetivo = !isAdminVisao && user?.id ? user.id : usuarioFiltro;
 
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -129,7 +133,7 @@ export function FuncionariosPage() {
     setErro("");
     try {
       const qs = new URLSearchParams({ semana, de, ate });
-      if (usuarioFiltro > 0) qs.set("usuario_filtro", String(usuarioFiltro));
+      if (usuarioFiltroEfetivo > 0) qs.set("usuario_filtro", String(usuarioFiltroEfetivo));
       const res = await fetch(`/api/admin/funcionarios-pagamento?${qs}`, { credentials: "include" });
       const json = (await res.json()) as {
         ok?: boolean;
@@ -171,7 +175,7 @@ export function FuncionariosPage() {
     } finally {
       setLoading(false);
     }
-  }, [semana, de, ate, usuarioFiltro]);
+  }, [semana, de, ate, usuarioFiltroEfetivo]);
 
   useEffect(() => {
     void load();
@@ -192,6 +196,7 @@ export function FuncionariosPage() {
   const chipList = useMemo(() => chipsSemanas(semanaNav.hoje || semana), [semanaNav.hoje, semana]);
 
   function abrirModal(uid: number) {
+    if (!isAdminVisao) return;
     setModalUsuarioId(uid);
   }
 
@@ -205,8 +210,12 @@ export function FuncionariosPage() {
   return (
     <div className="analytics-page dash-form-page--pro">
       <DashPageHero
-        title="Pagamentos — Funcionários"
-        subtitle="Clique no funcionário para lançar o pagamento da semana"
+        title={isAdminVisao ? "Pagamentos — Funcionários" : "Meus pagamentos"}
+        subtitle={
+          isAdminVisao
+            ? "Clique no funcionário para lançar o pagamento da semana"
+            : "Acompanhe os pagamentos fechados (semanas anteriores) e o status da semana atual."
+        }
         iconClass="bi-wallet2"
         accent="funcionarios-pag"
         layout="header"
@@ -266,7 +275,7 @@ export function FuncionariosPage() {
                   </div>
                 </div>
 
-                {extrasOpen ? (
+                {extrasOpen && isAdminVisao ? (
                   <div className="dash-func-pag-semana__extras">
                     <div className="dash-func-pag-semana__extras-head">
                       {updatedAt ? (
@@ -327,12 +336,15 @@ export function FuncionariosPage() {
 
               <section className="dash-edit-modal__panel mb-3">
                 <h2 className="dash-edit-modal__panel-title">
-                  <i className="bi bi-people-fill" aria-hidden="true" /> Funcionários — pagamento semanal
+                  <i className="bi bi-people-fill" aria-hidden="true" />{" "}
+                  {isAdminVisao ? "Funcionários — pagamento semanal" : "Semana atual"}
                 </h2>
-                <p className="small text-secondary mb-3">
-                  Defina o <strong>valor por dia</strong>, marque os dias trabalhados (segunda a sexta) e registre{" "}
-                  <strong>vales</strong>. O bate-ponto sugere os dias com entrada; você pode ajustar manualmente.
-                </p>
+                {isAdminVisao ? (
+                  <p className="small text-secondary mb-3">
+                    Defina o <strong>valor por dia</strong>, marque os dias trabalhados (segunda a sexta) e registre{" "}
+                    <strong>vales</strong>. O bate-ponto sugere os dias com entrada; você pode ajustar manualmente.
+                  </p>
+                ) : null}
                 {cards.length === 0 ? (
                   <p className="text-secondary mb-0">Nenhum funcionário cadastrado.</p>
                 ) : (
@@ -346,6 +358,7 @@ export function FuncionariosPage() {
                           type="button"
                           className={`dash-func-pag-card${card.pago ? " is-pago" : ""}`}
                           onClick={() => abrirModal(card.usuario_id)}
+                          disabled={!isAdminVisao}
                         >
                           <span className="dash-func-pag-card__head">
                             <span className="dash-func-pag-card__avatar" aria-hidden="true">
@@ -402,11 +415,13 @@ export function FuncionariosPage() {
                             <span className="dash-func-pag-card__cta">
                               {card.pago ? (
                                 <>
-                                  <i className="bi bi-pencil-square" aria-hidden="true" /> Ver / editar
+                                  <i className="bi bi-pencil-square" aria-hidden="true" />{" "}
+                                  {isAdminVisao ? "Ver / editar" : "Ver detalhes"}
                                 </>
                               ) : (
                                 <>
-                                  <i className="bi bi-lock-fill" aria-hidden="true" /> Fechar semana
+                                  <i className="bi bi-lock-fill" aria-hidden="true" />{" "}
+                                  {isAdminVisao ? "Fechar semana" : "Em aberto"}
                                 </>
                               )}
                             </span>
@@ -418,6 +433,7 @@ export function FuncionariosPage() {
                 )}
               </section>
 
+              {isAdminVisao ? (
               <section className="dash-edit-modal__panel mb-3 dash-func-pag-controle">
                 <h2 className="dash-edit-modal__panel-title">
                   <i className="bi bi-grid-3x3-gap-fill" aria-hidden="true" /> Painel de controle — o que já foi pago
@@ -590,6 +606,7 @@ export function FuncionariosPage() {
                   </>
                 )}
               </section>
+              ) : null}
 
               <section className="dash-edit-modal__panel">
                 <h2 className="dash-edit-modal__panel-title">
