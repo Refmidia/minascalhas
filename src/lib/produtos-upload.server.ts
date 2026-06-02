@@ -2,7 +2,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 
-import { uploadPublicBlob } from "@/lib/blob-upload.server";
+import { uploadBlob } from "@/lib/blob-upload.server";
+import { blobUrlParaExibicao, isBlobPrivateRef } from "@/lib/usuario-thumb-url";
 import {
   canPersistUploadsOnDisk,
   isReadOnlyServerless,
@@ -32,7 +33,9 @@ export function isFotoStoredUrl(arquivo: string): boolean {
 }
 
 export function fotoPublicUrl(arquivo: string): string {
-  if (isFotoStoredUrl(arquivo)) return arquivo;
+  if (isBlobPrivateRef(arquivo) || isFotoStoredUrl(arquivo)) {
+    return blobUrlParaExibicao(arquivo);
+  }
   const name = arquivo.replace(/^\/+/, "").split(/[/\\]/).pop() ?? arquivo;
   return `/images/produtos/${encodeURIComponent(name)}`;
 }
@@ -50,9 +53,9 @@ export async function salvarFotoUpload(file: File): Promise<{ arquivo: string } 
   const key = `produtos/${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
 
   if (isReadOnlyServerless()) {
-    const blob = await uploadPublicBlob(key, file);
+    const blob = await uploadBlob(key, file);
     if ("erro" in blob) return { erro: blob.erro };
-    return { arquivo: blob.url };
+    return { arquivo: blob.stored };
   }
 
   if (!canPersistUploadsOnDisk("PRODUTOS_UPLOAD_DIR")) {

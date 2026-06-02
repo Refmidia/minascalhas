@@ -1,7 +1,10 @@
 /** URLs de avatar — local (`public/images/thumb`) e opcionalmente remoto (Alex). */
 
+import { blobUrlParaExibicao, isBlobPrivateRef } from "@/lib/usuario-thumb-url";
+
 export function usuarioThumbLocalUrl(thumb: string): string | null {
   if (!thumb || thumb === "nao.png") return null;
+  if (isBlobPrivateRef(thumb)) return blobUrlParaExibicao(thumb);
   if (/^https?:\/\//i.test(thumb.trim())) return thumb.trim();
   const name = thumb.replace(/^\/+/, "").split(/[/\\]/).pop() ?? thumb;
   return `/images/thumb/${encodeURIComponent(name)}`;

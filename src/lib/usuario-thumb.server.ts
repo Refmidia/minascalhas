@@ -2,7 +2,12 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 
-import { uploadPublicBlob } from "@/lib/blob-upload.server";
+import { uploadBlob } from "@/lib/blob-upload.server";
+import {
+  blobUrlParaExibicao,
+  isBlobPrivateRef,
+  resolveBlobStoredUrl,
+} from "@/lib/usuario-thumb-url";
 import {
   extensaoSegura,
   FOTOS_MAX_BYTES,
@@ -24,7 +29,9 @@ export function isThumbStoredUrl(thumb: string): boolean {
 }
 
 export function thumbPublicUrl(arquivo: string): string {
-  if (isThumbStoredUrl(arquivo)) return arquivo;
+  if (isBlobPrivateRef(arquivo) || isThumbStoredUrl(arquivo)) {
+    return blobUrlParaExibicao(arquivo);
+  }
   const name = arquivo.replace(/^\/+/, "").split(/[/\\]/).pop() ?? arquivo;
   return `/images/thumb/${encodeURIComponent(name)}`;
 }
@@ -50,9 +57,9 @@ export async function salvarThumbUpload(
   const key = `thumbs/${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
 
   if (isReadOnlyServerless()) {
-    const blob = await uploadPublicBlob(key, file);
+    const blob = await uploadBlob(key, file);
     if ("erro" in blob) return { erro: blob.erro };
-    return { arquivo: blob.url };
+    return { arquivo: blob.stored };
   }
 
   if (!canPersistUploadsOnDisk("USER_THUMB_DIR")) {
@@ -69,10 +76,10 @@ export async function salvarThumbUpload(
 
 export async function removerThumbArquivo(thumb: string): Promise<void> {
   if (!thumb || thumb === "nao.png") return;
-  if (isThumbStoredUrl(thumb)) {
+  if (isThumbStoredUrl(thumb) || isBlobPrivateRef(thumb)) {
     try {
       const { del } = await import("@vercel/blob");
-      await del(thumb);
+      await del(resolveBlobStoredUrl(thumb));
     } catch {
       /* ignore */
     }

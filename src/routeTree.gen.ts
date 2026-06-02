@@ -36,6 +36,7 @@ import { Route as ApiOsRouteImport } from './routes/api/os'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiConsultaDocumentoRouteImport } from './routes/api/consulta-documento'
 import { Route as ApiAgendamentosRouteImport } from './routes/api/agendamentos'
+import { Route as ApiMediaBlobRouteImport } from './routes/api/media/blob'
 import { Route as ApiAgendamentosIdRouteImport } from './routes/api/agendamentos/$id'
 import { Route as ApiAdminVisaoRouteImport } from './routes/api/admin/visao'
 import { Route as ApiAdminUsuariosRouteImport } from './routes/api/admin/usuarios'
@@ -200,6 +201,11 @@ const ApiConsultaDocumentoRoute = ApiConsultaDocumentoRouteImport.update({
 const ApiAgendamentosRoute = ApiAgendamentosRouteImport.update({
   id: '/api/agendamentos',
   path: '/api/agendamentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaBlobRoute = ApiMediaBlobRouteImport.update({
+  id: '/api/media/blob',
+  path: '/api/media/blob',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgendamentosIdRoute = ApiAgendamentosIdRouteImport.update({
@@ -411,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/usuarios': typeof ApiAdminUsuariosRouteWithChildren
   '/api/admin/visao': typeof ApiAdminVisaoRoute
   '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
+  '/api/media/blob': typeof ApiMediaBlobRoute
   '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
   '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/api/admin/usuarios': typeof ApiAdminUsuariosRouteWithChildren
   '/api/admin/visao': typeof ApiAdminVisaoRoute
   '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
+  '/api/media/blob': typeof ApiMediaBlobRoute
   '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
   '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
@@ -529,6 +537,7 @@ export interface FileRoutesById {
   '/api/admin/usuarios': typeof ApiAdminUsuariosRouteWithChildren
   '/api/admin/visao': typeof ApiAdminVisaoRoute
   '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
+  '/api/media/blob': typeof ApiMediaBlobRoute
   '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
   '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
@@ -590,6 +599,7 @@ export interface FileRouteTypes {
     | '/api/admin/usuarios'
     | '/api/admin/visao'
     | '/api/agendamentos/$id'
+    | '/api/media/blob'
     | '/api/admin/produtos/$id'
     | '/api/admin/usuarios/$id'
     | '/api/agendamentos/$id/cliente'
@@ -648,6 +658,7 @@ export interface FileRouteTypes {
     | '/api/admin/usuarios'
     | '/api/admin/visao'
     | '/api/agendamentos/$id'
+    | '/api/media/blob'
     | '/api/admin/produtos/$id'
     | '/api/admin/usuarios/$id'
     | '/api/agendamentos/$id/cliente'
@@ -707,6 +718,7 @@ export interface FileRouteTypes {
     | '/api/admin/usuarios'
     | '/api/admin/visao'
     | '/api/agendamentos/$id'
+    | '/api/media/blob'
     | '/api/admin/produtos/$id'
     | '/api/admin/usuarios/$id'
     | '/api/agendamentos/$id/cliente'
@@ -748,6 +760,7 @@ export interface RootRouteChildren {
   ApiAdminSessionRoute: typeof ApiAdminSessionRoute
   ApiAdminUsuariosRoute: typeof ApiAdminUsuariosRouteWithChildren
   ApiAdminVisaoRoute: typeof ApiAdminVisaoRoute
+  ApiMediaBlobRoute: typeof ApiMediaBlobRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -939,6 +952,13 @@ declare module '@tanstack/react-router' {
       path: '/api/agendamentos'
       fullPath: '/api/agendamentos'
       preLoaderRoute: typeof ApiAgendamentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/blob': {
+      id: '/api/media/blob'
+      path: '/api/media/blob'
+      fullPath: '/api/media/blob'
+      preLoaderRoute: typeof ApiMediaBlobRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agendamentos/$id': {
@@ -1317,6 +1337,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminSessionRoute: ApiAdminSessionRoute,
   ApiAdminUsuariosRoute: ApiAdminUsuariosRouteWithChildren,
   ApiAdminVisaoRoute: ApiAdminVisaoRoute,
+  ApiMediaBlobRoute: ApiMediaBlobRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
