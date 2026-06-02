@@ -2,6 +2,7 @@
 
 export function usuarioThumbLocalUrl(thumb: string): string | null {
   if (!thumb || thumb === "nao.png") return null;
+  if (/^https?:\/\//i.test(thumb.trim())) return thumb.trim();
   const name = thumb.replace(/^\/+/, "").split(/[/\\]/).pop() ?? thumb;
   return `/images/thumb/${encodeURIComponent(name)}`;
 }

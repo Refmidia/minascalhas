@@ -2,13 +2,15 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 
+import { uploadPublicBlob } from "@/lib/blob-upload.server";
 import {
   extensaoSegura,
   FOTOS_MAX_BYTES,
   FOTOS_TIPOS,
 } from "@/lib/produtos-upload.server";
 import {
-  canPersistUploads,
+  canPersistUploadsOnDisk,
+  isReadOnlyServerless,
   mensagemUploadIndisponivel,
   resolveUploadDir,
 } from "@/lib/upload-dir.server";
@@ -17,7 +19,12 @@ export function usuarioThumbUploadDir(): string {
   return resolveUploadDir("USER_THUMB_DIR", ["images", "thumb"]);
 }
 
+export function isThumbStoredUrl(thumb: string): boolean {
+  return /^https?:\/\//i.test(thumb.trim());
+}
+
 export function thumbPublicUrl(arquivo: string): string {
+  if (isThumbStoredUrl(arquivo)) return arquivo;
   const name = arquivo.replace(/^\/+/, "").split(/[/\\]/).pop() ?? arquivo;
   return `/images/thumb/${encodeURIComponent(name)}`;
 }
@@ -31,9 +38,6 @@ export function thumbNomeSeguro(nome: string): string | null {
 export async function salvarThumbUpload(
   file: File,
 ): Promise<{ arquivo: string } | { erro: string }> {
-  if (!canPersistUploads("USER_THUMB_DIR")) {
-    return { erro: mensagemUploadIndisponivel("foto de perfil") };
-  }
   if (!FOTOS_TIPOS.has(file.type)) {
     return { erro: "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF." };
   }
@@ -42,6 +46,18 @@ export async function salvarThumbUpload(
   }
   const ext = extensaoSegura(file.type);
   if (!ext) return { erro: "Extensão inválida." };
+
+  const key = `thumbs/${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
+
+  if (isReadOnlyServerless()) {
+    const blob = await uploadPublicBlob(key, file);
+    if ("erro" in blob) return { erro: blob.erro };
+    return { arquivo: blob.url };
+  }
+
+  if (!canPersistUploadsOnDisk("USER_THUMB_DIR")) {
+    return { erro: mensagemUploadIndisponivel("foto de perfil") };
+  }
 
   const dir = usuarioThumbUploadDir();
   await mkdir(dir, { recursive: true });
@@ -53,6 +69,15 @@ export async function salvarThumbUpload(
 
 export async function removerThumbArquivo(thumb: string): Promise<void> {
   if (!thumb || thumb === "nao.png") return;
+  if (isThumbStoredUrl(thumb)) {
+    try {
+      const { del } = await import("@vercel/blob");
+      await del(thumb);
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
   const nome = thumbNomeSeguro(thumb);
   if (!nome) return;
   const filePath = path.join(usuarioThumbUploadDir(), nome);

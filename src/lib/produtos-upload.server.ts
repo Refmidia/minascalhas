@@ -2,8 +2,10 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 
+import { uploadPublicBlob } from "@/lib/blob-upload.server";
 import {
-  canPersistUploads,
+  canPersistUploadsOnDisk,
+  isReadOnlyServerless,
   mensagemUploadIndisponivel,
   resolveUploadDir,
 } from "@/lib/upload-dir.server";
@@ -13,11 +15,6 @@ export const FOTOS_MAX_BYTES = 8 * 1024 * 1024;
 
 export function produtosUploadDir(): string {
   return resolveUploadDir("PRODUTOS_UPLOAD_DIR", ["images", "produtos"]);
-}
-
-export function fotoPublicUrl(arquivo: string): string {
-  const name = arquivo.replace(/^\/+/, "").split(/[/\\]/).pop() ?? arquivo;
-  return `/images/produtos/${encodeURIComponent(name)}`;
 }
 
 export function extensaoSegura(mime: string): string | null {
@@ -30,10 +27,17 @@ export function extensaoSegura(mime: string): string | null {
   return map[mime] ?? null;
 }
 
+export function isFotoStoredUrl(arquivo: string): boolean {
+  return /^https?:\/\//i.test(arquivo.trim());
+}
+
+export function fotoPublicUrl(arquivo: string): string {
+  if (isFotoStoredUrl(arquivo)) return arquivo;
+  const name = arquivo.replace(/^\/+/, "").split(/[/\\]/).pop() ?? arquivo;
+  return `/images/produtos/${encodeURIComponent(name)}`;
+}
+
 export async function salvarFotoUpload(file: File): Promise<{ arquivo: string } | { erro: string }> {
-  if (!canPersistUploads("PRODUTOS_UPLOAD_DIR")) {
-    return { erro: mensagemUploadIndisponivel("foto de produto") };
-  }
   if (!FOTOS_TIPOS.has(file.type)) {
     return { erro: "Tipo de arquivo não permitido." };
   }
@@ -42,6 +46,18 @@ export async function salvarFotoUpload(file: File): Promise<{ arquivo: string } 
   }
   const ext = extensaoSegura(file.type);
   if (!ext) return { erro: "Extensão inválida." };
+
+  const key = `produtos/${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
+
+  if (isReadOnlyServerless()) {
+    const blob = await uploadPublicBlob(key, file);
+    if ("erro" in blob) return { erro: blob.erro };
+    return { arquivo: blob.url };
+  }
+
+  if (!canPersistUploadsOnDisk("PRODUTOS_UPLOAD_DIR")) {
+    return { erro: mensagemUploadIndisponivel("foto de produto") };
+  }
 
   const dir = produtosUploadDir();
   await mkdir(dir, { recursive: true });
