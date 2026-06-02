@@ -6,6 +6,7 @@ import { sairImpersonacao } from "@/lib/usuarios-client";
 import { getAdminTheme, setAdminTheme } from "@/components/admin/AdminTheme";
 import { DashPageHero, NovaVisitaCta } from "@/components/admin/DashPageHero";
 import { DashBrandLogo } from "@/components/admin/DashBrandLogo";
+import { PainelVisaoGuard } from "@/components/admin/PainelVisaoGuard";
 import { DashRadio } from "@/components/admin/DashRadio";
 import { UserThumb } from "@/components/admin/UserThumb";
 import type { AdminVisao } from "@/lib/visao.server";
@@ -127,6 +128,7 @@ export function AdminShell() {
 
   return (
     <>
+      <PainelVisaoGuard />
       <div
         className={`menu-backdrop${sidebarOpen ? " is-visible" : ""}`}
         id="menu-backdrop"

@@ -42,8 +42,8 @@ export function PainelLoginModal({ open, onClose }: PainelLoginModalProps) {
     setError("");
     setLoading(true);
     try {
-      await adminLogin(usuario.trim(), password);
-      window.location.assign("/painel");
+      const { redirect } = await adminLogin(usuario.trim(), password);
+      window.location.assign(redirect);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no login.");
       setLoading(false);

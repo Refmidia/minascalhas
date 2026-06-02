@@ -8,6 +8,7 @@ import {
   estaImpersonando,
   getAdminSessionFromRequest,
   sessionToPublic,
+  visaoPorNivel,
 } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/db.server";
 import { jsonResponse } from "@/lib/http.server";
@@ -59,7 +60,9 @@ export const Route = createFileRoute("/api/admin/session")({
                 nivel: row.nivel,
                 thumb: row.thumb?.trim() || "nao.png",
               },
-              session.podeSimular ? session.visao : undefined,
+              session.podeSimular && session.visao !== visaoPorNivel(row.nivel)
+                ? session.visao
+                : undefined,
             );
           }
           const token = createAdminSessionToken(payload);

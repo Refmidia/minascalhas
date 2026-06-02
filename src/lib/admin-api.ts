@@ -95,16 +95,24 @@ export async function fetchAdminSession(): Promise<{
   };
 }
 
-export async function adminLogin(usuario: string, password: string): Promise<AdminUser> {
+export async function adminLogin(
+  usuario: string,
+  password: string,
+): Promise<{ user: AdminUser; redirect: string }> {
   const res = await fetch("/api/admin/login", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ usuario, password }),
   });
-  const data = await parseJson<{ ok?: boolean; user?: AdminUser; message?: string }>(res);
+  const data = await parseJson<{
+    ok?: boolean;
+    user?: AdminUser;
+    redirect?: string;
+    message?: string;
+  }>(res);
   if (!res.ok || !data.user) throw new Error(data.message ?? "Falha no login.");
-  return data.user;
+  return { user: data.user, redirect: data.redirect ?? "/painel" };
 }
 
 export async function adminLogout(): Promise<void> {

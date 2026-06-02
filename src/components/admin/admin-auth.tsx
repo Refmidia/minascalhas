@@ -13,7 +13,7 @@ type AdminAuthContextValue = {
   ready: boolean;
   authenticated: boolean;
   user: AdminUser | null;
-  login: (usuario: string, password: string) => Promise<void>;
+  login: (usuario: string, password: string) => Promise<string>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   setVisao: (visao: AdminVisao) => Promise<void>;
@@ -37,9 +37,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, [refreshSession]);
 
   const login = useCallback(async (usuario: string, password: string) => {
-    const u = await adminLogin(usuario, password);
+    const { user: u, redirect } = await adminLogin(usuario, password);
     setAuthenticated(true);
     setUser(u);
+    return redirect;
   }, []);
 
   const logout = useCallback(async () => {

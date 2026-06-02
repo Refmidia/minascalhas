@@ -6,6 +6,7 @@ import {
   authenticateUsuario,
   buildAdminSessionPayload,
   createAdminSessionToken,
+  redirectAposLogin,
   sessionToPublic,
 } from "@/lib/auth.server";
 import { getAuthSecret } from "@/lib/config.server";
@@ -62,6 +63,7 @@ export const Route = createFileRoute("/api/admin/login")({
             {
               ok: true,
               user: sessionToPublic({ ...payload, exp: Date.now() + 1 }),
+              redirect: redirectAposLogin(payload),
             },
             200,
             Object.fromEntries([adminSessionCookieHeader(token)]),

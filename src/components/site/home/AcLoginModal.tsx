@@ -42,8 +42,8 @@ export function AcLoginModal({ open, onClose }: Props) {
     }
     setLoading(true);
     try {
-      await adminLogin(usuario.trim(), senha);
-      window.location.assign("/painel");
+      const { redirect } = await adminLogin(usuario.trim(), senha);
+      window.location.assign(redirect);
     } catch (err) {
       setAlert(err instanceof Error ? err.message : "Login ou senha incorretos.");
       setLoading(false);
