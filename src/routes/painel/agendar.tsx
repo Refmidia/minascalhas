@@ -7,9 +7,10 @@ import { AgendarVisitaForm } from "@/components/admin/AgendarVisitaForm";
 
 
 export const Route = createFileRoute("/painel/agendar")({
-
+  head: () => ({
+    links: [{ rel: "stylesheet", href: "/admin/agendar-page.css" }],
+  }),
   component: AgendarPage,
-
 });
 
 

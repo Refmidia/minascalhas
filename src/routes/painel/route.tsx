@@ -24,7 +24,6 @@ export const Route = createFileRoute("/painel")({
       { rel: "stylesheet", href: "/admin/painel.css" },
       { rel: "stylesheet", href: "/admin/dashboard-saas.css" },
       { rel: "stylesheet", href: "/admin/admin-react.css" },
-      { rel: "stylesheet", href: "/admin/agendar-page.css" },
     ],
   }),
   component: PainelLayout,

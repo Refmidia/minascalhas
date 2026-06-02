@@ -22,6 +22,16 @@ export const Route = createFileRoute("/api/admin/session")({
           return jsonResponse({ ok: true, authenticated: false, user: null });
         }
 
+        // Resposta rápida a partir do cookie assinado (evita MySQL em toda navegação).
+        const refreshDb = new URL(request.url).searchParams.get("refresh") === "1";
+        if (!refreshDb && !estaImpersonando(session)) {
+          return jsonResponse({
+            ok: true,
+            authenticated: true,
+            user: sessionToPublic(session),
+          });
+        }
+
         try {
           const prisma = await getPrisma();
           const row = await prisma.usuario.findUnique({ where: { id: session.userId } });

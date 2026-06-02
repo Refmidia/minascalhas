@@ -144,7 +144,7 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
             <div className="ac-hero__content">
               <span className="ac-kicker">Qualidade que protege</span>
               <h1 className="ac-hero__title">
-                Calhas, rufos e pingadeiras com
+                Calhas, rufos e pingadeiras com{" "}
                 <span className="ac-hero__title-accent">instalação profissional</span>
               </h1>
               <p className="ac-hero__desc">
