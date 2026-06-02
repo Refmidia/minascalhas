@@ -88,7 +88,12 @@ export function sessionToPublic(session: AdminSessionPayload): AdminSessionPubli
     thumb: session.thumb ?? "nao.png",
     visao: session.visao,
     podeSimular: session.podeSimular,
-    simulando: session.visao !== "admin",
+    /** Admin alternando visão (demo) — não confundir com funcionário/fornecedor reais. */
+    simulando:
+      ehAdminReal(session) &&
+      session.podeSimular &&
+      session.visao !== "admin" &&
+      !impersonando,
     fornecedorPreviewId: session.fornecedorPreviewId,
     adminReal: ehAdminReal(session),
     podeGerenciarUsuarios: podeGerenciarUsuarios(session),
