@@ -1802,12 +1802,41 @@ html[data-bs-theme="light"] .dash-pag-func-hist-total strong {
   font-size: 0.8rem;
 }
 
-.dash-ponto-cel--datetime {
-  display: flex;
+/* Data + hora empilhadas (detalhe do ponto) — wrapper dentro do <td>, não flex no td */
+.dash-ponto-table__cel-datetime {
+  vertical-align: middle !important;
+}
+
+.dash-ponto-datetime {
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  line-height: 1.2;
+  justify-content: center;
+  gap: 0.2rem;
+  line-height: 1.25;
+  min-width: 6.75rem;
+  padding: 0.1rem 0;
+  vertical-align: middle;
+}
+
+.dash-ponto-datetime__data,
+.dash-ponto-datetime__hora {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dash-ponto-datetime__data {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.dash-ponto-datetime__hora {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6ee7b7;
 }
 
 .dash-ponto-table--pro .dash-ponto-tipo {
@@ -1899,8 +1928,13 @@ html[data-bs-theme="light"] .dash-ponto-func__nome {
   color: #1e293b;
 }
 
-html[data-bs-theme="light"] .dash-ponto-cel--hora {
+html[data-bs-theme="light"] .dash-ponto-cel--hora,
+html[data-bs-theme="light"] .dash-ponto-datetime__hora {
   color: #047857;
+}
+
+html[data-bs-theme="light"] .dash-ponto-datetime__data {
+  color: #475569;
 }
 
 .dash-ponto-detalhe__head {

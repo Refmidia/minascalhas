@@ -11,6 +11,7 @@ import {
 } from "@/lib/ponto-display";
 import { Route as PontoControleRoute } from "@/routes/painel/ponto-controle";
 import { dashConfirm, dashToast } from "@/lib/dash-ui";
+import { pontoDiaChave, pontoHojeIso } from "@/lib/ponto-timezone";
 
 type PontoJornada = {
   usuario_id: number;
@@ -44,7 +45,7 @@ export function PontoControlePage() {
   const navigate = useNavigate({ from: PontoControleRoute.fullPath });
   const search = PontoControleRoute.useSearch();
 
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = pontoHojeIso();
   const primeiroMes = `${hoje.slice(0, 8)}01`;
   const usuarioFiltro = search.usuario ?? 0;
   const de = search.de ?? primeiroMes;
@@ -56,7 +57,7 @@ export function PontoControlePage() {
   const [funcionarios, setFuncionarios] = useState<FuncionarioOpt[]>([]);
   const [jornadas, setJornadas] = useState<PontoJornada[]>([]);
   const [registros, setRegistros] = useState<PontoRegistroAdmin[]>([]);
-  const [detalheOpen, setDetalheOpen] = useState(false);
+  const [detalheOpen, setDetalheOpen] = useState(true);
 
   const [fUsuario, setFUsuario] = useState(String(usuarioFiltro || ""));
   const [fDe, setFDe] = useState(de);
@@ -120,6 +121,40 @@ export function PontoControlePage() {
         ate: fAte || undefined,
       },
     });
+  }
+
+  async function excluirJornada(j: PontoJornada) {
+    const qtd = registros.filter(
+      (r) => r.usuario_id === j.usuario_id && pontoDiaChave(r.registrado_em) === j.data,
+    ).length;
+    const msg =
+      qtd > 0
+        ? `Excluir todos os ${qtd} registro(s) de ${j.usuario_nome} em ${j.data_fmt}? Esta ação não pode ser desfeita.`
+        : `Excluir a jornada de ${j.usuario_nome} em ${j.data_fmt}?`;
+    const ok = await dashConfirm({
+      title: "Excluir jornada?",
+      message: msg,
+      confirmText: "Excluir tudo",
+      variant: "danger",
+    });
+    if (!ok) return;
+
+    try {
+      const qs = new URLSearchParams({
+        usuario: String(j.usuario_id),
+        data: j.data,
+      });
+      const res = await fetch(`/api/admin/ponto-controle?${qs}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const json = (await res.json()) as { ok?: boolean; message?: string };
+      if (!res.ok) throw new Error(json.message ?? "Não foi possível excluir.");
+      dashToast(json.message ?? "Jornada excluída.", "success");
+      void load();
+    } catch (err) {
+      dashToast(err instanceof Error ? err.message : "Erro.", "danger");
+    }
   }
 
   async function excluirRegistro(r: PontoRegistroAdmin) {
@@ -251,12 +286,13 @@ export function PontoControlePage() {
                         <th className="text-center">Intervalo</th>
                         <th className="text-center">Trabalhado</th>
                         <th className="text-center">Status</th>
+                        <th className="text-end dash-ponto-table__col-acoes">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
                       {jornadas.length === 0 ? (
                         <tr>
-                          <td colSpan={9} className="dash-ponto-table__empty">
+                          <td colSpan={10} className="dash-ponto-table__empty">
                             Nenhum registro encontrado para os filtros selecionados.
                           </td>
                         </tr>
@@ -283,6 +319,17 @@ export function PontoControlePage() {
                               ) : (
                                 <span className="dash-ponto-status dash-ponto-status--ok">Encerrado</span>
                               )}
+                            </td>
+                            <td className="text-end dash-ponto-table__col-acoes">
+                              <button
+                                type="button"
+                                className="dash-pag-func-act dash-pag-func-act--delete"
+                                title="Excluir jornada inteira"
+                                aria-label={`Excluir jornada de ${j.usuario_nome} em ${j.data_fmt}`}
+                                onClick={() => void excluirJornada(j)}
+                              >
+                                <i className="bi bi-trash3" aria-hidden="true" />
+                              </button>
                             </td>
                           </tr>
                         ))
@@ -341,9 +388,11 @@ export function PontoControlePage() {
                                       {pontoLabelTipo(r.tipo)}
                                     </span>
                                   </td>
-                                  <td className="text-center dash-ponto-cel--datetime">
-                                    <span className="dash-ponto-cel--data">{data}</span>
-                                    <span className="dash-ponto-cel--hora">{hora}</span>
+                                  <td className="text-center dash-ponto-table__cel-datetime">
+                                    <div className="dash-ponto-datetime">
+                                      <span className="dash-ponto-datetime__data">{data}</span>
+                                      <span className="dash-ponto-datetime__hora">{hora}</span>
+                                    </div>
                                   </td>
                                   <td className="text-end">
                                     <button
@@ -365,7 +414,7 @@ export function PontoControlePage() {
                     </div>
                   ) : (
                     <p className="dash-ponto-detalhe__hint mb-0">
-                      Clique na seta para expandir a lista completa de batidas.
+                      Clique na seta para ver cada batida e excluir registros individualmente.
                     </p>
                   )}
                 </section>

@@ -1,4 +1,11 @@
 import { getPrisma } from "@/lib/db.server";
+import {
+  formatDataPontoTz,
+  formatHoraPontoTz,
+  pontoAgoraSql,
+  pontoDiaChave,
+  parsePontoDatetime,
+} from "@/lib/ponto-timezone";
 
 function int(v: unknown): number {
   if (typeof v === "bigint") return Number(v);
@@ -141,8 +148,9 @@ export async function pontoRegistrar(
   const prisma = await getPrisma();
   const uid = int(usuarioId);
   const tipoEsc = esc(tipo);
+  const agora = esc(pontoAgoraSql());
   await prisma.$executeRawUnsafe(
-    `INSERT INTO funcionario_ponto (usuario_id, tipo, registrado_em) VALUES (${uid}, '${tipoEsc}', NOW())`,
+    `INSERT INTO funcionario_ponto (usuario_id, tipo, registrado_em) VALUES (${uid}, '${tipoEsc}', '${agora}')`,
   );
 
   const msgs: Record<string, string> = {
@@ -155,19 +163,14 @@ export async function pontoRegistrar(
 }
 
 export function formatDataHoraPonto(raw: string): { data: string; hora: string } {
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return { data: "—", hora: "—" };
   return {
-    data: d.toLocaleDateString("pt-BR"),
-    hora: d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    data: formatDataPontoTz(raw),
+    hora: formatHoraPontoTz(raw),
   };
 }
 
 export function formatHoraPonto(raw: string | null): string {
-  if (!raw) return "—";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return formatHoraPontoTz(raw);
 }
 
 export function formatMinutosPonto(minutos: number | null): string {
@@ -186,12 +189,12 @@ function calcMinutosTrabalhados(
   saida: string | null,
 ): number | null {
   if (!entrada || !saida) return null;
-  const e = new Date(entrada).getTime();
-  const s = new Date(saida).getTime();
+  const e = parsePontoDatetime(entrada).getTime();
+  const s = parsePontoDatetime(saida).getTime();
   if (Number.isNaN(e) || Number.isNaN(s) || s <= e) return null;
   if (almoco && retorno) {
-    const a = new Date(almoco).getTime();
-    const r = new Date(retorno).getTime();
+    const a = parsePontoDatetime(almoco).getTime();
+    const r = parsePontoDatetime(retorno).getTime();
     if (!Number.isNaN(a) && !Number.isNaN(r) && a >= e && r >= a && s >= r) {
       return Math.floor((a - e) / 60000) + Math.floor((s - r) / 60000);
     }
@@ -201,8 +204,8 @@ function calcMinutosTrabalhados(
 
 function calcMinutosAlmoco(almoco: string | null, retorno: string | null): number | null {
   if (!almoco || !retorno) return null;
-  const a = new Date(almoco).getTime();
-  const r = new Date(retorno).getTime();
+  const a = parsePontoDatetime(almoco).getTime();
+  const r = parsePontoDatetime(retorno).getTime();
   if (Number.isNaN(a) || Number.isNaN(r) || r <= a) return null;
   return Math.floor((r - a) / 60000);
 }
@@ -297,10 +300,9 @@ export function montarJornadasAdmin(registros: PontoRegistroAdmin[]): PontoJorna
 
   for (const r of registros) {
     const uid = r.usuario_id;
-    const ts = new Date(r.registrado_em).getTime();
     const tipo = pontoNormalizarTipo(r.tipo);
-    if (uid <= 0 || Number.isNaN(ts) || !tipo) continue;
-    const dia = new Date(ts).toISOString().slice(0, 10);
+    const dia = pontoDiaChave(r.registrado_em);
+    if (uid <= 0 || !dia || !tipo) continue;
     const chave = `${uid}|${dia}`;
     if (!porChave.has(chave)) {
       porChave.set(chave, {
@@ -308,7 +310,7 @@ export function montarJornadasAdmin(registros: PontoRegistroAdmin[]): PontoJorna
         usuario_nome: r.usuario_nome,
         thumb: r.thumb,
         data: dia,
-        data_fmt: new Date(ts).toLocaleDateString("pt-BR"),
+        data_fmt: formatDataPontoTz(r.registrado_em),
         eventos: [],
       });
     }
@@ -381,6 +383,45 @@ export function montarJornadasAdmin(registros: PontoRegistroAdmin[]): PontoJorna
     return c !== 0 ? c : a.usuario_nome.localeCompare(b.usuario_nome);
   });
   return jornadas;
+}
+
+export async function apagarJornadaPonto(
+  usuarioId: number,
+  dataIso: string,
+): Promise<{ ok: boolean; message: string; removidos: number }> {
+  const uid = int(usuarioId);
+  if (uid <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(dataIso)) {
+    return { ok: false, message: "Jornada inválida.", removidos: 0 };
+  }
+
+  const prisma = await getPrisma();
+  const de = esc(`${dataIso} 00:00:00`);
+  const ate = esc(`${dataIso} 23:59:59`);
+
+  const antes = await prisma.$queryRawUnsafe<{ n: unknown }[]>(
+    `SELECT COUNT(*) AS n FROM funcionario_ponto
+     WHERE usuario_id = ${uid}
+       AND registrado_em >= '${de}' AND registrado_em <= '${ate}'`,
+  );
+  const removidos = int(antes[0]?.n);
+  if (removidos <= 0) {
+    return { ok: false, message: "Nenhum registro encontrado nesta jornada.", removidos: 0 };
+  }
+
+  await prisma.$executeRawUnsafe(
+    `DELETE FROM funcionario_ponto
+     WHERE usuario_id = ${uid}
+       AND registrado_em >= '${de}' AND registrado_em <= '${ate}'`,
+  );
+
+  return {
+    ok: true,
+    message:
+      removidos === 1
+        ? "1 registro da jornada excluído."
+        : `${removidos} registros da jornada excluídos.`,
+    removidos,
+  };
 }
 
 export async function apagarRegistroPonto(id: number): Promise<{ ok: boolean; message: string }> {

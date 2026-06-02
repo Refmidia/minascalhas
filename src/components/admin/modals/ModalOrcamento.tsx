@@ -105,6 +105,7 @@ export function ModalOrcamento({
   }
 
   const titulo = mode === "novo" ? "Novo orçamento" : "Editar orçamento";
+  const mostrarDescontos = mode === "editar";
 
   return (
     <AdminModal open={open} onClose={onClose} dialogClass="visitas-orc-modal__dialog modal-lg">
@@ -143,7 +144,7 @@ export function ModalOrcamento({
                       value={inventarioId ?? ""}
                     />
                   </div>
-                  <div className="col-8 col-sm-4">
+                  <div className={mostrarDescontos ? "col-8 col-sm-4" : "col-8 col-sm-10"}>
                     <label className="visitas-orc-label" htmlFor="modal-value-mostrar">
                       Valor total
                     </label>
@@ -154,74 +155,89 @@ export function ModalOrcamento({
                       autoComplete="off"
                       className="form-control visitas-orc-input visitas-orc-valor text-center"
                       placeholder="0,00"
-                      title="Valor final para o cliente — o desconto é calculado automaticamente"
+                      title={
+                        mostrarDescontos
+                          ? "Valor final para o cliente — o desconto é calculado automaticamente"
+                          : "Soma dos materiais do orçamento"
+                      }
                       value={form.valorMostrar}
+                      readOnly={!mostrarDescontos}
                       onChange={(e) => form.onValorTotalInput(e.target.value)}
                       onBlur={form.onValorTotalBlur}
                       onFocus={(e) => {
-                        form.onValorTotalFocus();
-                        e.target.select();
+                        if (mostrarDescontos) {
+                          form.onValorTotalFocus();
+                          e.target.select();
+                        }
                       }}
-                      onKeyDown={bloquearTeclaNaoNumerica}
-                      onPaste={(e) => {
-                        e.preventDefault();
-                        form.onValorTotalInput(e.clipboardData.getData("text"));
-                      }}
+                      onKeyDown={mostrarDescontos ? bloquearTeclaNaoNumerica : undefined}
+                      onPaste={
+                        mostrarDescontos
+                          ? (e) => {
+                              e.preventDefault();
+                              form.onValorTotalInput(e.clipboardData.getData("text"));
+                            }
+                          : undefined
+                      }
                     />
                   </div>
-                  <div className="col-6 col-sm-3">
-                    <label className="visitas-orc-label" htmlFor="modal-desconto-valor">
-                      Desconto (R$)
-                    </label>
-                    <input
-                      id="modal-desconto-valor"
-                      type="text"
-                      inputMode="decimal"
-                      autoComplete="off"
-                      name="desconto_valor_orc"
-                      className="form-control visitas-orc-input text-center"
-                      placeholder="0,00"
-                      value={form.descontoValor}
-                      onChange={(e) => form.onDescontoValorInput(e.target.value)}
-                      onBlur={form.onDescontoValorBlur}
-                      onFocus={(e) => {
-                        form.onDescontoValorFocus();
-                        e.target.select();
-                      }}
-                      onKeyDown={bloquearTeclaNaoNumerica}
-                      onPaste={(e) => {
-                        e.preventDefault();
-                        form.onDescontoValorInput(e.clipboardData.getData("text"));
-                      }}
-                    />
-                  </div>
-                  <div className="col-6 col-sm-3">
-                    <label className="visitas-orc-label" htmlFor="modal-desconto-pct">
-                      Desconto (%)
-                    </label>
-                    <input
-                      id="modal-desconto-pct"
-                      type="text"
-                      inputMode="decimal"
-                      autoComplete="off"
-                      name="desconto_pct_orc"
-                      maxLength={7}
-                      className="form-control visitas-orc-input text-center"
-                      placeholder="0"
-                      value={form.descontoPct}
-                      onChange={(e) => form.onDescontoPctInput(e.target.value)}
-                      onBlur={form.onDescontoPctBlur}
-                      onFocus={(e) => {
-                        form.onDescontoPctFocus();
-                        e.target.select();
-                      }}
-                      onKeyDown={bloquearTeclaNaoNumerica}
-                      onPaste={(e) => {
-                        e.preventDefault();
-                        form.onDescontoPctInput(e.clipboardData.getData("text"));
-                      }}
-                    />
-                  </div>
+                  {mostrarDescontos ? (
+                    <>
+                      <div className="col-6 col-sm-3">
+                        <label className="visitas-orc-label" htmlFor="modal-desconto-valor">
+                          Desconto (R$)
+                        </label>
+                        <input
+                          id="modal-desconto-valor"
+                          type="text"
+                          inputMode="decimal"
+                          autoComplete="off"
+                          name="desconto_valor_orc"
+                          className="form-control visitas-orc-input text-center"
+                          placeholder="0,00"
+                          value={form.descontoValor}
+                          onChange={(e) => form.onDescontoValorInput(e.target.value)}
+                          onBlur={form.onDescontoValorBlur}
+                          onFocus={(e) => {
+                            form.onDescontoValorFocus();
+                            e.target.select();
+                          }}
+                          onKeyDown={bloquearTeclaNaoNumerica}
+                          onPaste={(e) => {
+                            e.preventDefault();
+                            form.onDescontoValorInput(e.clipboardData.getData("text"));
+                          }}
+                        />
+                      </div>
+                      <div className="col-6 col-sm-3">
+                        <label className="visitas-orc-label" htmlFor="modal-desconto-pct">
+                          Desconto (%)
+                        </label>
+                        <input
+                          id="modal-desconto-pct"
+                          type="text"
+                          inputMode="decimal"
+                          autoComplete="off"
+                          name="desconto_pct_orc"
+                          maxLength={7}
+                          className="form-control visitas-orc-input text-center"
+                          placeholder="0"
+                          value={form.descontoPct}
+                          onChange={(e) => form.onDescontoPctInput(e.target.value)}
+                          onBlur={form.onDescontoPctBlur}
+                          onFocus={(e) => {
+                            form.onDescontoPctFocus();
+                            e.target.select();
+                          }}
+                          onKeyDown={bloquearTeclaNaoNumerica}
+                          onPaste={(e) => {
+                            e.preventDefault();
+                            form.onDescontoPctInput(e.clipboardData.getData("text"));
+                          }}
+                        />
+                      </div>
+                    </>
+                  ) : null}
                 </div>
                 <div className="row g-2 mb-2">
                   <div className="col-12">

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero } from "@/components/admin/DashPageHero";
 import { formatDataHoraPonto, pontoClasseBadge, pontoLabelTipo } from "@/lib/ponto-display";
+import { PONTO_TIMEZONE } from "@/lib/ponto-timezone";
 import { dashConfirm, dashToast } from "@/lib/dash-ui";
 
 type Estado = {
@@ -33,7 +34,13 @@ export function PontoPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [relogio, setRelogio] = useState(
-    new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    new Date().toLocaleTimeString("pt-BR", {
+      timeZone: PONTO_TIMEZONE,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }),
   );
 
   const load = useCallback(async () => {
@@ -66,9 +73,11 @@ export function PontoPage() {
     const t = setInterval(() => {
       setRelogio(
         new Date().toLocaleTimeString("pt-BR", {
+          timeZone: PONTO_TIMEZONE,
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
+          hour12: false,
         }),
       );
     }, 1000);

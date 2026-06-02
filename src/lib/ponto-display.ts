@@ -42,15 +42,4 @@ export function pontoClasseBadge(tipo: string): string {
   }
 }
 
-export function formatDataHoraPonto(raw: string): { data: string; hora: string } {
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return { data: "—", hora: "—" };
-  return {
-    data: d.toLocaleDateString("pt-BR"),
-    hora: d.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    }),
-  };
-}
+export { formatDataHoraPontoTz as formatDataHoraPonto } from "@/lib/ponto-timezone";

@@ -143,14 +143,6 @@ export function OrcamentoDocument({ item, itens }: Props) {
                 <td className="value">R$ {formatOsMoney(bruto)}</td>
               </tr>
               <tr>
-                <td>VALOR FRETE :</td>
-                <td className="value">R$ 0,00</td>
-              </tr>
-              <tr>
-                <td>TOTAL ACRÉSCIMOS :</td>
-                <td className="value">R$ 0,00</td>
-              </tr>
-              <tr>
                 <td>TOTAL DESCONTOS :</td>
                 <td className="value">R$ {formatOsMoney(desconto)}</td>
               </tr>
