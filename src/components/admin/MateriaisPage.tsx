@@ -12,6 +12,7 @@ import {
   type FornecedorSelect,
   type MaterialItem,
 } from "@/lib/admin-api";
+import { dashConfirm } from "@/lib/dash-ui";
 
 function formatBrl(value: number): string {
   return Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -171,7 +172,16 @@ export function MateriaisPage() {
   }
 
   async function deletar(id: number) {
-    if (!window.confirm("Tem certeza que deseja excluir este material?")) return;
+    if (
+      !(await dashConfirm({
+        title: "Excluir material?",
+        message: "Tem certeza que deseja excluir este material?",
+        confirmText: "Excluir",
+        variant: "danger",
+      }))
+    ) {
+      return;
+    }
     setErro("");
     try {
       await excluirMaterial(id);

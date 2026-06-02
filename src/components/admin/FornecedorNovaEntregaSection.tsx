@@ -12,6 +12,7 @@ import {
   precoMaterialFornecedor,
   totalLinhaCarrinho,
 } from "@/lib/fornecedores-display";
+import { dashToast } from "@/lib/dash-ui";
 
 type Props = {
   fornecedorId: number;
@@ -20,7 +21,6 @@ type Props = {
   carrinho: CarrinhoItemEntrega[];
   onCarrinhoChange: (items: CarrinhoItemEntrega[]) => void;
   onEnviado: () => void;
-  toast: (msg: string, tipo?: "success" | "danger") => void;
 };
 
 export function FornecedorNovaEntregaSection({
@@ -30,7 +30,6 @@ export function FornecedorNovaEntregaSection({
   carrinho,
   onCarrinhoChange,
   onEnviado,
-  toast,
 }: Props) {
   const [materialId, setMaterialId] = useState("");
   const [metros, setMetros] = useState("1");
@@ -80,12 +79,12 @@ export function FornecedorNovaEntregaSection({
         controle > 0 ? controle : undefined,
       );
       if (res.carrinho) onCarrinhoChange(res.carrinho);
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) {
         setObsItem("");
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro ao adicionar.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro ao adicionar.", "danger");
     } finally {
       setSubmitting(false);
     }
@@ -98,9 +97,9 @@ export function FornecedorNovaEntregaSection({
         controle > 0 ? controle : undefined,
       );
       if (res.carrinho) onCarrinhoChange(res.carrinho);
-      toast(res.message, "success");
+      dashToast(res.message, "success");
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro ao remover.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro ao remover.", "danger");
     }
   }
 
@@ -112,14 +111,14 @@ export function FornecedorNovaEntregaSection({
         controle > 0 ? controle : undefined,
       );
       onCarrinhoChange(res.carrinho ?? []);
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) {
         setObsEntrega("");
         setConfirmEnviar(false);
         onEnviado();
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro ao enviar.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro ao enviar.", "danger");
     } finally {
       setEnviando(false);
     }

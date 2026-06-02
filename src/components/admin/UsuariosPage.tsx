@@ -9,6 +9,7 @@ import { DashPageHero } from "@/components/admin/DashPageHero";
 import { UserThumb } from "@/components/admin/UserThumb";
 import { UsuarioAvatarPicker } from "@/components/admin/UsuarioAvatarPicker";
 import { fetchFornecedoresSelect, type FornecedorSelect } from "@/lib/admin-api";
+import { dashAlert } from "@/lib/dash-ui";
 import {
   atualizarUsuario,
   criarUsuario,
@@ -334,9 +335,12 @@ export function UsuariosPage() {
                           icon: "bi-trash",
                           className: "text-danger",
                           onClick: () =>
-                            window.alert(
-                              "Exclusão pelo React em breve. Use o painel PHP se precisar agora.",
-                            ),
+                            void dashAlert({
+                              title: "Em breve",
+                              message:
+                                "Exclusão pelo React em breve. Use o painel PHP se precisar agora.",
+                              variant: "info",
+                            }),
                         },
                       ]}
                     />

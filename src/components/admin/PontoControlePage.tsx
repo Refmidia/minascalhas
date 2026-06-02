@@ -10,6 +10,8 @@ import {
   pontoLabelTipo,
 } from "@/lib/ponto-display";
 import { Route as PontoControleRoute } from "@/routes/painel/ponto-controle";
+import { dashConfirm, dashToast } from "@/lib/dash-ui";
+
 type PontoJornada = {
   usuario_id: number;
   usuario_nome: string;
@@ -36,17 +38,6 @@ type PontoRegistroAdmin = {
 };
 
 type FuncionarioOpt = { id: number; nome: string; thumb: string };
-
-function toast(msg: string, tipo: "success" | "danger" = "success") {
-  const el = document.createElement("div");
-  el.className = `alert alert-${tipo === "success" ? "success" : "danger"} position-fixed top-0 end-0`;
-  el.style.marginTop = "72px";
-  el.style.marginRight = "15px";
-  el.setAttribute("role", "alert");
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
 
 export function PontoControlePage() {
   const { user, ready } = useAdminAuth();
@@ -134,7 +125,13 @@ export function PontoControlePage() {
   async function excluirRegistro(r: PontoRegistroAdmin) {
     const { data, hora } = formatDataHoraPonto(r.registrado_em);
     const msg = `Excluir o registro de ${pontoLabelTipo(r.tipo)} de ${r.usuario_nome} em ${data} ${hora}? Esta ação não pode ser desfeita.`;
-    if (!window.confirm(msg)) return;
+    const ok = await dashConfirm({
+      title: "Excluir registro?",
+      message: msg,
+      confirmText: "Excluir",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/ponto-controle?id=${r.id}`, {
@@ -143,10 +140,10 @@ export function PontoControlePage() {
       });
       const json = (await res.json()) as { ok?: boolean; message?: string };
       if (!res.ok) throw new Error(json.message ?? "Não foi possível excluir.");
-      toast(json.message ?? "Registro excluído.", "success");
+      dashToast(json.message ?? "Registro excluído.", "success");
       void load();
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro.", "danger");
     }
   }
 

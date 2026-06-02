@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AdminModal } from "@/components/admin/modals/AdminModal";
 import { fetchConsultaCnpj } from "@/lib/consulta-client";
 import type { FornecedorInput, FornecedorRow } from "@/lib/fornecedores-client";
+import { dashAlert } from "@/lib/dash-ui";
 
 function formatCnpjExib(cnpj: string): string {
   const d = cnpj.replace(/\D/g, "");
@@ -110,7 +111,7 @@ export function ModalFornecedor({ open, onClose, fornecedor, onSave }: Props) {
     async (silencioso = false) => {
       const cnpj = apenasDigitos(form.cnpj);
       if (cnpj.length !== 14) {
-        if (!silencioso) window.alert("Informe um CNPJ completo (14 dígitos).");
+        if (!silencioso) void dashAlert("Informe um CNPJ completo (14 dígitos).");
         return;
       }
       const chave = `${prefix}-${cnpj}`;
@@ -121,17 +122,17 @@ export function ModalFornecedor({ open, onClose, fornecedor, onSave }: Props) {
         const json = await fetchConsultaCnpj(cnpj);
         if (json.status !== "sucesso" || !json.dados) {
           if (!silencioso) {
-            window.alert(json.mensagem || "Não foi possível consultar o CNPJ.");
+            void dashAlert(json.mensagem || "Não foi possível consultar o CNPJ.");
           }
           return;
         }
         aplicarDadosCnpj(json.dados);
         if (!silencioso) {
-          window.alert("Dados da empresa preenchidos automaticamente.");
+          void dashAlert("Dados da empresa preenchidos automaticamente.");
         }
       } catch {
         if (!silencioso) {
-          window.alert("Erro ao consultar CNPJ. Verifique sua conexão.");
+          void dashAlert("Erro ao consultar CNPJ. Verifique sua conexão.");
         }
       } finally {
         consultasEmAndamento.current.delete(chave);
@@ -157,7 +158,7 @@ export function ModalFornecedor({ open, onClose, fornecedor, onSave }: Props) {
   async function buscarCep() {
     const cep = apenasDigitos(form.cep ?? "");
     if (cep.length !== 8) {
-      window.alert("Informe um CEP válido (8 dígitos).");
+      void dashAlert("Informe um CEP válido (8 dígitos).");
       return;
     }
     try {
@@ -170,7 +171,7 @@ export function ModalFornecedor({ open, onClose, fornecedor, onSave }: Props) {
         uf?: string;
       };
       if (data.erro) {
-        window.alert("CEP não encontrado.");
+        void dashAlert("CEP não encontrado.");
         return;
       }
       setForm((prev) => ({
@@ -181,7 +182,7 @@ export function ModalFornecedor({ open, onClose, fornecedor, onSave }: Props) {
         uf: data.uf || prev.uf,
       }));
     } catch {
-      window.alert("Erro ao buscar CEP.");
+      void dashAlert("Erro ao buscar CEP.");
     }
   }
 
@@ -192,7 +193,7 @@ export function ModalFornecedor({ open, onClose, fornecedor, onSave }: Props) {
       await onSave(form, fornecedor?.id);
       onClose();
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : "Erro ao salvar.");
+      void dashAlert(err instanceof Error ? err.message : "Erro ao salvar.");
     } finally {
       setSaving(false);
     }

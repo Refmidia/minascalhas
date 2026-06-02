@@ -7,6 +7,7 @@ import {
   parseValorInput,
 } from "@/lib/funcionario-pagamento-display";
 import type { DiaChave, PagamentoModalData } from "@/lib/funcionario-pagamento.server";
+import { dashAlert, dashConfirm } from "@/lib/dash-ui";
 
 type Props = {
   open: boolean;
@@ -55,7 +56,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
       setModo("diaria");
       setEmpreitaValorDia("");
     } catch (e) {
-      window.alert(e instanceof Error ? e.message : "Erro.");
+      void dashAlert(e instanceof Error ? e.message : "Erro.");
       onClose();
     } finally {
       setLoading(false);
@@ -93,7 +94,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
         const next = valorPagoManual ? { ...json.dados, valor_liquido: dados.valor_liquido } : json.dados;
         setDados(next);
       } catch (e) {
-        window.alert(e instanceof Error ? e.message : "Erro.");
+        void dashAlert(e instanceof Error ? e.message : "Erro.");
       } finally {
         setSaving(false);
       }
@@ -114,7 +115,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
     if (!dados) return;
     const valor = parseValorInput(valeValor);
     if (valor <= 0) {
-      window.alert("Informe o valor do vale.");
+      void dashAlert("Informe o valor do vale.");
       return;
     }
     setSaving(true);
@@ -137,14 +138,21 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
       setValeValor("");
       setValeObs("");
     } catch (e) {
-      window.alert(e instanceof Error ? e.message : "Erro.");
+      void dashAlert(e instanceof Error ? e.message : "Erro.");
     } finally {
       setSaving(false);
     }
   }
 
   async function excluirVale(id: number) {
-    if (!dados || !window.confirm("Excluir este vale?")) return;
+    if (!dados) return;
+    const okExcluir = await dashConfirm({
+      title: "Excluir vale?",
+      message: "Excluir este vale?",
+      confirmText: "Excluir",
+      variant: "danger",
+    });
+    if (!okExcluir) return;
     setSaving(true);
     try {
       await fetch("/api/admin/funcionarios-pagamento", {
@@ -155,7 +163,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
       });
       await load();
     } catch {
-      window.alert("Erro ao excluir vale.");
+      void dashAlert("Erro ao excluir vale.");
     } finally {
       setSaving(false);
     }
@@ -193,7 +201,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
       onClose();
       onSaved();
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : "Erro.");
+      void dashAlert(err instanceof Error ? err.message : "Erro.");
     } finally {
       setSaving(false);
     }

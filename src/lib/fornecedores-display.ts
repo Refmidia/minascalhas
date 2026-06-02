@@ -53,6 +53,37 @@ export function formatCnpjExib(cnpj: string): string {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
 }
 
+export function formatDocumentoExib(doc: string): string {
+  const d = doc.replace(/\D/g, "");
+  if (d.length === 11) {
+    return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+  }
+  if (d.length === 14) return formatCnpjExib(doc);
+  return doc.trim() || "—";
+}
+
+export function documentoRotulo(doc: string): "CPF" | "CNPJ" {
+  return doc.replace(/\D/g, "").length === 11 ? "CPF" : "CNPJ";
+}
+
+export function formatEnderecoFornecedor(f: {
+  endereco?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  uf?: string | null;
+}): string {
+  const parts = [
+    (f.endereco ?? "").trim(),
+    (f.numero ?? "").trim() ? `nº ${f.numero!.trim()}` : "",
+    (f.complemento ?? "").trim(),
+    (f.bairro ?? "").trim(),
+    `${(f.cidade ?? "").trim()}${(f.uf ?? "").trim() ? `/${f.uf!.trim()}` : ""}`.trim(),
+  ].filter(Boolean);
+  return parts.join(" — ");
+}
+
 export function formatDataHora(raw: string | null): string {
   if (!raw) return "—";
   const d = new Date(raw);
@@ -64,4 +95,28 @@ export function formatDataHora(raw: string | null): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+/** Data/hora compacta para tabelas (ex.: 01/06/26, 22:19). */
+export function formatDataHoraCurta(raw: string | null): string {
+  if (!raw) return "—";
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return raw;
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/** Primeiro + último sobrenome (ex.: José Roberto da Silva Gimenes → José Gimenes). */
+export function abreviarNomePessoa(nome: string, maxLen = 22): string {
+  const trimmed = nome.trim();
+  if (!trimmed) return "—";
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  let short = parts.length <= 2 ? trimmed : `${parts[0]} ${parts[parts.length - 1]}`;
+  if (short.length > maxLen) short = `${short.slice(0, maxLen - 1).trimEnd()}…`;
+  return short;
 }

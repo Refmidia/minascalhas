@@ -39,8 +39,6 @@ export function FornecedorPortalPage() {
   const [detalhe, setDetalhe] = useState<EntregaDetalhe | null>(null);
   const [materiais, setMateriais] = useState<MaterialLiberadoRow[]>([]);
   const [carrinho, setCarrinho] = useState<CarrinhoItemEntrega[]>([]);
-  const [toastMsg, setToastMsg] = useState<{ text: string; tipo: "success" | "danger" } | null>(null);
-
   const fid = fornecedorId || controleUrl || user?.fornecedorPreviewId || 0;
   const baseSearch = controleSearch(fid);
 
@@ -94,11 +92,6 @@ export function FornecedorPortalPage() {
 
   const titulo = nomeEmpresa || "Minhas entregas";
 
-  const toast = useCallback((text: string, tipo: "success" | "danger" = "success") => {
-    setToastMsg({ text, tipo });
-    window.setTimeout(() => setToastMsg(null), 5000);
-  }, []);
-
   return (
     <div className="analytics-page dash-form-page--pro dashboard-page--fornecedores">
       <DashPageHero
@@ -131,14 +124,6 @@ export function FornecedorPortalPage() {
             {erro}
           </div>
         ) : null}
-        {toastMsg ? (
-          <div
-            className={`alert alert-${toastMsg.tipo === "success" ? "success" : "danger"} mb-3`}
-            role="status"
-          >
-            {toastMsg.text}
-          </div>
-        ) : null}
         {loading ? <p className="text-muted py-3">Carregando…</p> : null}
 
         {!loading && !erro && detalhe ? (
@@ -152,10 +137,11 @@ export function FornecedorPortalPage() {
               </div>
               <div className="d-flex flex-wrap gap-2">
                 <Link
-                  to="/painel/fornecedores"
-                  search={{ ...baseSearch, nota: detalhe.id }}
+                  to="/nota-entrega"
+                  search={{ nota: detalhe.id }}
                   className="analytics-btn analytics-btn--outline analytics-btn--sm"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="bi bi-printer" aria-hidden="true" /> Imprimir
                 </Link>
@@ -169,7 +155,7 @@ export function FornecedorPortalPage() {
               </div>
             </div>
             <div className="table-responsive">
-              <table className="table inv-data-table table-sm align-middle mb-0">
+              <table className="table inv-data-table table-sm align-middle mb-0 forn-entrega-itens-table">
                 <thead>
                   <tr>
                     <th>Material</th>
@@ -190,12 +176,12 @@ export function FornecedorPortalPage() {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot>
-                  <tr>
+                <tfoot className="forn-entrega-itens-table__foot">
+                  <tr className="forn-entrega-itens-table__total-row">
                     <td colSpan={3} className="text-end">
                       <strong>Total nota</strong>
                     </td>
-                    <td className="text-end">
+                    <td className="text-end forn-entrega-itens-table__total-valor">
                       <strong>R$ {formatMoeda(detalhe.total_geral)}</strong>
                     </td>
                   </tr>
@@ -220,7 +206,6 @@ export function FornecedorPortalPage() {
                 });
                 void load();
               }}
-              toast={toast}
             />
 
             <div className="forn-entrega-filtros mb-3" role="tablist" aria-label="Filtrar entregas">

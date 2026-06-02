@@ -1,4 +1,5 @@
 import { telefoneWhatsappLink } from "@/lib/format-br";
+import { dashAlert } from "@/lib/dash-ui";
 
 export function mensagemWhatsappOrcamento(nome: string, valor: number, comLink = true): string {
   const primeiro = nome.trim().split(/\s+/)[0] || "";
@@ -21,7 +22,7 @@ export function abrirWhatsappOrcamento(item: {
 }): void {
   const wa = telefoneWhatsappLink(item.telefone);
   if (!wa) {
-    window.alert("Telefone inválido para WhatsApp.");
+    void dashAlert({ message: "Telefone inválido para WhatsApp.", variant: "warning" });
     return;
   }
   const primeiro = item.nome.trim().split(/\s+/)[0] || "";

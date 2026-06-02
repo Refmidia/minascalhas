@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OsRouteImport } from './routes/os'
+import { Route as NotaEntregaRouteImport } from './routes/nota-entrega'
+import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as PainelRouteRouteImport } from './routes/painel/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PainelIndexRouteImport } from './routes/painel/index'
@@ -68,6 +70,16 @@ import { Route as ApiAdminProdutosIdFotosFotoIdRouteImport } from './routes/api/
 const OsRoute = OsRouteImport.update({
   id: '/os',
   path: '/os',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotaEntregaRoute = NotaEntregaRouteImport.update({
+  id: '/nota-entrega',
+  path: '/nota-entrega',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GaleriaRoute = GaleriaRouteImport.update({
+  id: '/galeria',
+  path: '/galeria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PainelRouteRoute = PainelRouteRouteImport.update({
@@ -352,6 +364,8 @@ const ApiAdminProdutosIdFotosFotoIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/painel': typeof PainelRouteRouteWithChildren
+  '/galeria': typeof GaleriaRoute
+  '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
@@ -408,6 +422,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/galeria': typeof GaleriaRoute
+  '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
@@ -466,6 +482,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/painel': typeof PainelRouteRouteWithChildren
+  '/galeria': typeof GaleriaRoute
+  '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
@@ -525,6 +543,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/painel'
+    | '/galeria'
+    | '/nota-entrega'
     | '/os'
     | '/api/agendamentos'
     | '/api/consulta-documento'
@@ -581,6 +601,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/galeria'
+    | '/nota-entrega'
     | '/os'
     | '/api/agendamentos'
     | '/api/consulta-documento'
@@ -638,6 +660,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/painel'
+    | '/galeria'
+    | '/nota-entrega'
     | '/os'
     | '/api/agendamentos'
     | '/api/consulta-documento'
@@ -696,6 +720,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PainelRouteRoute: typeof PainelRouteRouteWithChildren
+  GaleriaRoute: typeof GaleriaRoute
+  NotaEntregaRoute: typeof NotaEntregaRoute
   OsRoute: typeof OsRoute
   ApiAgendamentosRoute: typeof ApiAgendamentosRouteWithChildren
   ApiConsultaDocumentoRoute: typeof ApiConsultaDocumentoRoute
@@ -731,6 +757,20 @@ declare module '@tanstack/react-router' {
       path: '/os'
       fullPath: '/os'
       preLoaderRoute: typeof OsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nota-entrega': {
+      id: '/nota-entrega'
+      path: '/nota-entrega'
+      fullPath: '/nota-entrega'
+      preLoaderRoute: typeof NotaEntregaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/galeria': {
+      id: '/galeria'
+      path: '/galeria'
+      fullPath: '/galeria'
+      preLoaderRoute: typeof GaleriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/painel': {
@@ -1249,6 +1289,8 @@ const ApiAdminUsuariosRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PainelRouteRoute: PainelRouteRouteWithChildren,
+  GaleriaRoute: GaleriaRoute,
+  NotaEntregaRoute: NotaEntregaRoute,
   OsRoute: OsRoute,
   ApiAgendamentosRoute: ApiAgendamentosRouteWithChildren,
   ApiConsultaDocumentoRoute: ApiConsultaDocumentoRoute,

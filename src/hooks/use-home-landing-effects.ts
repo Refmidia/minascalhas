@@ -1,29 +1,13 @@
 import { useEffect } from "react";
 
+import { useAcSiteHeader } from "@/hooks/use-ac-site-header";
+
 /** Comportamentos de `home-landing.js` (menu, âncoras, hero, carrossel). */
 export function useHomeLandingEffects() {
+  useAcSiteHeader();
+
   useEffect(() => {
-    const navToggle = document.getElementById("ac-nav-toggle");
-    const nav = document.getElementById("ac-nav");
     const header = document.getElementById("ac-header");
-
-    const closeNav = () => {
-      nav?.classList.remove("is-open");
-      navToggle?.classList.remove("is-open");
-      navToggle?.setAttribute("aria-expanded", "false");
-    };
-
-    const onToggle = () => {
-      if (!nav || !navToggle) return;
-      const open = nav.classList.toggle("is-open");
-      navToggle.classList.toggle("is-open", open);
-      navToggle.setAttribute("aria-expanded", open ? "true" : "false");
-    };
-
-    navToggle?.addEventListener("click", onToggle);
-    nav?.querySelectorAll('a[href^="#"]').forEach((link) => {
-      link.addEventListener("click", closeNav);
-    });
 
     const onAnchor = (e: Event) => {
       const anchor = e.currentTarget as HTMLAnchorElement;
@@ -41,7 +25,6 @@ export function useHomeLandingEffects() {
     anchors.forEach((a) => a.addEventListener("click", onAnchor));
 
     return () => {
-      navToggle?.removeEventListener("click", onToggle);
       anchors.forEach((a) => a.removeEventListener("click", onAnchor));
     };
   }, []);

@@ -7,6 +7,8 @@ import {
   formatOsMoney,
   formatOsTelefone,
   OS_ORCAMENTO_EMPRESA,
+  quantidadeLinhaOrcamento,
+  totalLinhaOrcamento,
 } from "@/lib/os-document";
 import type { OrcamentoLinha } from "@/lib/orcamento.server";
 
@@ -92,8 +94,8 @@ export function OrcamentoDocument({ item, itens }: Props) {
             </tr>
           ) : (
             itens.map((linha, index) => {
-              const qtd = linha.metros > 0 ? linha.metros : 1;
-              const totalItem = linha.valor * qtd;
+              const qtd = quantidadeLinhaOrcamento(linha);
+              const totalItem = totalLinhaOrcamento(linha);
               return (
                 <tr key={`${index}-${linha.material}`}>
                   <td className="center">{String(index + 1).padStart(6, "0")}</td>
@@ -126,7 +128,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
             <tbody>
               <tr>
                 <td>01/01</td>
-                <td>R$ {formatOsMoney(bruto)}</td>
+                <td>R$ {formatOsMoney(total)}</td>
                 <td>{data}</td>
               </tr>
             </tbody>

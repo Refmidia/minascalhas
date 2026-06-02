@@ -18,6 +18,7 @@ import {
 import { ModalConfirmarMontagem } from "@/components/admin/modals/ModalConfirmarMontagem";
 import { ModalEditarCliente } from "@/components/admin/modals/ModalEditarCliente";
 import { ModalOrcamento } from "@/components/admin/modals/ModalOrcamento";
+import { dashConfirm } from "@/lib/dash-ui";
 import {
   deleteAgendamento,
   fetchAgendamentos,
@@ -124,7 +125,16 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
       setError("Somente admin pode excluir.");
       return;
     }
-    if (!window.confirm("Excluir este registro?")) return;
+    if (
+      !(await dashConfirm({
+        title: "Excluir registro?",
+        message: "Excluir este registro?",
+        confirmText: "Excluir",
+        variant: "danger",
+      }))
+    ) {
+      return;
+    }
     try {
       await deleteAgendamento(id);
       setItems((prev) => prev.filter((r) => r.id !== id));
@@ -134,7 +144,16 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
   }
 
   async function handleFinalizar(id: number) {
-    if (!window.confirm("Finalizar este serviço?")) return;
+    if (
+      !(await dashConfirm({
+        title: "Finalizar serviço?",
+        message: "Finalizar este serviço?",
+        confirmText: "Finalizar",
+        variant: "success",
+      }))
+    ) {
+      return;
+    }
     try {
       await finalizarServico(id);
       setItems((prev) => prev.filter((r) => r.id !== id));
@@ -143,7 +162,7 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
     }
   }
 
-  function onOrcamentoSaved(item: AgendamentoItem) {
+  async function onOrcamentoSaved(item: AgendamentoItem) {
     if (variant === "visitas") {
       setItems((prev) => prev.filter((r) => r.id !== item.id));
     } else if (variant === "orcamentado" && orcamentoMode === "editar") {
@@ -151,7 +170,16 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
     } else {
       void load();
     }
-    if (orcamentoMode === "novo" && window.confirm("Orçamento salvo. Enviar link no WhatsApp?")) {
+    if (
+      orcamentoMode === "novo" &&
+      (await dashConfirm({
+        title: "Enviar no WhatsApp?",
+        message: "Orçamento salvo. Deseja enviar o link no WhatsApp?",
+        confirmText: "Enviar",
+        variant: "success",
+        icon: "bi-whatsapp",
+      }))
+    ) {
       abrirWhatsappOrcamento({
         id: item.id,
         nome: item.nome,

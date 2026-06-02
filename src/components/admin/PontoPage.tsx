@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero } from "@/components/admin/DashPageHero";
 import { formatDataHoraPonto, pontoClasseBadge, pontoLabelTipo } from "@/lib/ponto-display";
+import { dashConfirm, dashToast } from "@/lib/dash-ui";
 
 type Estado = {
   status: string;
@@ -15,17 +16,6 @@ type Estado = {
 };
 
 type Registro = { id: number; tipo: string; registrado_em: string };
-
-function toast(msg: string, tipo: "success" | "danger" | "warning" = "success") {
-  const el = document.createElement("div");
-  el.className = `alert alert-${tipo === "success" ? "success" : tipo === "danger" ? "danger" : "warning"} position-fixed top-0 end-0`;
-  el.style.marginTop = "72px";
-  el.style.marginRight = "15px";
-  el.setAttribute("role", "alert");
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
 
 function badgeClass(status: string) {
   if (status === "trabalhando") return "on";
@@ -62,7 +52,7 @@ export function PontoPage() {
       setEstado(json.estado ?? null);
       setHistorico(json.historico ?? []);
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Erro.", "danger");
+      dashToast(e instanceof Error ? e.message : "Erro.", "danger");
     } finally {
       setLoading(false);
     }
@@ -101,14 +91,14 @@ export function PontoPage() {
         historico?: Registro[];
       };
       if (!res.ok) {
-        toast(json.message ?? "Não foi possível registrar.", "warning");
+        dashToast(json.message ?? "Não foi possível registrar.", "warning");
         return;
       }
-      toast(json.message ?? "Registrado!", "success");
+      dashToast(json.message ?? "Registrado!", "success");
       if (json.estado) setEstado(json.estado);
       if (json.historico) setHistorico(json.historico);
     } catch {
-      toast("Erro de comunicação.", "danger");
+      dashToast("Erro de comunicação.", "danger");
     } finally {
       setBusy(false);
     }
@@ -117,7 +107,13 @@ export function PontoPage() {
   async function excluirRegistro(reg: Registro) {
     const { data, hora } = formatDataHoraPonto(reg.registrado_em);
     const msg = `Excluir o registro de ${pontoLabelTipo(reg.tipo)} em ${data} ${hora}? Esta ação não pode ser desfeita.`;
-    if (!window.confirm(msg)) return;
+    const ok = await dashConfirm({
+      title: "Excluir registro?",
+      message: msg,
+      confirmText: "Excluir",
+      variant: "danger",
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/ponto-controle?id=${reg.id}`, {
@@ -126,10 +122,10 @@ export function PontoPage() {
       });
       const json = (await res.json()) as { ok?: boolean; message?: string };
       if (!res.ok) throw new Error(json.message ?? "Não foi possível excluir.");
-      toast(json.message ?? "Registro excluído.", "success");
+      dashToast(json.message ?? "Registro excluído.", "success");
       void load();
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro.", "danger");
     }
   }
 

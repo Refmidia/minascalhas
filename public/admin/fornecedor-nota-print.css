@@ -1,0 +1,215 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body.fornecedor-nota-print-page {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #111;
+    font-size: 14px;
+    background: #fff;
+}
+
+.forn-nota {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.forn-nota__actions {
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.forn-nota__btn {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+}
+
+.forn-nota__btn--primary {
+    background: #1a7f37;
+    color: #fff;
+    border-color: #1a7f37;
+}
+
+.forn-nota__btn:hover {
+    filter: brightness(0.97);
+}
+
+.forn-nota__head {
+    border-bottom: 2px solid #1a7f37;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.forn-nota__brand img {
+    display: block;
+    max-width: 220px;
+    max-height: 64px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.forn-nota__meta {
+    margin-top: 8px;
+    color: #444;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.forn-nota__meta strong {
+    color: #111;
+}
+
+.forn-nota__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.forn-nota__status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.forn-nota__status--ok {
+    background: #d4edda;
+    color: #155724;
+}
+
+.forn-nota__status--pend {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.forn-nota__status--pago {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.forn-nota__status--pg-pend {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.forn-nota__empresa {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.forn-nota__linha {
+    color: #555;
+    font-size: 13px;
+    margin: 0 0 8px;
+    line-height: 1.45;
+}
+
+.forn-nota__linha--tight {
+    margin-top: -6px;
+}
+
+.forn-nota__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+.forn-nota__table th,
+.forn-nota__table td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.forn-nota__table th {
+    background: #f4f4f4;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.forn-nota__table .text-end {
+    text-align: right;
+}
+
+.forn-nota__table small {
+    color: #666;
+}
+
+.forn-nota__total {
+    text-align: right;
+    font-size: 1.05rem;
+    margin-top: 12px;
+}
+
+.forn-nota__obs {
+    margin-top: 16px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.forn-nota__foot {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px dashed #aaa;
+    font-size: 12px;
+    color: #666;
+}
+
+.forn-nota__loading,
+.forn-nota__erro {
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 24px;
+    text-align: center;
+    color: #555;
+}
+
+.forn-nota__erro {
+    color: #b91c1c;
+}
+
+@media print {
+    body.fornecedor-nota-print-page {
+        background: #fff;
+    }
+
+    .forn-nota {
+        padding: 0;
+        max-width: none;
+    }
+
+    .forn-nota__actions {
+        display: none !important;
+    }
+
+    @page {
+        margin: 12mm;
+    }
+}

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DashPageHero } from "@/components/admin/DashPageHero";
@@ -17,22 +17,16 @@ import {
   type FornecedorRow,
 } from "@/lib/fornecedores-client";
 import {
+  abreviarNomePessoa,
   entregaNumeroNota,
   formatCnpjExib,
   formatDataHora,
+  formatDataHoraCurta,
   formatMoeda,
   fornecedorRotulo,
   fornecedorRotuloEmpresa,
 } from "@/lib/fornecedores-display";
-
-function toast(msg: string, tipo: "success" | "danger" = "success") {
-  const el = document.createElement("div");
-  el.className = `alert alert-${tipo === "success" ? "success" : "danger"} position-fixed top-0 end-0 forn-toast`;
-  el.setAttribute("role", "alert");
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
+import { dashAlert, dashConfirm, dashToast } from "@/lib/dash-ui";
 
 function badgeRecebimento(status: string, qtdItens: number, qtdRecebidos: number) {
   if (status === "recebido") {
@@ -103,9 +97,14 @@ function EntregaDetalheView({
     [entrega.itens, selPagar],
   );
 
+  const colSelReceber = pendentes.length > 0 ? 1 : 0;
+  const colSelPagar = pagPendentes.length > 0 ? 1 : 0;
+  const colTotalTabela = colSelReceber + colSelPagar + 5;
+  const colSpanTotalLabel = colTotalTabela - 2;
+
   async function confirmarRecebimento() {
     if (selReceber.length === 0) {
-      window.alert("Selecione ao menos um item.");
+      void dashAlert({ message: "Selecione ao menos um item.", variant: "warning" });
       return;
     }
     setBusy(true);
@@ -116,17 +115,24 @@ function EntregaDetalheView({
         item_ids: selReceber,
         pagamento_status: pagamento,
       });
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) onReload();
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Erro.", "danger");
+      dashToast(e instanceof Error ? e.message : "Erro.", "danger");
     } finally {
       setBusy(false);
     }
   }
 
   async function receberTodos() {
-    if (!window.confirm("Receber todos os itens pendentes desta nota?")) return;
+    const ok = await dashConfirm({
+      title: "Receber todos os itens?",
+      message: "Todos os itens pendentes desta nota serão marcados como recebidos.",
+      confirmText: "Receber todos",
+      variant: "success",
+      icon: "bi-check-all",
+    });
+    if (!ok) return;
     setBusy(true);
     try {
       const res = await postFornecedoresAction({
@@ -134,10 +140,10 @@ function EntregaDetalheView({
         entrega_id: entrega.id,
         pagamento_status: pagamento,
       });
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) onReload();
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Erro.", "danger");
+      dashToast(e instanceof Error ? e.message : "Erro.", "danger");
     } finally {
       setBusy(false);
     }
@@ -145,7 +151,7 @@ function EntregaDetalheView({
 
   async function marcarPago() {
     if (selPagar.length === 0) {
-      window.alert("Selecione itens para marcar como pago.");
+      void dashAlert({ message: "Selecione itens para marcar como pago.", variant: "warning" });
       return;
     }
     setBusy(true);
@@ -155,10 +161,10 @@ function EntregaDetalheView({
         entrega_id: entrega.id,
         item_ids: selPagar,
       });
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) onReload();
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Erro.", "danger");
+      dashToast(e instanceof Error ? e.message : "Erro.", "danger");
     } finally {
       setBusy(false);
     }
@@ -169,16 +175,25 @@ function EntregaDetalheView({
       <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
         <div>
           <h2 className="dash-form-block__title h5 mb-1">{entregaNumeroNota(entrega.id)}</h2>
-          <p className="mb-0 text-muted small">
+          <p className="mb-0 text-muted small forn-entrega-detalhe__meta">
             <strong>{fornecedorRotuloEmpresa(entrega)}</strong>
-            {entrega.usuario_nome ? ` · Enviado por ${entrega.usuario_nome}` : null}
+            {entrega.usuario_nome ? (
+              <>
+                {" "}
+                · Enviado por{" "}
+                <span title={entrega.usuario_nome.trim()}>
+                  {abreviarNomePessoa(entrega.usuario_nome)}
+                </span>
+              </>
+            ) : null}
           </p>
         </div>
         <div className="d-flex flex-wrap gap-2">
           <Link
-            to="/painel/fornecedores"
+            to="/nota-entrega"
             search={{ nota: entrega.id }}
             target="_blank"
+            rel="noopener noreferrer"
             className="analytics-btn analytics-btn--outline analytics-btn--sm"
           >
             <i className="bi bi-printer" aria-hidden="true" /> Imprimir nota
@@ -298,15 +313,15 @@ function EntregaDetalheView({
                 );
               })}
             </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan={99} className="text-end">
+            <tfoot className="forn-entrega-itens-table__foot">
+              <tr className="forn-entrega-itens-table__total-row">
+                <td colSpan={colSpanTotalLabel} className="text-end">
                   <strong>Total nota</strong>
                 </td>
-                <td className="text-end">
+                <td className="text-end forn-entrega-itens-table__total-valor">
                   <strong>R$ {formatMoeda(entrega.total_geral)}</strong>
                 </td>
-                <td />
+                <td className="forn-entrega-itens-table__total-pad" />
               </tr>
             </tfoot>
           </table>
@@ -316,7 +331,7 @@ function EntregaDetalheView({
       {pendentes.length > 0 ? (
         <div className="forn-receber-itens-bar mt-3">
           <fieldset className="forn-pagamento-opcoes mb-0">
-            <legend className="form-label mb-2">Pagamento dos itens selecionados</legend>
+            <legend className="forn-receber-itens-bar__legend">Pagamento dos itens selecionados</legend>
             <div className="form-check mb-2">
               <input
                 className="form-check-input"
@@ -343,7 +358,7 @@ function EntregaDetalheView({
                 <strong>Pagamento pendente</strong> — pago depois
               </label>
             </div>
-            <p className="small text-warning-emphasis mt-2 mb-0">
+            <p className="forn-receber-itens-bar__total">
               Selecionados: <strong>R$ {formatMoeda(totalSelReceber)}</strong>
             </p>
           </fieldset>
@@ -360,7 +375,7 @@ function EntregaDetalheView({
 
       {pagPendentes.length > 0 ? (
         <div className="forn-receber-itens-bar forn-pagar-itens-bar mt-3">
-          <p className="mb-0 small text-muted flex-grow-1">
+          <p className="forn-pagar-itens-bar__text">
             Itens já recebidos com pagamento pendente — selecionados:{" "}
             <strong>R$ {formatMoeda(totalSelPagar)}</strong>
           </p>
@@ -382,63 +397,6 @@ function EntregaDetalheView({
       ) : null}
       <input type="hidden" value={statusTab} readOnly aria-hidden />
     </section>
-  );
-}
-
-function FornecedorNotaPrint({ notaId }: { notaId: number }) {
-  const [entrega, setEntrega] = useState<EntregaDetalhe | null>(null);
-
-  useEffect(() => {
-    void fetchEntregaDetalhe(notaId).then(setEntrega);
-  }, [notaId]);
-
-  useEffect(() => {
-    if (entrega) {
-      const t = setTimeout(() => window.print(), 400);
-      return () => clearTimeout(t);
-    }
-  }, [entrega]);
-
-  if (!entrega) return <p className="p-4">Carregando nota…</p>;
-
-  return (
-    <div className="p-4 bg-white text-dark">
-      <h1 className="h4">{entregaNumeroNota(entrega.id)}</h1>
-      <p className="mb-1">
-        <strong>{fornecedorRotuloEmpresa(entrega)}</strong>
-      </p>
-      <p className="small text-muted mb-3">{formatDataHora(entrega.enviado_em)}</p>
-      <table className="table table-sm">
-        <thead>
-          <tr>
-            <th>Material</th>
-            <th className="text-end">Metros</th>
-            <th className="text-end">R$/m</th>
-            <th className="text-end">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entrega.itens.map((i) => (
-            <tr key={i.id}>
-              <td>{i.material_nome}</td>
-              <td className="text-end">{formatMoeda(i.metros)}</td>
-              <td className="text-end">{formatMoeda(i.valor_unitario)}</td>
-              <td className="text-end">{formatMoeda(i.total)}</td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan={3} className="text-end">
-              <strong>Total</strong>
-            </td>
-            <td className="text-end">
-              <strong>R$ {formatMoeda(entrega.total_geral)}</strong>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
   );
 }
 
@@ -507,34 +465,44 @@ export function FornecedoresPage() {
       id ? { action: "editar", id, dados } : { action: "cadastrar", dados },
     );
     if (!res.ok) throw new Error(res.message);
-    toast(res.message);
+    dashToast(res.message);
     void load();
   }
 
   async function excluirFornecedor(id: number) {
-    if (!window.confirm("Excluir esta empresa fornecedora?")) return;
+    const okExcluir = await dashConfirm({
+      title: "Excluir empresa?",
+      message: "Excluir esta empresa fornecedora? Esta ação não pode ser desfeita.",
+      confirmText: "Excluir",
+      variant: "danger",
+    });
+    if (!okExcluir) return;
     const res = await postFornecedoresAction({ action: "excluir", id });
-    toast(res.message, res.ok ? "success" : "danger");
+    dashToast(res.message, res.ok ? "success" : "danger");
     if (res.ok) void load();
   }
 
   async function excluirEntrega(id: number) {
     if (
-      !window.confirm(
-        "Excluir esta nota de entrega? Compras lançadas ao receber também serão removidas.",
-      )
+      !(await dashConfirm({
+        title: "Excluir nota de entrega?",
+        message:
+          "Excluir esta nota de entrega? Compras lançadas ao receber também serão removidas.",
+        confirmText: "Excluir",
+        variant: "danger",
+      }))
     ) {
       return;
     }
     const res = await postFornecedoresAction({ action: "excluir_entrega", entrega_id: id });
-    toast(res.message, res.ok ? "success" : "danger");
+    dashToast(res.message, res.ok ? "success" : "danger");
     if (res.ok) {
       void navigate({ search: { status } });
     }
   }
 
   if (notaId > 0) {
-    return <FornecedorNotaPrint notaId={notaId} />;
+    return <Navigate to="/nota-entrega" search={{ nota: notaId }} replace />;
   }
 
   const title = controle
@@ -575,7 +543,6 @@ export function FornecedoresPage() {
                 setModalForn(controle.fornecedor);
                 setModalOpen(true);
               }}
-              toast={toast}
             />
           ) : null}
 
@@ -684,38 +651,55 @@ export function FornecedoresPage() {
                     </div>
                   </div>
                   <div className="dashboard-data-desktop inv-table-shell mb-4">
-                    <div className="table-responsive inv-table-scroll inv-table-scroll--fit">
-                      <table className="table inv-data-table inv-data-table--balanced align-middle mb-0">
+                    <div className="table-responsive inv-table-scroll forn-entregas-table-wrap">
+                      <table className="table inv-data-table inv-data-table--balanced inv-data-table--entregas align-middle mb-0">
                         <thead>
                           <tr>
-                            <th>Nota</th>
-                            <th>Fornecedor / empresa</th>
-                            <th>Enviado por</th>
-                            <th>Data</th>
-                            <th className="text-end">Itens</th>
-                            <th className="text-end">Total</th>
-                            <th>Recebimento</th>
-                            <th>Pagamento</th>
-                            <th className="inv-col-actions">Ações</th>
+                            <th className="forn-col-nota">Nota</th>
+                            <th className="forn-col-empresa">Fornecedor</th>
+                            <th className="forn-col-enviado">Enviado por</th>
+                            <th className="forn-col-data">Data</th>
+                            <th className="text-end forn-col-itens">Itens</th>
+                            <th className="text-end forn-col-total">Total</th>
+                            <th className="forn-col-status">Receb.</th>
+                            <th className="forn-col-status">Pag.</th>
+                            <th className="inv-col-actions forn-col-acoes">Ações</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {entregas.map((ent) => (
+                          {entregas.map((ent) => {
+                            const enviadoPor = ent.usuario_nome?.trim() ?? "";
+                            const enviadoCurto = enviadoPor
+                              ? abreviarNomePessoa(enviadoPor)
+                              : "—";
+                            return (
                             <tr
                               key={ent.id}
                               className={`inv-data-row${ent.status === "enviado" || ent.status === "parcial" ? " forn-entrega-row--pend" : ""}`}
                             >
-                              <td>
+                              <td className="forn-col-nota">
                                 <strong>{entregaNumeroNota(ent.id)}</strong>
                               </td>
-                              <td>
-                                <span className="inv-cliente-nome d-block">
+                              <td className="forn-col-empresa">
+                                <span
+                                  className="inv-cell-ellipsis"
+                                  title={fornecedorRotuloEmpresa(ent)}
+                                >
                                   {fornecedorRotuloEmpresa(ent)}
                                 </span>
                               </td>
-                              <td>{ent.usuario_nome?.trim() || "—"}</td>
-                              <td className="text-nowrap">
-                                <small>{formatDataHora(ent.enviado_em)}</small>
+                              <td className="forn-col-enviado">
+                                <span
+                                  className="inv-cell-ellipsis"
+                                  title={enviadoPor || undefined}
+                                >
+                                  {enviadoCurto}
+                                </span>
+                              </td>
+                              <td className="forn-col-data text-nowrap">
+                                <small title={formatDataHora(ent.enviado_em)}>
+                                  {formatDataHoraCurta(ent.enviado_em)}
+                                </small>
                               </td>
                               <td className="text-end">{ent.qtd_itens}</td>
                               <td className="text-end">R$ {formatMoeda(ent.total_valor)}</td>
@@ -727,8 +711,8 @@ export function FornecedoresPage() {
                                 )}
                               </td>
                               <td>{badgePagamento(ent.status, ent.pagamento_status)}</td>
-                              <td className="inv-col-actions">
-                                <div className="inv-action-group inv-action-group--row-end">
+                              <td className="inv-col-actions forn-col-acoes">
+                                <div className="inv-action-group inv-action-group--row-end forn-entregas-actions">
                                   <Link
                                     to="/painel/fornecedores"
                                     search={{ ver: ent.id, status }}
@@ -738,9 +722,10 @@ export function FornecedoresPage() {
                                     <i className="bi bi-eye" aria-hidden="true" />
                                   </Link>
                                   <Link
-                                    to="/painel/fornecedores"
+                                    to="/nota-entrega"
                                     search={{ nota: ent.id }}
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                     className="inv-action-btn inv-action-btn--secondary"
                                     title="Imprimir"
                                   >
@@ -759,14 +744,14 @@ export function FornecedoresPage() {
                                   <Link
                                     to="/painel/fornecedores"
                                     search={{ controle: ent.fornecedor_id }}
-                                    className="inv-action-btn inv-action-btn--muted"
+                                    className="inv-action-btn inv-action-btn--secondary"
                                     title="Financeiro"
                                   >
                                     <i className="bi bi-graph-up" aria-hidden="true" />
                                   </Link>
                                   <button
                                     type="button"
-                                    className="inv-action-btn inv-action-btn--muted"
+                                    className="inv-action-btn inv-action-btn--secondary"
                                     title="Excluir nota"
                                     onClick={() => void excluirEntrega(ent.id)}
                                   >
@@ -775,7 +760,8 @@ export function FornecedoresPage() {
                                 </div>
                               </td>
                             </tr>
-                          ))}
+                          );
+                          })}
                         </tbody>
                       </table>
                     </div>

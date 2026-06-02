@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { AdminAuthProvider, useAdminAuth } from "@/components/admin/admin-auth";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminTheme } from "@/components/admin/AdminTheme";
+import { DashUiProvider } from "@/components/admin/DashUiProvider";
 
 export const Route = createFileRoute("/painel")({
   head: () => ({
@@ -33,7 +34,9 @@ function PainelLayout() {
   return (
     <AdminAuthProvider>
       <AdminTheme />
-      <PainelGate />
+      <DashUiProvider>
+        <PainelGate />
+      </DashUiProvider>
     </AdminAuthProvider>
   );
 }

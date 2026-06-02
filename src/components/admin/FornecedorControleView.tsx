@@ -16,6 +16,7 @@ import {
   formatDataHora,
   formatMoeda,
 } from "@/lib/fornecedores-display";
+import { dashToast } from "@/lib/dash-ui";
 
 export type { FornecedorControlePainel };
 
@@ -25,7 +26,6 @@ type Props = {
   status: string;
   onReload: () => void;
   onEditar: () => void;
-  toast: (msg: string, tipo?: "success" | "danger") => void;
 };
 
 function parseDecimalInput(raw: string): number {
@@ -53,7 +53,6 @@ export function FornecedorControleView({
   status,
   onReload,
   onEditar,
-  toast,
 }: Props) {
   const { fornecedor: f, resumo, compras, orcamentos, itens, materiais, pendentes, entregas_pendentes } =
     data;
@@ -101,7 +100,7 @@ export function FornecedorControleView({
     e.preventDefault();
     const mid = Number.parseInt(materialId, 10);
     if (!mid) {
-      toast("Selecione o material.", "danger");
+      dashToast("Selecione o material.", "danger");
       return;
     }
     setSubmitting(true);
@@ -115,7 +114,7 @@ export function FornecedorControleView({
         observacao: obs,
         atualizar_custo_material: atualizarCusto,
       });
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) {
         setObs("");
         setMetros("1");
@@ -124,7 +123,7 @@ export function FornecedorControleView({
         onReload();
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro ao lançar.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro ao lançar.", "danger");
     } finally {
       setSubmitting(false);
     }
@@ -139,13 +138,13 @@ export function FornecedorControleView({
         compra_id: excluirCompra.id,
         fornecedor_id: controleId,
       });
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) {
         setExcluirCompra(null);
         onReload();
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro ao excluir.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro ao excluir.", "danger");
     } finally {
       setExcluirLoading(false);
     }
@@ -163,14 +162,14 @@ export function FornecedorControleView({
         metros_devolver: metrosDevolver,
         motivo: motivoDevolver,
       });
-      toast(res.message, res.ok ? "success" : "danger");
+      dashToast(res.message, res.ok ? "success" : "danger");
       if (res.ok) {
         setDevolverOpen(false);
         setDevolverCompra(null);
         onReload();
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Erro na devolução.", "danger");
+      dashToast(err instanceof Error ? err.message : "Erro na devolução.", "danger");
     } finally {
       setDevolverLoading(false);
     }

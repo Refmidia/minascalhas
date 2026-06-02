@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { AcAgendarForm } from "@/components/site/home/AcAgendarForm";
@@ -29,18 +29,9 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
   useEffect(() => {
     document.body.classList.add("ac-landing");
     document.body.dataset.waNumber = HOME_SITE.whatsapp;
-
-    const header = document.getElementById("ac-header");
-    const onScroll = () => {
-      header?.classList.toggle("is-scrolled", window.scrollY > 12);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-
     return () => {
       document.body.classList.remove("ac-landing");
       delete document.body.dataset.waNumber;
-      window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
@@ -113,7 +104,7 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
                 <a href="#projetos">Projetos</a>
               </li>
               <li>
-                <a href="#servicos">Galeria</a>
+                <Link to="/galeria">Galeria</Link>
               </li>
               <li>
                 <a href="#contato">Contato</a>
@@ -276,6 +267,11 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
                 </div>
               </div>
             </div>
+            <p className="ac-portfolio__cta">
+              <Link to="/galeria" className="ac-btn ac-btn--outline">
+                Ver galeria completa
+              </Link>
+            </p>
           </div>
         </section>
 
@@ -394,7 +390,7 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
                 <a href="#projetos">Projetos</a>
               </li>
               <li>
-                <a href="#servicos">Galeria</a>
+                <Link to="/galeria">Galeria</Link>
               </li>
               <li>
                 <a href="#contato">Contato</a>

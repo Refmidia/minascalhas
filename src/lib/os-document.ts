@@ -1,5 +1,5 @@
 import type { AgendamentoItem } from "@/lib/admin-api";
-import { inventarioSubtotalOrcamento, type OrcamentoLinha } from "@/lib/orcamento.server";
+import type { OrcamentoLinha } from "@/lib/orcamento.server";
 
 /** Cabeçalho fixo do PDF de orçamento (Alex os.php). */
 export const OS_ORCAMENTO_EMPRESA = {
@@ -40,11 +40,39 @@ export function formatOsEndereco(item: AgendamentoItem): string {
   return cep ? `${base} - ${cep}` : base;
 }
 
+/** Quantidade na linha do PDF (igual os.php: metros ≤ 0 → 1). */
+export function quantidadeLinhaOrcamento(linha: OrcamentoLinha): number {
+  const qtd = Number(linha.metros) || 0;
+  return qtd > 0 ? qtd : 1;
+}
+
+export function totalLinhaOrcamento(linha: OrcamentoLinha): number {
+  const unit = Number(linha.valor) || 0;
+  return Math.round(quantidadeLinhaOrcamento(linha) * unit * 100) / 100;
+}
+
+/** Soma dos itens exibidos no orçamento impresso. */
+export function subtotalOrcamentoDocumento(itens: OrcamentoLinha[]): number {
+  let total = 0;
+  for (const linha of itens) {
+    total += totalLinhaOrcamento(linha);
+  }
+  return Math.round(total * 100) / 100;
+}
+
+/**
+ * Totais do PDF: bruto = soma das linhas; total a vista = valor gravado só se for desconto válido (≤ bruto).
+ * Evita exibir valor incorreto do banco (ex.: 41.958 quando a soma dos itens é 441,66).
+ */
 export function calcTotaisOrcamento(itens: OrcamentoLinha[], valorFinal: number) {
-  const subtotalMateriais = inventarioSubtotalOrcamento(itens);
-  const bruto = Math.max(subtotalMateriais, valorFinal);
-  const desconto = Math.max(0, bruto - valorFinal);
-  return { subtotalMateriais, bruto, desconto, total: valorFinal };
+  const bruto = subtotalOrcamentoDocumento(itens);
+  const valor = Number(valorFinal) || 0;
+  let total = bruto;
+  if (valor > 0 && valor <= bruto + 0.009) {
+    total = Math.round(valor * 100) / 100;
+  }
+  const desconto = Math.round(Math.max(0, bruto - total) * 100) / 100;
+  return { subtotalMateriais: bruto, bruto, desconto, total };
 }
 
 export function dataEmissaoOs(): { data: string; hora: string } {

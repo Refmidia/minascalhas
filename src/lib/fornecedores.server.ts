@@ -48,6 +48,16 @@ export type EntregaItemRow = {
 export type EntregaDetalhe = EntregaListaRow & {
   observacao: string | null;
   usuario_nome: string | null;
+  cnpj: string | null;
+  telefone: string | null;
+  email: string | null;
+  contato_nome: string | null;
+  endereco: string | null;
+  numero: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
   itens: EntregaItemRow[];
   total_geral: number;
   total_recebido: number;
@@ -222,9 +232,20 @@ export async function obterEntregaCompleta(entregaId: number): Promise<EntregaDe
     }
   }
 
+  const row = entRows[0];
   return {
     ...base,
-    observacao: entRows[0].observacao ? str(entRows[0].observacao) : null,
+    observacao: row.observacao ? str(row.observacao) : null,
+    cnpj: row.cnpj ? str(row.cnpj) : null,
+    telefone: row.telefone ? str(row.telefone) : null,
+    email: row.email ? str(row.email) : null,
+    contato_nome: row.contato_nome ? str(row.contato_nome) : null,
+    endereco: row.endereco ? str(row.endereco) : null,
+    numero: row.numero ? str(row.numero) : null,
+    complemento: row.complemento ? str(row.complemento) : null,
+    bairro: row.bairro ? str(row.bairro) : null,
+    cidade: row.cidade ? str(row.cidade) : null,
+    uf: row.uf ? str(row.uf) : null,
     itens,
     total_geral: itens.reduce((s, i) => s + i.total, 0),
     total_recebido,

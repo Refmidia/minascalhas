@@ -12,17 +12,7 @@ import {
 } from "@/lib/admin-logs-client";
 import { formatContextoJson, formatLogData, resolverPassos, rotuloNivel } from "@/lib/admin-logs-display";
 import type { AdminLogFiltroNivel, AdminLogRow } from "@/lib/admin-logs-client";
-
-function toast(msg: string, tipo: "success" | "danger" | "warning" = "success") {
-  const el = document.createElement("div");
-  const cls =
-    tipo === "success" ? "success" : tipo === "warning" ? "warning" : "danger";
-  el.className = `alert alert-${cls} position-fixed top-0 end-0 forn-toast`;
-  el.setAttribute("role", "alert");
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
+import { dashToast } from "@/lib/dash-ui";
 
 const NIVEL_OPCOES: { value: AdminLogFiltroNivel; label: string }[] = [
   { value: "problemas", label: "Problemas (erro + aviso + segurança)" },
@@ -123,17 +113,17 @@ export function LogsPage() {
     try {
       if (confirm.type === "delete") {
         await apagarAdminLog(confirm.id);
-        toast("Registro removido do log.", "success");
+        dashToast("Registro removido do log.", "success");
       } else {
         const n = confirm.type === "clearAll" ? "todos" : confirm.nivel;
         const msg = await limparAdminLogs(n);
-        toast(msg, msg.includes("Nenhum") ? "warning" : "success");
+        dashToast(msg, msg.includes("Nenhum") ? "warning" : "success");
         if (confirm.type === "clearAll" || confirm.nivel === "todos") setPage(1);
       }
       setConfirm(null);
       await load();
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Erro.", "danger");
+      dashToast(e instanceof Error ? e.message : "Erro.", "danger");
     } finally {
       setConfirmLoading(false);
     }

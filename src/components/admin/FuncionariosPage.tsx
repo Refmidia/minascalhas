@@ -12,6 +12,7 @@ import {
   primeiroNome,
 } from "@/lib/funcionario-pagamento-display";
 import { pagamentoFimSemana, ymdLocal } from "@/lib/funcionario-pagamento-dates";
+import { dashConfirm } from "@/lib/dash-ui";
 import { Route as FuncionariosRoute } from "@/routes/painel/funcionarios";
 
 type Card = {
@@ -738,7 +739,16 @@ export function FuncionariosPage() {
                                   title="Excluir pagamento"
                                   aria-label="Excluir pagamento"
                                   onClick={async () => {
-                                    if (!window.confirm("Deseja excluir este pagamento?")) return;
+                                    if (
+                                      !(await dashConfirm({
+                                        title: "Excluir pagamento?",
+                                        message: "Deseja excluir este pagamento?",
+                                        confirmText: "Excluir",
+                                        variant: "danger",
+                                      }))
+                                    ) {
+                                      return;
+                                    }
                                     await fetch("/api/admin/funcionarios-pagamento", {
                                       method: "POST",
                                       credentials: "include",
