@@ -7,11 +7,14 @@ import {
   FOTOS_MAX_BYTES,
   FOTOS_TIPOS,
 } from "@/lib/produtos-upload.server";
+import {
+  canPersistUploads,
+  mensagemUploadIndisponivel,
+  resolveUploadDir,
+} from "@/lib/upload-dir.server";
 
 export function usuarioThumbUploadDir(): string {
-  const custom = process.env.USER_THUMB_DIR?.trim();
-  if (custom) return path.resolve(custom);
-  return path.resolve(process.cwd(), "public", "images", "thumb");
+  return resolveUploadDir("USER_THUMB_DIR", ["images", "thumb"]);
 }
 
 export function thumbPublicUrl(arquivo: string): string {
@@ -28,6 +31,9 @@ export function thumbNomeSeguro(nome: string): string | null {
 export async function salvarThumbUpload(
   file: File,
 ): Promise<{ arquivo: string } | { erro: string }> {
+  if (!canPersistUploads("USER_THUMB_DIR")) {
+    return { erro: mensagemUploadIndisponivel("foto de perfil") };
+  }
   if (!FOTOS_TIPOS.has(file.type)) {
     return { erro: "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF." };
   }
