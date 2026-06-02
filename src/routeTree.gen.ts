@@ -31,6 +31,8 @@ import { Route as PainelConfirmadoRouteImport } from './routes/painel/confirmado
 import { Route as PainelClientesRouteImport } from './routes/painel/clientes'
 import { Route as PainelAgendarRouteImport } from './routes/painel/agendar'
 import { Route as ApiOsRouteImport } from './routes/api/os'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiConsultaDocumentoRouteImport } from './routes/api/consulta-documento'
 import { Route as ApiAgendamentosRouteImport } from './routes/api/agendamentos'
 import { Route as ApiAgendamentosIdRouteImport } from './routes/api/agendamentos/$id'
 import { Route as ApiAdminVisaoRouteImport } from './routes/api/admin/visao'
@@ -171,6 +173,16 @@ const PainelAgendarRoute = PainelAgendarRouteImport.update({
 const ApiOsRoute = ApiOsRouteImport.update({
   id: '/api/os',
   path: '/api/os',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiConsultaDocumentoRoute = ApiConsultaDocumentoRouteImport.update({
+  id: '/api/consulta-documento',
+  path: '/api/consulta-documento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgendamentosRoute = ApiAgendamentosRouteImport.update({
@@ -342,6 +354,8 @@ export interface FileRoutesByFullPath {
   '/painel': typeof PainelRouteRouteWithChildren
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
+  '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
   '/painel/agendar': typeof PainelAgendarRoute
   '/painel/clientes': typeof PainelClientesRoute
@@ -396,6 +410,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
+  '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
   '/painel/agendar': typeof PainelAgendarRoute
   '/painel/clientes': typeof PainelClientesRoute
@@ -452,6 +468,8 @@ export interface FileRoutesById {
   '/painel': typeof PainelRouteRouteWithChildren
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
+  '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
   '/painel/agendar': typeof PainelAgendarRoute
   '/painel/clientes': typeof PainelClientesRoute
@@ -509,6 +527,8 @@ export interface FileRouteTypes {
     | '/painel'
     | '/os'
     | '/api/agendamentos'
+    | '/api/consulta-documento'
+    | '/api/health'
     | '/api/os'
     | '/painel/agendar'
     | '/painel/clientes'
@@ -563,6 +583,8 @@ export interface FileRouteTypes {
     | '/'
     | '/os'
     | '/api/agendamentos'
+    | '/api/consulta-documento'
+    | '/api/health'
     | '/api/os'
     | '/painel/agendar'
     | '/painel/clientes'
@@ -618,6 +640,8 @@ export interface FileRouteTypes {
     | '/painel'
     | '/os'
     | '/api/agendamentos'
+    | '/api/consulta-documento'
+    | '/api/health'
     | '/api/os'
     | '/painel/agendar'
     | '/painel/clientes'
@@ -674,6 +698,8 @@ export interface RootRouteChildren {
   PainelRouteRoute: typeof PainelRouteRouteWithChildren
   OsRoute: typeof OsRoute
   ApiAgendamentosRoute: typeof ApiAgendamentosRouteWithChildren
+  ApiConsultaDocumentoRoute: typeof ApiConsultaDocumentoRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiOsRoute: typeof ApiOsRoute
   ApiAdminClientesRoute: typeof ApiAdminClientesRoute
   ApiAdminConsultaCnpjRoute: typeof ApiAdminConsultaCnpjRoute
@@ -852,6 +878,20 @@ declare module '@tanstack/react-router' {
       path: '/api/os'
       fullPath: '/api/os'
       preLoaderRoute: typeof ApiOsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/consulta-documento': {
+      id: '/api/consulta-documento'
+      path: '/api/consulta-documento'
+      fullPath: '/api/consulta-documento'
+      preLoaderRoute: typeof ApiConsultaDocumentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agendamentos': {
@@ -1211,6 +1251,8 @@ const rootRouteChildren: RootRouteChildren = {
   PainelRouteRoute: PainelRouteRouteWithChildren,
   OsRoute: OsRoute,
   ApiAgendamentosRoute: ApiAgendamentosRouteWithChildren,
+  ApiConsultaDocumentoRoute: ApiConsultaDocumentoRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiOsRoute: ApiOsRoute,
   ApiAdminClientesRoute: ApiAdminClientesRoute,
   ApiAdminConsultaCnpjRoute: ApiAdminConsultaCnpjRoute,

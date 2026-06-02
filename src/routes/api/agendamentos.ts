@@ -10,7 +10,7 @@ import {
 import { getAdminSessionFromRequest, isAdminRequest } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/db.server";
 import { jsonResponse, PUBLIC_CORS } from "@/lib/http.server";
-import { agendamentoSchema } from "@/lib/validation";
+import { agendamentoSiteSchema } from "@/lib/validation";
 
 const corsJson = (data: unknown, status = 200) =>
   jsonResponse(data, status, PUBLIC_CORS);
@@ -71,7 +71,7 @@ export const Route = createFileRoute("/api/agendamentos")({
           return corsJson({ ok: false, message: "JSON inválido." }, 400);
         }
 
-        const parsed = agendamentoSchema.safeParse(body);
+        const parsed = agendamentoSiteSchema.safeParse(body);
         if (!parsed.success) {
           return corsJson(
             {

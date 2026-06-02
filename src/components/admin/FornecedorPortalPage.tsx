@@ -4,10 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero } from "@/components/admin/DashPageHero";
 import { Route as FornecedoresRoute } from "@/routes/painel/fornecedores";
+import { FornecedorNovaEntregaSection } from "@/components/admin/FornecedorNovaEntregaSection";
 import {
   fetchFornecedorPortal,
+  type CarrinhoItemEntrega,
   type EntregaDetalhe,
   type EntregaListaRow,
+  type MaterialLiberadoRow,
 } from "@/lib/fornecedores-client";
 import {
   entregaNumeroNota,
@@ -34,6 +37,9 @@ export function FornecedorPortalPage() {
   const [fornecedorId, setFornecedorId] = useState(0);
   const [entregas, setEntregas] = useState<EntregaListaRow[]>([]);
   const [detalhe, setDetalhe] = useState<EntregaDetalhe | null>(null);
+  const [materiais, setMateriais] = useState<MaterialLiberadoRow[]>([]);
+  const [carrinho, setCarrinho] = useState<CarrinhoItemEntrega[]>([]);
+  const [toastMsg, setToastMsg] = useState<{ text: string; tipo: "success" | "danger" } | null>(null);
 
   const fid = fornecedorId || controleUrl || user?.fornecedorPreviewId || 0;
   const baseSearch = controleSearch(fid);
@@ -57,9 +63,13 @@ export function FornecedorPortalPage() {
       if (data.entrega) {
         setDetalhe(data.entrega);
         setEntregas([]);
+        setMateriais([]);
+        setCarrinho([]);
       } else {
         setDetalhe(null);
         setEntregas(data.entregas ?? []);
+        setMateriais(data.materiais ?? []);
+        setCarrinho(data.carrinho ?? []);
       }
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao carregar.");
@@ -83,6 +93,11 @@ export function FornecedorPortalPage() {
   }, []);
 
   const titulo = nomeEmpresa || "Minhas entregas";
+
+  const toast = useCallback((text: string, tipo: "success" | "danger" = "success") => {
+    setToastMsg({ text, tipo });
+    window.setTimeout(() => setToastMsg(null), 5000);
+  }, []);
 
   return (
     <div className="analytics-page dash-form-page--pro dashboard-page--fornecedores">
@@ -114,6 +129,14 @@ export function FornecedorPortalPage() {
         {erro && erro !== "sem_vinculo" ? (
           <div className="alert alert-danger" role="alert">
             {erro}
+          </div>
+        ) : null}
+        {toastMsg ? (
+          <div
+            className={`alert alert-${toastMsg.tipo === "success" ? "success" : "danger"} mb-3`}
+            role="status"
+          >
+            {toastMsg.text}
           </div>
         ) : null}
         {loading ? <p className="text-muted py-3">Carregando…</p> : null}
@@ -184,11 +207,21 @@ export function FornecedorPortalPage() {
 
         {!loading && !erro && !detalhe ? (
           <>
-            <div className="alert alert-info mb-3" role="status">
-              <i className="bi bi-info-circle" aria-hidden="true" /> Para montar uma{" "}
-              <strong>nova entrega</strong> com carrinho de itens, use o sistema PHP em transição ou
-              aguarde a próxima atualização. Aqui você consulta as notas já enviadas.
-            </div>
+            <FornecedorNovaEntregaSection
+              fornecedorId={fornecedorId}
+              controleUrl={controleUrl}
+              materiais={materiais}
+              carrinho={carrinho}
+              onCarrinhoChange={setCarrinho}
+              onEnviado={() => {
+                void navigate({
+                  to: "/painel/fornecedores",
+                  search: { ...baseSearch, status: "enviado" },
+                });
+                void load();
+              }}
+              toast={toast}
+            />
 
             <div className="forn-entrega-filtros mb-3" role="tablist" aria-label="Filtrar entregas">
               <Link

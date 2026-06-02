@@ -22,11 +22,13 @@ export const Route = createFileRoute("/api/admin/login")({
     handlers: {
       POST: async ({ request }) => {
         if (!getAuthSecret()) {
+          const onVercel = Boolean(process.env.VERCEL);
           return jsonResponse(
             {
               ok: false,
-              message:
-                "AUTH_SECRET não encontrado. Crie o arquivo .env na raiz do projeto (copie de .env.example), defina AUTH_SECRET e reinicie o npm run dev.",
+              message: onVercel
+                ? "AUTH_SECRET não está no servidor. Na Vercel: Settings → Environment Variables → AUTH_SECRET (marque Production e Preview) → Salvar → Deployments → Redeploy. Confira em /api/health"
+                : "AUTH_SECRET não encontrado. Crie o .env na raiz (copie de .env.example), defina AUTH_SECRET e reinicie o npm run dev.",
             },
             503,
           );

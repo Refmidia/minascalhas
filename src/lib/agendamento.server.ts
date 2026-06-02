@@ -1,4 +1,4 @@
-import type { AgendamentoInput } from "@/lib/validation";
+import type { AgendamentoInput, AgendamentoSiteInput } from "@/lib/validation";
 import { parseOrcamentoJson } from "@/lib/orcamento.server";
 
 export { INVENTARIO_STATUS, type InventarioStatus } from "@/lib/agendamento-constants";
@@ -56,7 +56,10 @@ export function inventarioWhereStatus(status?: string) {
   return { status };
 }
 
-export function buildInventarioCreateData(data: AgendamentoInput, funcionarioId?: number | null) {
+export function buildInventarioCreateData(
+  data: AgendamentoInput | AgendamentoSiteInput,
+  funcionarioId?: number | null,
+) {
   return {
     status: "agendado",
     nome: data.nome.slice(0, 50),
@@ -67,7 +70,7 @@ export function buildInventarioCreateData(data: AgendamentoInput, funcionarioId?
     numero: data.numero.slice(0, 50),
     cep: (data.cep?.trim() || "").slice(0, 50),
     dataVisita: toDataVisitaBr(data.data),
-    horaVisita: data.hora.trim().slice(0, 50),
+    horaVisita: ("hora" in data && typeof data.hora === "string" ? data.hora : "").trim().slice(0, 50),
     observacao: data.observacao?.trim() || null,
     funcionario: funcionarioId ?? null,
     valor: 0,

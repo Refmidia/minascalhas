@@ -29,6 +29,24 @@ export function formatMoeda(n: number): string {
   return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+export function precoMaterialFornecedor(mat: {
+  valor_fornecedor: number;
+  valor_custo: number;
+}): number {
+  if (mat.valor_fornecedor > 0) return mat.valor_fornecedor;
+  return mat.valor_custo > 0 ? mat.valor_custo : 0;
+}
+
+export function parseDecimalInput(raw: string): number {
+  const s = raw.trim().replace(/\./g, "").replace(",", ".");
+  const n = Number.parseFloat(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export function totalLinhaCarrinho(metros: string, valorUnit: string): number {
+  return parseDecimalInput(metros) * parseDecimalInput(valorUnit);
+}
+
 export function formatCnpjExib(cnpj: string): string {
   const d = cnpj.replace(/\D/g, "");
   if (d.length !== 14) return cnpj.trim() || "—";

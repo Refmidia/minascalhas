@@ -234,6 +234,70 @@ export async function obterEntregaCompleta(entregaId: number): Promise<EntregaDe
   };
 }
 
+function parseMetrosEntrega(raw: string | number): number {
+  if (typeof raw === "number") return raw > 0 ? raw : 0;
+  const cleaned = String(raw).replace(/[^\d,.]/g, "").replace(",", ".");
+  const n = Number.parseFloat(cleaned);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/** Registra entrega enviada pelo fornecedor (igual Alex `fornecedorEnviarEntrega`). */
+export async function fornecedorEnviarEntrega(
+  fornecedorId: number,
+  usuarioId: number,
+  itens: Array<{
+    material_id: number;
+    metros: string | number;
+    valor_unitario: string | number;
+    observacao?: string;
+  }>,
+  observacaoGeral = "",
+): Promise<number> {
+  const fid = int(fornecedorId);
+  if (fid <= 0 || itens.length === 0) return 0;
+
+  const prisma = await getPrisma();
+  const obsEsc = escSql(observacaoGeral.trim().slice(0, 500));
+  const uidSql = usuarioId > 0 ? int(usuarioId) : "NULL";
+
+  await prisma.$executeRawUnsafe(
+    `INSERT INTO fornecedor_entregas (fornecedor_id, usuario_id, status, observacao, enviado_em)
+     VALUES (${fid}, ${uidSql}, 'enviado', '${obsEsc}', NOW())`,
+  );
+
+  const idRows = await prisma.$queryRawUnsafe<{ id: unknown }[]>(
+    `SELECT LAST_INSERT_ID() AS id`,
+  );
+  const entregaId = int(idRows[0]?.id);
+  if (entregaId <= 0) return 0;
+
+  let inseridos = 0;
+  for (const raw of itens) {
+    const materialId = int(raw.material_id);
+    const metros = parseMetrosEntrega(raw.metros);
+    const valorUnit = Math.max(0, parseMoney(raw.valor_unitario));
+    const obsItem = escSql(String(raw.observacao ?? "").trim().slice(0, 255));
+
+    if (materialId <= 0 || metros <= 0) continue;
+
+    const metrosEsc = metros.toFixed(2);
+    const valorEsc = valorUnit.toFixed(2);
+
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO fornecedor_entrega_itens (entrega_id, material_id, metros, valor_unitario, observacao)
+       VALUES (${entregaId}, ${materialId}, '${metrosEsc}', '${valorEsc}', '${obsItem}')`,
+    );
+    inseridos++;
+  }
+
+  if (inseridos === 0) {
+    await prisma.$executeRawUnsafe(`DELETE FROM fornecedor_entregas WHERE id = ${entregaId}`);
+    return 0;
+  }
+
+  return entregaId;
+}
+
 async function salvarCompraFornecedor(
   fornecedorId: number,
   materialId: number,

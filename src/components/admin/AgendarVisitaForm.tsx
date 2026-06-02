@@ -72,6 +72,7 @@ export function AgendarVisitaForm() {
   const [docHintType, setDocHintType] = useState<"" | "ok" | "warn">("");
   const nomeEditadoManual = useRef(false);
   const docLookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastCepFetched = useRef("");
 
   const set =
     (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -81,6 +82,32 @@ export function AgendarVisitaForm() {
     setDocHint(text);
     setDocHintType(type);
   }, []);
+
+  const buscarCep = useCallback(async (cepRaw?: string) => {
+    const cep = (cepRaw ?? form.cep).replace(/\D/g, "");
+    if (cep.length !== 8) return;
+    if (lastCepFetched.current === cep) return;
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const j = (await res.json()) as {
+        logradouro?: string;
+        bairro?: string;
+        localidade?: string;
+        uf?: string;
+        erro?: boolean;
+      };
+      if (j.erro) return;
+      lastCepFetched.current = cep;
+      setForm((f) => ({
+        ...f,
+        endereco:
+          [j.logradouro, j.localidade, j.uf].filter(Boolean).join(" - ").trim() || f.endereco,
+        bairro: j.bairro || f.bairro,
+      }));
+    } catch {
+      /* ignore */
+    }
+  }, [form.cep]);
 
   const preencherCliente = useCallback(
     (data: {
@@ -104,8 +131,13 @@ export function AgendarVisitaForm() {
         if (data.numero) next.numero = data.numero;
         return next;
       });
+      const cepDigits = (data.cep ?? "").replace(/\D/g, "");
+      if (cepDigits.length === 8 && !data.bairro?.trim()) {
+        lastCepFetched.current = "";
+        void buscarCep(cepDigits);
+      }
     },
-    [],
+    [buscarCep],
   );
 
   const agendarDocLookup = useCallback(() => {
@@ -151,22 +183,15 @@ export function AgendarVisitaForm() {
     };
   }, [form.cpfCnpj, agendarDocLookup]);
 
-  async function buscarCep() {
-    const cep = form.cep.replace(/\D/g, "");
-    if (cep.length !== 8) return;
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const j = (await res.json()) as { logradouro?: string; bairro?: string; erro?: boolean };
-      if (j.erro) return;
-      setForm((f) => ({
-        ...f,
-        endereco: j.logradouro || f.endereco,
-        bairro: j.bairro || f.bairro,
-      }));
-    } catch {
-      /* ignore */
+  useEffect(() => {
+    const digits = form.cep.replace(/\D/g, "");
+    if (digits.length !== 8) {
+      lastCepFetched.current = "";
+      return;
     }
-  }
+    const t = setTimeout(() => void buscarCep(digits), 450);
+    return () => clearTimeout(t);
+  }, [form.cep, buscarCep]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -317,7 +342,10 @@ export function AgendarVisitaForm() {
                     maxLength={9}
                     inputMode="numeric"
                     value={form.cep}
-                    onChange={(e) => setForm((f) => ({ ...f, cep: maskCep(e.target.value) }))}
+                    onChange={(e) => {
+                      lastCepFetched.current = "";
+                      setForm((f) => ({ ...f, cep: maskCep(e.target.value) }));
+                    }}
                     onBlur={() => void buscarCep()}
                   />
                   <button

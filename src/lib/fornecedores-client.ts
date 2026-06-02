@@ -1,3 +1,5 @@
+import type { CarrinhoItemEntrega } from "@/lib/fornecedor-carrinho.server";
+import type { MaterialLiberadoRow } from "@/lib/fornecedor-materiais.server";
 import type { FornecedorControlePainel } from "@/lib/fornecedor-controle.server";
 import type {
   EntregaDetalhe,
@@ -21,12 +23,16 @@ async function parseJson<T>(res: Response): Promise<T> {
   return (await res.json()) as T;
 }
 
+export type { CarrinhoItemEntrega, MaterialLiberadoRow };
+
 export type FornecedorPortalData = {
   fornecedor_id: number;
   nome_empresa?: string;
   erro?: string;
   entregas: EntregaListaRow[];
   entrega?: EntregaDetalhe;
+  materiais?: MaterialLiberadoRow[];
+  carrinho?: CarrinhoItemEntrega[];
 };
 
 export async function fetchFornecedorPortal(params: {
@@ -43,6 +49,50 @@ export async function fetchFornecedorPortal(params: {
   const data = await parseJson<FornecedorPortalData & { ok?: boolean; message?: string }>(res);
   if (!res.ok) throw new Error(data.message ?? "Erro ao carregar.");
   return data;
+}
+
+type FornecedorPortalActionBody =
+  | {
+      action: "adicionar_item";
+      material_id: number;
+      metros: string | number;
+      valor_unitario: string | number;
+      observacao?: string;
+    }
+  | { action: "remover_item"; temp_id: string }
+  | { action: "enviar_entrega"; observacao_entrega?: string };
+
+export async function postFornecedorPortalAction(
+  body: FornecedorPortalActionBody,
+  controle?: number,
+): Promise<{
+  ok: boolean;
+  message: string;
+  carrinho?: CarrinhoItemEntrega[];
+  entrega_id?: number;
+}> {
+  const qs = new URLSearchParams();
+  if (controle) qs.set("controle", String(controle));
+
+  const res = await fetch(`/api/admin/fornecedor-portal?${qs}`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await parseJson<{
+    ok?: boolean;
+    message?: string;
+    carrinho?: CarrinhoItemEntrega[];
+    entrega_id?: number;
+  }>(res);
+  if (!res.ok) throw new Error(data.message ?? "Erro na operação.");
+  return {
+    ok: Boolean(data.ok),
+    message: data.message ?? "",
+    carrinho: data.carrinho,
+    entrega_id: data.entrega_id,
+  };
 }
 
 export async function fetchFornecedoresPainel(params: {

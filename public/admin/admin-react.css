@@ -390,8 +390,17 @@ body.dashboard-app--react.dash-radio-playing .dash-topbar__menu-arrow {
   }
 }
 
+body.dashboard-app--react.dash-radio-playing .dash-topbar__icon-link .bi-globe-americas {
+  display: inline-block;
+  animation: dash-radio-spin 2.4s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   body.dashboard-app--react.dash-radio-playing .dash-topbar__menu-arrow {
+    animation: none;
+  }
+
+  body.dashboard-app--react.dash-radio-playing .dash-topbar__icon-link .bi-globe-americas {
     animation: none;
   }
 }

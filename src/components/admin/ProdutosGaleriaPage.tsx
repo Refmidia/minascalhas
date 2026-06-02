@@ -287,10 +287,6 @@ export function ProdutosGaleriaPage() {
                     inputRef.current?.click();
                   }
                 }}
-                onClick={(e) => {
-                  if ((e.target as HTMLElement).closest(".dash-prod-dropzone__btn")) return;
-                  inputRef.current?.click();
-                }}
                 onDragEnter={(e) => {
                   e.preventDefault();
                   setDragOver(true);
@@ -311,6 +307,7 @@ export function ProdutosGaleriaPage() {
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   multiple
                   onChange={onInputChange}
+                  onClick={(e) => e.stopPropagation()}
                 />
                 <div className="dash-prod-dropzone__content">
                   <span className="dash-prod-dropzone__icon" aria-hidden="true">
@@ -320,14 +317,7 @@ export function ProdutosGaleriaPage() {
                   <p className="dash-prod-dropzone__hint">
                     ou clique para selecionar · JPG, PNG, WEBP · até 8 MB cada
                   </p>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary dash-prod-dropzone__btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      inputRef.current?.click();
-                    }}
-                  >
+                  <button type="button" className="btn btn-sm btn-outline-secondary dash-prod-dropzone__btn" tabIndex={-1}>
                     Escolher arquivos
                   </button>
                 </div>
