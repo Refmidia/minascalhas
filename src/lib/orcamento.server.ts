@@ -60,6 +60,25 @@ export function formatDescontoPctOrc(pct: number): string {
   return pct.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
+/** Sanitiza % enquanto digita (sem milhar; máx. 100). */
+export function sanitizarDescontoPct(raw: string): string {
+  let v = String(raw ?? "").replace(/[^\d.,]/g, "");
+  if (v.includes(".") && !v.includes(",")) {
+    v = v.replace(/\./g, ",");
+  } else if (v.includes(".") && v.includes(",")) {
+    v = v.replace(/\./g, "");
+  }
+  const ci = v.indexOf(",");
+  if (ci !== -1) {
+    const intPart = v.slice(0, ci).replace(/,/g, "");
+    const dec = v.slice(ci + 1).replace(/[.,]/g, "").slice(0, 2);
+    v = dec.length > 0 || raw.endsWith(",") ? `${intPart},${dec}` : intPart;
+  }
+  const n = parseMoneyBr(v);
+  if (n > 100) return "100";
+  return v;
+}
+
 export type OrcamentoDescontoCalc = {
   subtotal: number;
   base: number;

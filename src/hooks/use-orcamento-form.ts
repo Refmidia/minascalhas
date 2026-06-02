@@ -2,19 +2,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { MaterialItem } from "@/lib/admin-api";
 import {
-  baseOrcamento,
   calcDescontoOrcamento,
   formatDescontoPctOrc,
   formatDescontoValorOrc,
   garantirTotalOrcamentoConsistente,
   inventarioSubtotalOrcamento,
   parseMoneyBr,
+  sanitizarDescontoPct,
   sanitizarNumeroBr,
   type OrcamentoLinha,
   type OrcamentoModoDesconto,
 } from "@/lib/orcamento.server";
 
-type CampoDesconto = "percent" | "valor" | "total";
+type CamposDesconto = {
+  pct?: string;
+  valor?: string;
+  valorMostrar?: string;
+};
 
 export function useOrcamentoForm(materiais: MaterialItem[]) {
   const [partData, setPartData] = useState<OrcamentoLinha[]>([]);
@@ -32,49 +36,48 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   const valorBaseManualRef = useRef(0);
   const syncingRef = useRef(false);
   const carregandoRef = useRef(false);
-  const campoFocadoRef = useRef<CampoDesconto | null>(null);
 
   const subtotal = useMemo(() => inventarioSubtotalOrcamento(partData), [partData]);
 
-  const getDesc = useCallback(() => {
-    return calcDescontoOrcamento(
-      subtotal,
-      valorBaseManualRef.current,
-      descontoSourceRef.current,
-      descontoPct,
-      descontoValor,
-      valorMostrar,
-    );
-  }, [subtotal, descontoPct, descontoValor, valorMostrar]);
+  const calcComCampos = useCallback(
+    (campos: CamposDesconto = {}) => {
+      return calcDescontoOrcamento(
+        subtotal,
+        valorBaseManualRef.current,
+        descontoSourceRef.current,
+        campos.pct ?? descontoPct,
+        campos.valor ?? descontoValor,
+        campos.valorMostrar ?? valorMostrar,
+      );
+    },
+    [subtotal, descontoPct, descontoValor, valorMostrar],
+  );
 
-  const sincronizarDescontoPar = useCallback(() => {
-    const base = baseOrcamento(
-      subtotal,
-      valorBaseManualRef.current,
-      valorMostrar,
-      descontoSourceRef.current,
-    );
-    if (base <= 0 && descontoSourceRef.current !== "total") return;
+  /** Igual PHP: atualiza o outro campo e o valor total (não o campo que está sendo editado). */
+  const sincronizarDescontoPar = useCallback(
+    (campos: CamposDesconto = {}) => {
+      const src = descontoSourceRef.current;
+      if (src === "total") return;
 
-    const desc = getDesc();
-    const src = descontoSourceRef.current;
-    const foco = campoFocadoRef.current;
-    syncingRef.current = true;
+      const desc = calcComCampos(campos);
+      if (desc.base <= 0 && src !== "total") return;
 
-    if (src !== "total") {
-      if (src !== "valor" && foco !== "valor") {
-        setDescontoValor(formatDescontoValorOrc(desc.descontoValor));
+      syncingRef.current = true;
+
+      if (src !== "valor") {
+        setDescontoValor(
+          desc.descontoValor > 0 ? formatDescontoValorOrc(desc.descontoValor) : "",
+        );
       }
-      if (src !== "percent" && foco !== "percent") {
-        setDescontoPct(formatDescontoPctOrc(desc.descontoPct));
+      if (src !== "percent") {
+        setDescontoPct(desc.descontoPct > 0 ? formatDescontoPctOrc(desc.descontoPct) : "");
       }
-      if (foco !== "total") {
-        setValorMostrar(formatDescontoValorOrc(desc.total));
-      }
-    }
+      setValorMostrar(desc.total > 0 ? formatDescontoValorOrc(desc.total) : "");
 
-    syncingRef.current = false;
-  }, [subtotal, valorMostrar, getDesc]);
+      syncingRef.current = false;
+    },
+    [calcComCampos],
+  );
 
   useEffect(() => {
     if (carregandoRef.current) return;
@@ -87,82 +90,93 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [partData]);
 
-  const onValorTotalInput = useCallback(
-    (raw: string) => {
-      if (syncingRef.current) return;
-      const v = sanitizarNumeroBr(raw);
-      setValorMostrar(v);
-      descontoSourceRef.current = "total";
-      valorBaseManualRef.current = parseMoneyBr(v);
-      setDescontoPct("");
-      setDescontoValor("");
-    },
-    [],
-  );
+  const onValorTotalInput = useCallback((raw: string) => {
+    if (syncingRef.current) return;
+    const v = sanitizarNumeroBr(raw);
+    setValorMostrar(v);
+    descontoSourceRef.current = "total";
+    valorBaseManualRef.current = parseMoneyBr(v);
+    setDescontoPct("");
+    setDescontoValor("");
+  }, []);
 
   const onValorTotalBlur = useCallback(() => {
-    campoFocadoRef.current = null;
     if (syncingRef.current) return;
     let n = parseMoneyBr(valorMostrar);
     if (subtotal > 0 && n > subtotal) n = subtotal;
-    setValorMostrar(n > 0 ? formatDescontoValorOrc(n) : "");
+    const fmt = n > 0 ? formatDescontoValorOrc(n) : "";
+    setValorMostrar(fmt);
     descontoSourceRef.current = "total";
     valorBaseManualRef.current = n;
-    sincronizarDescontoPar();
-  }, [valorMostrar, subtotal, sincronizarDescontoPar]);
+    if (n > 0 && subtotal > 0) {
+      const diff = subtotal - n;
+      syncingRef.current = true;
+      setDescontoValor(diff > 0 ? formatDescontoValorOrc(diff) : "");
+      setDescontoPct(
+        diff > 0 ? formatDescontoPctOrc(Math.round((diff / subtotal) * 10000) / 100) : "",
+      );
+      syncingRef.current = false;
+    }
+  }, [valorMostrar, subtotal]);
 
   const onValorTotalFocus = useCallback(() => {
-    campoFocadoRef.current = "total";
+    descontoSourceRef.current = "total";
   }, []);
 
   const onDescontoPctInput = useCallback(
     (raw: string) => {
       if (syncingRef.current) return;
-      setDescontoPct(sanitizarNumeroBr(raw));
+      const v = sanitizarDescontoPct(raw);
+      setDescontoPct(v);
       descontoSourceRef.current = "percent";
       valorBaseManualRef.current = 0;
-      sincronizarDescontoPar();
+      sincronizarDescontoPar({ pct: v });
     },
     [sincronizarDescontoPar],
   );
 
   const onDescontoPctBlur = useCallback(() => {
-    campoFocadoRef.current = null;
     if (syncingRef.current) return;
     valorBaseManualRef.current = 0;
     descontoSourceRef.current = "percent";
-    const desc = getDesc();
+    const desc = calcComCampos();
     setDescontoPct(desc.descontoPct > 0 ? formatDescontoPctOrc(desc.descontoPct) : "");
-    sincronizarDescontoPar();
-  }, [getDesc, sincronizarDescontoPar]);
+    sincronizarDescontoPar({ pct: desc.descontoPct > 0 ? formatDescontoPctOrc(desc.descontoPct) : "" });
+  }, [calcComCampos, sincronizarDescontoPar]);
 
   const onDescontoPctFocus = useCallback(() => {
-    campoFocadoRef.current = "percent";
+    descontoSourceRef.current = "percent";
+    valorBaseManualRef.current = 0;
   }, []);
 
   const onDescontoValorInput = useCallback(
     (raw: string) => {
       if (syncingRef.current) return;
-      setDescontoValor(sanitizarNumeroBr(raw));
+      const v = sanitizarNumeroBr(raw);
+      setDescontoValor(v);
       descontoSourceRef.current = "valor";
       valorBaseManualRef.current = 0;
-      sincronizarDescontoPar();
+      sincronizarDescontoPar({ valor: v });
     },
     [sincronizarDescontoPar],
   );
 
   const onDescontoValorBlur = useCallback(() => {
-    campoFocadoRef.current = null;
     if (syncingRef.current) return;
     valorBaseManualRef.current = 0;
     descontoSourceRef.current = "valor";
-    const desc = getDesc();
-    setDescontoValor(desc.descontoValor > 0 ? formatDescontoValorOrc(desc.descontoValor) : "");
-    sincronizarDescontoPar();
-  }, [getDesc, sincronizarDescontoPar]);
+    let desc = calcComCampos();
+    if (subtotal > 0 && desc.descontoValor > subtotal) {
+      desc = calcComCampos({ valor: formatDescontoValorOrc(subtotal) });
+    }
+    const valorFmt = desc.descontoValor > 0 ? formatDescontoValorOrc(desc.descontoValor) : "";
+    setDescontoValor(valorFmt);
+    sincronizarDescontoPar({ valor: valorFmt });
+  }, [calcComCampos, sincronizarDescontoPar, subtotal]);
 
   const onDescontoValorFocus = useCallback(() => {
-    campoFocadoRef.current = "valor";
+    descontoSourceRef.current = "valor";
+    valorBaseManualRef.current = 0;
   }, []);
 
   const materiaisFiltrados = useMemo(() => {
@@ -207,7 +221,6 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     descontoSourceRef.current = "percent";
     valorBaseManualRef.current = 0;
     carregandoRef.current = false;
-    campoFocadoRef.current = null;
   }, []);
 
   const loadExisting = useCallback(
@@ -248,7 +261,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   );
 
   const buildPayload = useCallback(() => {
-    const desc = getDesc();
+    const desc = calcComCampos();
     const modo = descontoSourceRef.current;
     const resolved = garantirTotalOrcamentoConsistente(
       subtotal,
@@ -267,7 +280,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       cpfCnpj,
       observacao,
     };
-  }, [partData, formaPagamento, getDesc, subtotal, cpfCnpj, observacao]);
+  }, [partData, formaPagamento, calcComCampos, subtotal, cpfCnpj, observacao]);
 
   const onMetrosInput = useCallback((raw: string) => {
     let v = raw.replace(/[^\d,.]/g, "");
