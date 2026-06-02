@@ -1209,6 +1209,32 @@ html[data-bs-theme="light"] .user-list-card__actions {
   transform: translateY(-1px);
 }
 
+body.dashboard-app--react .dash-ponto-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 599px) {
+  body.dashboard-app--react .dash-ponto-page .dash-form-page__hero {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  body.dashboard-app--react .dash-ponto-hero__actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  body.dashboard-app--react .dash-ponto-hero__actions .dash-form-page__cta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* Funcionários — pagamentos (paridade Alex / tema escuro) */
 body.dashboard-page--funcionarios-pag .dash-func-pag-page {
   width: 100%;

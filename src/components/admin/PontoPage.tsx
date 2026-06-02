@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
-import { DashPageHero } from "@/components/admin/DashPageHero";
+import { DashPageHero, NovaVisitaCta } from "@/components/admin/DashPageHero";
 import { formatDataHoraPonto, pontoClasseBadge, pontoLabelTipo } from "@/lib/ponto-display";
 import { PONTO_TIMEZONE } from "@/lib/ponto-timezone";
 import { dashConfirm, dashToast } from "@/lib/dash-ui";
@@ -27,6 +27,7 @@ function badgeClass(status: string) {
 export function PontoPage() {
   const { user } = useAdminAuth();
   const podeExcluir = user?.visao === "admin";
+  const isFuncionario = user?.visao === "funcionário";
 
   const [nome, setNome] = useState("");
   const [estado, setEstado] = useState<Estado | null>(null);
@@ -147,11 +148,21 @@ export function PontoPage() {
         layout="form"
         showNovaVisita={false}
         cta={
-          podeExcluir ? (
-            <Link to="/painel/ponto-controle" className="btn btn-sm btn-outline-primary">
-              <i className="bi bi-people" aria-hidden="true" /> Controle de todos
-            </Link>
-          ) : undefined
+          <div className="dash-ponto-hero__actions">
+            {isFuncionario ? (
+              <Link to="/painel/agendar" className="dash-form-page__cta dash-form-page__cta--agendar">
+                <i className="bi bi-calendar4-range" aria-hidden="true" />
+                <span>Agendar visitas</span>
+              </Link>
+            ) : null}
+            {podeExcluir ? (
+              <Link to="/painel/ponto-controle" className="btn btn-sm btn-outline-primary">
+                <i className="bi bi-people" aria-hidden="true" /> Controle de todos
+              </Link>
+            ) : !isFuncionario ? (
+              <NovaVisitaCta />
+            ) : null}
+          </div>
         }
       />
 

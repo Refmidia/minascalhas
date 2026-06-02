@@ -21,7 +21,12 @@ const ADMIN_ONLY = [
 ];
 
 /** Rotas permitidas ao funcionário. */
-const FUNC_ALLOWED_PREFIXES = ["/painel/ponto", "/painel/visitas", "/painel/funcionarios"];
+const FUNC_ALLOWED_PREFIXES = [
+  "/painel/ponto",
+  "/painel/visitas",
+  "/painel/funcionarios",
+  "/painel/agendar",
+];
 
 /** Rotas permitidas ao fornecedor (demais redireciona para o portal). */
 const FORNECEDOR_ALLOWED_PREFIXES = ["/painel/inicio-fornecedor", "/painel/fornecedores"];
