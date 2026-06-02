@@ -4,21 +4,50 @@ export const PONTO_TIMEZONE = "America/Sao_Paulo";
 /** Brasil sem horário de verão desde 2019. */
 const PONTO_ISO_OFFSET = "-03:00";
 
+const SQL_DT_RE = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
+
+/**
+ * Converte valor vindo do MySQL/Prisma/JSON para `Y-m-d H:i:s` de parede (São Paulo).
+ * O driver trata DATETIME sem fuso como UTC no objeto Date — usamos os componentes UTC
+ * como o mesmo relógio gravado no banco (igual ao PHP).
+ */
+export function pontoSerializarDatetime(raw: unknown): string {
+  if (raw == null || raw === "") return "";
+  if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${raw.getUTCFullYear()}-${p(raw.getUTCMonth() + 1)}-${p(raw.getUTCDate())} ${p(raw.getUTCHours())}:${p(raw.getUTCMinutes())}:${p(raw.getUTCSeconds())}`;
+  }
+
+  const s = String(raw).trim();
+  if (!s) return "";
+
+  const isoZ = s.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/i,
+  );
+  if (isoZ) {
+    return `${isoZ[1]}-${isoZ[2]}-${isoZ[3]} ${isoZ[4]}:${isoZ[5]}:${isoZ[6]}`;
+  }
+
+  const sql = s.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})/);
+  if (sql) return `${sql[1]} ${sql[2]}`;
+
+  return s;
+}
+
 /**
  * Interpreta DATETIME do MySQL como horário de parede em São Paulo (como o PHP).
  */
 export function parsePontoDatetime(raw: string | null | undefined): Date {
-  if (raw == null) return new Date(NaN);
-  const s = String(raw).trim();
-  if (!s) return new Date(NaN);
+  const sql = pontoSerializarDatetime(raw ?? "");
+  if (!sql) return new Date(NaN);
 
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?/);
+  const m = sql.match(SQL_DT_RE);
   if (m) {
-    const [, y, mo, d, h = "00", mi = "00", se = "00"] = m;
+    const [, y, mo, d, h, mi, se] = m;
     return new Date(`${y}-${mo}-${d}T${h}:${mi}:${se}${PONTO_ISO_OFFSET}`);
   }
 
-  return new Date(s);
+  return new Date(sql);
 }
 
 /** Data/hora atual para gravar no banco (Y-m-d H:i:s). */
@@ -50,8 +79,11 @@ export function pontoHojeIso(): string {
 }
 
 export function formatHoraPontoTz(raw: string | null): string {
-  if (!raw) return "—";
-  const d = parsePontoDatetime(raw);
+  const sql = pontoSerializarDatetime(raw);
+  if (!sql) return "—";
+  const m = sql.match(/(\d{2}):(\d{2}):(\d{2})/);
+  if (m) return `${m[1]}:${m[2]}:${m[3]}`;
+  const d = parsePontoDatetime(sql);
   if (Number.isNaN(d.getTime())) return "—";
   return new Intl.DateTimeFormat("pt-BR", {
     timeZone: PONTO_TIMEZONE,
@@ -63,7 +95,10 @@ export function formatHoraPontoTz(raw: string | null): string {
 }
 
 export function formatDataPontoTz(raw: string): string {
-  const d = parsePontoDatetime(raw);
+  const sql = pontoSerializarDatetime(raw);
+  const m = sql.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  const d = parsePontoDatetime(sql);
   if (Number.isNaN(d.getTime())) return "—";
   return new Intl.DateTimeFormat("pt-BR", { timeZone: PONTO_TIMEZONE }).format(d);
 }

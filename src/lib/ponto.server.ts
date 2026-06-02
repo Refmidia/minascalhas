@@ -4,8 +4,11 @@ import {
   formatHoraPontoTz,
   pontoAgoraSql,
   pontoDiaChave,
+  pontoSerializarDatetime,
   parsePontoDatetime,
 } from "@/lib/ponto-timezone";
+
+const PONTO_DT_SQL = `DATE_FORMAT(registrado_em, '%Y-%m-%d %H:%i:%s') AS registrado_em`;
 
 function int(v: unknown): number {
   if (typeof v === "bigint") return Number(v);
@@ -64,7 +67,7 @@ async function ultimoRegistro(usuarioId: number) {
   const prisma = await getPrisma();
   const uid = int(usuarioId);
   const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-    `SELECT id, tipo, registrado_em FROM funcionario_ponto
+    `SELECT id, tipo, ${PONTO_DT_SQL} FROM funcionario_ponto
      WHERE usuario_id = ${uid} ORDER BY registrado_em DESC, id DESC LIMIT 1`,
   );
   return rows[0] ?? null;
@@ -114,13 +117,13 @@ export async function pontoHistoricoUsuario(usuarioId: number, limit = 30) {
   const prisma = await getPrisma();
   const uid = int(usuarioId);
   const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-    `SELECT id, tipo, registrado_em FROM funcionario_ponto
+    `SELECT id, tipo, ${PONTO_DT_SQL} FROM funcionario_ponto
      WHERE usuario_id = ${uid} ORDER BY registrado_em DESC LIMIT ${int(limit)}`,
   );
   return rows.map((r) => ({
     id: int(r.id),
     tipo: String(r.tipo),
-    registrado_em: String(r.registrado_em),
+    registrado_em: pontoSerializarDatetime(r.registrado_em),
   }));
 }
 
@@ -268,7 +271,9 @@ export async function buscarRegistrosAdmin(
   if (dataAte) where.push(`p.registrado_em <= '${esc(dataAte)} 23:59:59'`);
 
   const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-    `SELECT p.id, p.usuario_id, p.tipo, p.registrado_em, u.nome AS usuario_nome, u.thumb
+    `SELECT p.id, p.usuario_id, p.tipo,
+            DATE_FORMAT(p.registrado_em, '%Y-%m-%d %H:%i:%s') AS registrado_em,
+            u.nome AS usuario_nome, u.thumb
      FROM funcionario_ponto p
      INNER JOIN usuarios u ON u.id = p.usuario_id
      WHERE ${where.join(" AND ")}
@@ -281,7 +286,7 @@ export async function buscarRegistrosAdmin(
     usuario_nome: String(r.usuario_nome ?? ""),
     thumb: String(r.thumb ?? "nao.png"),
     tipo: String(r.tipo),
-    registrado_em: String(r.registrado_em),
+    registrado_em: pontoSerializarDatetime(r.registrado_em),
   }));
 }
 
