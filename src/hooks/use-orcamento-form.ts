@@ -104,11 +104,23 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     if (syncingRef.current) return;
     let n = parseMoneyBr(valorMostrar);
     if (subtotal > 0 && n > subtotal) n = subtotal;
-    const fmt = n > 0 ? formatDescontoValorOrc(n) : "";
+    if (n <= 0) {
+      descontoSourceRef.current =
+        parseMoneyBr(descontoValor) > 0
+          ? "valor"
+          : parseMoneyBr(descontoPct) > 0
+            ? "percent"
+            : "percent";
+      valorBaseManualRef.current = 0;
+      setValorMostrar("");
+      sincronizarDescontoPar();
+      return;
+    }
+    const fmt = formatDescontoValorOrc(n);
     setValorMostrar(fmt);
     descontoSourceRef.current = "total";
     valorBaseManualRef.current = n;
-    if (n > 0 && subtotal > 0) {
+    if (subtotal > 0) {
       const diff = subtotal - n;
       syncingRef.current = true;
       setDescontoValor(diff > 0 ? formatDescontoValorOrc(diff) : "");
@@ -117,7 +129,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       );
       syncingRef.current = false;
     }
-  }, [valorMostrar, subtotal]);
+  }, [valorMostrar, subtotal, descontoValor, descontoPct, sincronizarDescontoPar]);
 
   const onValorTotalFocus = useCallback(() => {
     descontoSourceRef.current = "total";
@@ -261,14 +273,21 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   );
 
   const buildPayload = useCallback(() => {
+    let modo = descontoSourceRef.current;
     const desc = calcComCampos();
-    const modo = descontoSourceRef.current;
+
+    if (modo === "total" && parseMoneyBr(valorMostrar) <= 0) {
+      if (parseMoneyBr(descontoValor) > 0) modo = "valor";
+      else if (parseMoneyBr(descontoPct) > 0) modo = "percent";
+      else modo = "percent";
+    }
+
     const resolved = garantirTotalOrcamentoConsistente(
       subtotal,
       modo,
-      desc.descontoPct,
-      desc.descontoValor,
-      desc.total,
+      modo === "percent" ? descontoPct : desc.descontoPct,
+      modo === "valor" ? descontoValor : desc.descontoValor,
+      modo === "total" ? valorMostrar : desc.total,
     );
     return {
       partData,
@@ -280,7 +299,17 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       cpfCnpj,
       observacao,
     };
-  }, [partData, formaPagamento, calcComCampos, subtotal, cpfCnpj, observacao]);
+  }, [
+    partData,
+    formaPagamento,
+    calcComCampos,
+    subtotal,
+    cpfCnpj,
+    observacao,
+    descontoPct,
+    descontoValor,
+    valorMostrar,
+  ]);
 
   const onMetrosInput = useCallback((raw: string) => {
     let v = raw.replace(/[^\d,.]/g, "");

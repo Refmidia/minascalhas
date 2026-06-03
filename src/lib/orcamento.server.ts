@@ -9,6 +9,9 @@ export type OrcamentoLinha = {
 };
 
 export function parseMoneyBr(raw: unknown): number {
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    return Math.round(Math.max(0, raw) * 100) / 100;
+  }
   const s = String(raw ?? "")
     .replace(/[^\d,.-]/g, "")
     .replace(/\./g, "")
@@ -122,7 +125,15 @@ export function calcDescontoOrcamento(
 
   if (descontoSource === "total") {
     total = parseMoneyBr(valorMostrarRaw);
-    if (base > 0) {
+    if (total <= 0 && parseMoneyBr(descontoValorRaw) > 0) {
+      descontoValor = parseMoneyBr(descontoValorRaw);
+      total = Math.max(0, base - descontoValor);
+      descontoPct = base > 0 ? Math.round((descontoValor / base) * 10000) / 100 : 0;
+    } else if (total <= 0 && parseMoneyBr(descontoPctRaw) > 0) {
+      descontoPct = parseMoneyBr(descontoPctRaw);
+      descontoValor = Math.round(base * (descontoPct / 100) * 100) / 100;
+      total = Math.max(0, base - descontoValor);
+    } else if (base > 0) {
       const diff = base - total;
       descontoValor = diff > 0 ? Math.round(diff * 100) / 100 : 0;
       descontoPct = diff > 0 ? Math.round((descontoValor / base) * 10000) / 100 : 0;
@@ -240,7 +251,18 @@ export function resolverDescontoOrcamento(
   }
 
   if (modo === "total") {
-    const totalDesejado = parseMoneyBr(valorTotalRaw ?? descontoValorRaw ?? 0);
+    const totalDesejado = parseMoneyBr(valorTotalRaw ?? 0);
+    if (totalDesejado <= 0) {
+      const descontoEmReais = parseMoneyBr(descontoValorRaw);
+      if (descontoEmReais > 0) {
+        return resolverDescontoOrcamento(sub, 0, descontoEmReais, "valor");
+      }
+      const pct = normalizarDescontoPercent(descontoPercentRaw);
+      if (pct > 0) {
+        return resolverDescontoOrcamento(sub, pct, 0, "percent");
+      }
+      return { percent: 0, valor: 0, total: sub };
+    }
     const valor = Math.round(Math.max(0, sub - totalDesejado) * 100) / 100;
     const percent = Math.round((valor / sub) * 10000) / 100;
     return { percent: Math.max(0, percent), valor, total: Math.round(Math.max(0, totalDesejado) * 100) / 100 };
