@@ -4868,6 +4868,7 @@ html[data-bs-theme="dark"] .forn-lancar-compra {
 .inv-data-table--balanced .inv-col-valor,
 .inv-data-table--balanced .inv-col-visita,
 .inv-data-table--balanced .inv-col-hora,
+.inv-data-table--balanced .inv-col-datetime,
 .inv-data-table--balanced .inv-col-montagem,
 .inv-data-table--balanced .inv-col-doc {
     width: 1%;
@@ -5052,6 +5053,43 @@ html[data-bs-theme="dark"] .inv-visita-hora {
 
 .inv-data-table .inv-col-hora {
     text-align: center !important;
+}
+
+/* Visitas: data à esquerda, hora no meio antes de Ações */
+.inv-data-table--visitas .inv-col-datetime {
+    width: auto;
+    min-width: 10.5rem;
+    max-width: 13rem;
+    padding-left: 0.65rem !important;
+    padding-right: 1rem !important;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.inv-visita-datetime-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+    gap: 0.35rem;
+}
+
+.inv-visita-datetime-row .inv-visita-data {
+    justify-self: end;
+    text-align: right;
+}
+
+.inv-visita-datetime-row .inv-visita-hora {
+    justify-self: center;
+}
+
+.inv-visita-datetime-row__spacer {
+    display: block;
+    min-width: 0;
+}
+
+.inv-data-table--visitas .inv-col-actions {
+    padding-left: 0.35rem !important;
 }
 
 .inv-visita-inline__sem-hora {

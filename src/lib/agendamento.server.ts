@@ -153,7 +153,7 @@ export function buildInventarioCreateData(
 export function dbErrorMessage(err: unknown): string {
   const msg = err instanceof Error ? err.message : "";
   if (msg.includes("Authentication failed") || msg.includes("credentials")) {
-    return "Senha ou usuário do MySQL incorretos. No painel Hostinger → Bancos de dados MySQL, confira DB_USER e DB_PASSWORD no .env (reinicie o npm run dev).";
+    return "Senha ou usuário do MySQL incorretos. Confira DB_HOST (193.203.175.84), DB_USER, DB_PASSWORD e DB_NAME — no .env local ou nas variáveis da Vercel (Settings → Environment Variables) e faça redeploy.";
   }
   if (err && typeof err === "object" && "code" in err) {
     const code = (err as { code: string }).code;

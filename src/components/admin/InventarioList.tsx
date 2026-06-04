@@ -2,7 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { EnderecoCell, TelefoneCell, VisitaDataCell, VisitaHoraCell } from "@/components/admin/inventario-ui";
+import {
+  EnderecoCell,
+  TelefoneCell,
+  VisitaDataCell,
+  VisitaDataHoraCell,
+  VisitaHoraCell,
+} from "@/components/admin/inventario-ui";
 import { horaParaExibicaoVisita } from "@/lib/inventario-format";
 import {
   INVENTARIO_STATUS,
@@ -105,19 +111,16 @@ export function InventarioList({ statusFilter }: { statusFilter: InventarioStatu
       ) : (
         <div className="dashboard-data-desktop inv-table-shell">
           <div className="table-responsive inv-table-scroll">
-            <table className="table inv-data-table inv-data-table--balanced align-middle mb-0">
+            <table
+              className={`table inv-data-table inv-data-table--balanced align-middle mb-0${showVisita ? " inv-data-table--visitas" : ""}`}
+            >
               <thead>
                 <tr>
                   <th className="inv-col-id">ID</th>
                   <th className="inv-col-cliente">Cliente</th>
                   <th className="inv-col-telefone">Telefone</th>
                   <th className="inv-col-endereco">Endereço</th>
-                  {showVisita ? (
-                    <>
-                      <th className="inv-col-visita">Data</th>
-                      <th className="inv-col-hora">Hora</th>
-                    </>
-                  ) : null}
+                  {showVisita ? <th className="inv-col-datetime">Data / Hora</th> : null}
                   {showValor && <th className="inv-col-valor">Valor</th>}
                   <th className="inv-col-actions">Status</th>
                 </tr>
@@ -138,14 +141,12 @@ export function InventarioList({ statusFilter }: { statusFilter: InventarioStatu
                       <EnderecoCell item={item} />
                     </td>
                     {showVisita ? (
-                      <>
-                        <td className="inv-col-visita">
-                          <VisitaDataCell data={item.dataVisita} />
-                        </td>
-                        <td className="inv-col-hora">
-                          <VisitaHoraCell hora={horaParaExibicaoVisita(item)} />
-                        </td>
-                      </>
+                      <td className="inv-col-datetime">
+                        <VisitaDataHoraCell
+                          data={item.dataVisita}
+                          hora={horaParaExibicaoVisita(item)}
+                        />
+                      </td>
                     ) : null}
                     {showValor && (
                       <td className="inv-col-valor">
