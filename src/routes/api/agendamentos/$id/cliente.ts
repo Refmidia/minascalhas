@@ -6,7 +6,6 @@ import {
   dataBrParaInput,
   dataInputParaDb,
   dbErrorMessage,
-  montarAgendadoEm,
   normalizarHoraVisitaDb,
   serializeInventario,
 } from "@/lib/agendamento.server";
@@ -70,7 +69,6 @@ export const Route = createFileRoute("/api/agendamentos/$id/cliente")({
               horaVisita: resolveHoraVisitaInventario({
                 horaVisita: row.horaVisita,
                 dataVisita: row.dataVisita,
-                agendadoEm: row.agendadoEm,
                 status: row.status,
               }),
               dataMontagem: row.dataMontagem ? dataBrParaInput(row.dataMontagem) : "",
@@ -131,12 +129,7 @@ export const Route = createFileRoute("/api/agendamentos/$id/cliente")({
 
           if (row.status === "agendado") {
             if (d.data) update.dataVisita = dataInputParaDb(d.data);
-            if (d.hora) {
-              update.horaVisita = normalizarHoraVisitaDb(d.hora);
-              update.agendadoEm = d.data
-                ? montarAgendadoEm(d.data, d.hora)
-                : montarAgendadoEm(dataBrParaInput(row.dataVisita), d.hora);
-            }
+            if (d.hora) update.horaVisita = normalizarHoraVisitaDb(d.hora);
 
             const dup = await prisma.inventario.findFirst({
               where: {

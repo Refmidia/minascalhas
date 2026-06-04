@@ -4,7 +4,6 @@ import { z } from "zod";
 import {
   backfillInventarioHorasVazias,
   buildInventarioCreateData,
-  criarInventarioAgendamento,
   dbErrorMessage,
   inventarioWhereStatus,
   serializeInventario,
@@ -115,10 +114,9 @@ export const Route = createFileRoute("/api/agendamentos")({
           const session = getAdminSessionFromRequest(request);
           const funcionarioId =
             session?.visao === "funcionário" ? session.userId : null;
-          const row = await criarInventarioAgendamento(
-            prisma,
-            buildInventarioCreateData(data, funcionarioId),
-          );
+          const row = await prisma.inventario.create({
+            data: buildInventarioCreateData(data, funcionarioId),
+          });
           return corsJson({ ok: true, id: row.id, message: "Agendamento recebido." });
         } catch (err) {
           console.error("[POST /api/agendamentos]", err);

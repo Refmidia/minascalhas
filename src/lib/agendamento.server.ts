@@ -45,18 +45,6 @@ export function normalizarHoraVisitaDb(horaRaw: string): string {
   return (fmt || agendamentoHoraAtualBr()).slice(0, 50);
 }
 
-/** Data/hora da visita agendada (fuso São Paulo) para coluna agendado_em. */
-export function montarAgendadoEm(dataInput: string, horaRaw: string): Date {
-  const iso = /^\d{4}-\d{2}-\d{2}$/.test(dataInput.trim())
-    ? dataInput.trim()
-    : dataBrParaInput(dataInput.trim());
-  const hora = normalizarHoraVisitaDb(horaRaw);
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const hm = hora.match(/^(\d{2}):(\d{2})$/);
-  if (!m || !hm) return new Date();
-  return new Date(`${m[1]}-${m[2]}-${m[3]}T${hm[1]}:${hm[2]}:00-03:00`);
-}
-
 function horaInformadaNoPayload(data: AgendamentoInput | AgendamentoSiteInput): string {
   return "hora" in data && typeof data.hora === "string" ? data.hora.trim() : "";
 }
@@ -64,7 +52,7 @@ function horaInformadaNoPayload(data: AgendamentoInput | AgendamentoSiteInput): 
 /** Preenche hora-visita vazia no banco a partir de agendado_em / data (máx. por requisição). */
 export async function backfillInventarioHorasVazias(
   prisma: PrismaClient,
-  rows: { id: number; status: string; horaVisita: string; dataVisita: string; agendadoEm?: Date | null }[],
+  rows: { id: number; status: string; horaVisita: string; dataVisita: string }[],
   limit = 40,
 ): Promise<void> {
   let gravados = 0;
@@ -75,7 +63,6 @@ export async function backfillInventarioHorasVazias(
     const resolvida = resolveHoraVisitaInventario({
       horaVisita: row.horaVisita,
       dataVisita: row.dataVisita,
-      agendadoEm: row.agendadoEm,
       status: row.status,
     });
     if (!resolvida) continue;
@@ -117,10 +104,8 @@ export function serializeInventario(row: any) {
     horaVisita: resolveHoraVisitaInventario({
       horaVisita: row.horaVisita,
       dataVisita: row.dataVisita,
-      agendadoEm: row.agendadoEm,
       status: row.status,
     }),
-    agendadoEm: row.agendadoEm ?? null,
     observacao: row.observacao ?? null,
     funcionario: row.funcionario ?? null,
     valor,
@@ -162,33 +147,13 @@ export function buildInventarioCreateData(
     formaPagamento: null,
     dataMontagem: null,
     orcamento: null,
-    agendadoEm: montarAgendadoEm(data.data, horaInformadaNoPayload(data) || agendamentoHoraAtualBr()),
   };
-}
-
-/** Cria inventário mesmo se a coluna agendado_em ainda não existir no MySQL. */
-export async function criarInventarioAgendamento(
-  prisma: PrismaClient,
-  data: ReturnType<typeof buildInventarioCreateData>,
-) {
-  try {
-    return await prisma.inventario.create({ data });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "";
-    const code =
-      err && typeof err === "object" && "code" in err ? String((err as { code: string }).code) : "";
-    if (code === "P2022" || msg.includes("agendado_em")) {
-      const { agendadoEm: _omit, ...semAgendado } = data;
-      return await prisma.inventario.create({ data: semAgendado });
-    }
-    throw err;
-  }
 }
 
 export function dbErrorMessage(err: unknown): string {
   const msg = err instanceof Error ? err.message : "";
   if (msg.includes("Authentication failed") || msg.includes("credentials")) {
-    return "Senha ou usuário do MySQL incorretos. No painel Hostinger → Bancos de dados MySQL, confira o usuário u945870447_feroz01 e atualize DB_PASSWORD no .env (reinicie o npm run dev).";
+    return "Senha ou usuário do MySQL incorretos. No painel Hostinger → Bancos de dados MySQL, confira DB_USER e DB_PASSWORD no .env (reinicie o npm run dev).";
   }
   if (err && typeof err === "object" && "code" in err) {
     const code = (err as { code: string }).code;
@@ -199,7 +164,7 @@ export function dbErrorMessage(err: unknown): string {
       return "Não foi possível alcançar o MySQL. Libere acesso remoto ao IP do seu PC na Hostinger ou teste pelo servidor de hospedagem.";
     }
     if (code === "P2021" || code === "P2022") {
-      return "Tabela ou coluna inexistente. Confira se o schema Prisma está alinhado ao banco.";
+      return "Estrutura do banco desatualizada. No servidor, rode: node scripts/migrar-agendado-em.mjs (ou peça suporte para atualizar o MySQL).";
     }
   }
   return err instanceof Error ? err.message : "Erro no banco de dados.";

@@ -5,11 +5,34 @@
  *   node scripts/migrar-agendado-em.mjs
  *   node scripts/migrar-agendado-em.mjs --dry-run
  */
-import "dotenv/config";
+import { config } from "dotenv";
+import { resolve } from "path";
 import { PrismaClient } from "@prisma/client";
 
+config({ path: resolve(process.cwd(), ".env") });
+
+function dbUrl() {
+  const host = process.env.DB_HOST?.trim();
+  const port = process.env.DB_PORT?.trim() || "3306";
+  const user = process.env.DB_USER?.trim();
+  const pass = process.env.DB_PASSWORD;
+  const name = process.env.DB_NAME?.trim();
+  if (host && user && pass !== undefined && pass !== "" && name) {
+    return `mysql://${encodeURIComponent(user)}:${encodeURIComponent(pass)}@${host}:${port}/${encodeURIComponent(name)}`;
+  }
+  return process.env.DATABASE_URL?.trim() || null;
+}
+
 const dryRun = process.argv.includes("--dry-run");
-const prisma = new PrismaClient();
+const url = dbUrl();
+if (!url) {
+  console.error(
+    "Configure o .env com DB_HOST, DB_USER, DB_PASSWORD e DB_NAME (copie de .env.example).",
+  );
+  process.exit(1);
+}
+
+const prisma = new PrismaClient({ datasources: { db: { url } } });
 
 async function colunaExiste() {
   const rows = await prisma.$queryRawUnsafe(
