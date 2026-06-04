@@ -13,8 +13,10 @@ import {
   ListingHeaderMeta,
   paginateItems,
   TelefoneCell,
-  VisitaDatetime,
+  VisitaDataCell,
+  VisitaHoraCell,
 } from "@/components/admin/inventario-ui";
+import { horaParaExibicaoVisita } from "@/lib/inventario-format";
 import { ModalConfirmarMontagem } from "@/components/admin/modals/ModalConfirmarMontagem";
 import { ModalEditarCliente } from "@/components/admin/modals/ModalEditarCliente";
 import { ModalOrcamento } from "@/components/admin/modals/ModalOrcamento";
@@ -415,7 +417,12 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                         <th className="inv-col-cliente">Cliente</th>
                         <th className="inv-col-telefone">Telefone</th>
                         <th className="inv-col-endereco">Endereço</th>
-                        {showVisita ? <th className="inv-col-visita">Visita</th> : null}
+                        {showVisita ? (
+                          <>
+                            <th className="inv-col-visita">Data</th>
+                            <th className="inv-col-hora">Hora</th>
+                          </>
+                        ) : null}
                         {showMontagem ? <th className="inv-col-montagem">Montagem</th> : null}
                         {showValor ? <th className="inv-col-valor">Valor</th> : null}
                         {showDetalhes ? <th className="inv-col-detalhes">Detalhes</th> : null}
@@ -438,9 +445,14 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                             <EnderecoCell item={item} />
                           </td>
                           {showVisita ? (
-                            <td className="inv-col-visita">
-                              <VisitaDatetime data={item.dataVisita} hora={item.horaVisita} />
-                            </td>
+                            <>
+                              <td className="inv-col-visita">
+                                <VisitaDataCell data={item.dataVisita} />
+                              </td>
+                              <td className="inv-col-hora">
+                                <VisitaHoraCell hora={horaParaExibicaoVisita(item)} />
+                              </td>
+                            </>
                           ) : null}
                           {showMontagem ? (
                             <td className="inv-col-montagem">{item.dataMontagem || "—"}</td>
@@ -483,10 +495,13 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                       <MobileKeyValue label="Telefone" value={<TelefoneCell telefone={item.telefone} />} />
                       <MobileKeyValue label="Endereço" value={<EnderecoCell item={item} />} />
                       {showVisita ? (
-                        <MobileKeyValue
-                          label="Visita"
-                          value={<VisitaDatetime data={item.dataVisita} hora={item.horaVisita} />}
-                        />
+                        <>
+                          <MobileKeyValue label="Data" value={<VisitaDataCell data={item.dataVisita} />} />
+                          <MobileKeyValue
+                            label="Hora"
+                            value={<VisitaHoraCell hora={horaParaExibicaoVisita(item)} />}
+                          />
+                        </>
                       ) : null}
                       {showMontagem ? (
                         <MobileKeyValue label="Montagem" value={item.dataMontagem || "—"} />

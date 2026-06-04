@@ -501,7 +501,8 @@ body.dashboard-app .dashboard-content {
 .inv-col-doc { min-width: 108px; white-space: nowrap; }
 .inv-col-endereco { min-width: 6.5rem; }
 .inv-col-func { min-width: 72px; }
-.inv-col-visita { min-width: 88px; white-space: nowrap; }
+.inv-col-visita { min-width: 96px; white-space: nowrap; }
+.inv-col-hora { min-width: 56px; white-space: nowrap; text-align: center !important; }
 .inv-col-montagem { min-width: 88px; white-space: nowrap; }
 .inv-col-valor { min-width: 88px; white-space: nowrap; text-align: right !important; }
 .inv-col-detalhes {

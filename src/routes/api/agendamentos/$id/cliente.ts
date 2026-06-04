@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import {
   dataBrParaInput,
   dataInputParaDb,
   dbErrorMessage,
+  montarAgendadoEm,
+  normalizarHoraVisitaDb,
   serializeInventario,
 } from "@/lib/agendamento.server";
+import { resolveHoraVisitaInventario } from "@/lib/inventario-format";
 import { getAdminSessionFromRequest, isAdminRequest } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/db.server";
 import { jsonResponse } from "@/lib/http.server";
@@ -63,7 +67,12 @@ export const Route = createFileRoute("/api/agendamentos/$id/cliente")({
               numero: row.numero,
               cep: row.cep,
               dataVisita: dataBrParaInput(row.dataVisita),
-              horaVisita: row.horaVisita,
+              horaVisita: resolveHoraVisitaInventario({
+                horaVisita: row.horaVisita,
+                dataVisita: row.dataVisita,
+                agendadoEm: row.agendadoEm,
+                status: row.status,
+              }),
               dataMontagem: row.dataMontagem ? dataBrParaInput(row.dataMontagem) : "",
               status: row.status,
             },
@@ -110,7 +119,7 @@ export const Route = createFileRoute("/api/agendamentos/$id/cliente")({
           const cpfRaw = (d.cpfCnpj ?? "").replace(/\D/g, "");
           const cpfCnpj = cpfRaw !== "" ? cpfRaw : "00000000000";
 
-          const update: Record<string, string> = {
+          const update: Prisma.InventarioUpdateInput = {
             nome: d.nome,
             telefone: d.telefone,
             cpfCnpj,
@@ -122,7 +131,12 @@ export const Route = createFileRoute("/api/agendamentos/$id/cliente")({
 
           if (row.status === "agendado") {
             if (d.data) update.dataVisita = dataInputParaDb(d.data);
-            if (d.hora) update.horaVisita = d.hora;
+            if (d.hora) {
+              update.horaVisita = normalizarHoraVisitaDb(d.hora);
+              update.agendadoEm = d.data
+                ? montarAgendadoEm(d.data, d.hora)
+                : montarAgendadoEm(dataBrParaInput(row.dataVisita), d.hora);
+            }
 
             const dup = await prisma.inventario.findFirst({
               where: {

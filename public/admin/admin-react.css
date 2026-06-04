@@ -1926,6 +1926,45 @@ html[data-bs-theme="light"] .dash-pag-func-hist-total strong {
   font-size: 0.8rem;
 }
 
+.dash-ponto-cel--valor {
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+.dash-ponto-valor-h {
+  color: var(--dash-text-muted, #94a3b8);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-ponto-ganho {
+  color: #6ee7b7;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+}
+
+.dash-ponto-ganho--parcial {
+  color: #fcd34d;
+}
+
+.dash-ponto-ganho__hint {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fcd34d;
+  opacity: 0.9;
+}
+
+html[data-bs-theme="light"] .dash-ponto-ganho {
+  color: #047857;
+}
+
+html[data-bs-theme="light"] .dash-ponto-ganho--parcial,
+html[data-bs-theme="light"] .dash-ponto-ganho__hint {
+  color: #b45309;
+}
+
 /* Data + hora empilhadas (detalhe do ponto) — wrapper dentro do <td>, não flex no td */
 .dash-ponto-table__cel-datetime {
   vertical-align: middle !important;

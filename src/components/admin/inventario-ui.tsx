@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { AgendamentoItem } from "@/lib/admin-api";
+import { formatHoraVisitaExibicao } from "@/lib/inventario-format";
 import { formatarTelefone, telefoneWhatsappLink } from "@/lib/format-br";
 import {
   buildEnderecoCompleto,
@@ -58,19 +59,17 @@ export function TelefoneCell({ telefone }: { telefone: string }) {
   );
 }
 
-export function VisitaDatetime({ data, hora }: { data: string; hora: string }) {
+export function VisitaDataCell({ data }: { data: string }) {
   const d = data.trim();
-  const h = hora.trim();
-  if (!d && !h) return <span className="inv-detail-empty">—</span>;
+  if (!d) return <span className="inv-detail-empty">—</span>;
+  return <span className="inv-visita-data">{d}</span>;
+}
+
+export function VisitaHoraCell({ hora }: { hora: string }) {
+  const h = formatHoraVisitaExibicao(hora);
+  if (!h) return <span className="inv-detail-empty">—</span>;
   return (
-    <span className="inv-visita-line">
-      {d}
-      {d && h ? (
-        <span className="inv-visita-line__sep" aria-hidden="true">
-          {" "}
-          ·{" "}
-        </span>
-      ) : null}
+    <span className="inv-visita-hora" title="Horário do agendamento">
       {h}
     </span>
   );

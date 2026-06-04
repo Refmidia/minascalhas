@@ -7,6 +7,7 @@ import {
   formatDescontoValorOrc,
   garantirTotalOrcamentoConsistente,
   inventarioSubtotalOrcamento,
+  mesclarLinhasOrcamento,
   parseMoneyBr,
   sanitizarDescontoPct,
   sanitizarNumeroBr,
@@ -201,16 +202,18 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     const m = materiais.find((x) => String(x.id) === materialId);
     if (!m) return;
     const mt = Number.parseFloat(metros.replace(",", ".")) || 1;
-    setPartData((prev) => [
-      ...prev,
-      {
-        material: m.material,
-        metros: mt,
-        valor: m.valor,
-        valor_custo: m.valor_custo,
-        id: m.id,
-      },
-    ]);
+    setPartData((prev) =>
+      mesclarLinhasOrcamento([
+        ...prev,
+        {
+          material: m.material,
+          metros: mt,
+          valor: m.valor,
+          valor_custo: m.valor_custo,
+          id: m.id,
+        },
+      ]),
+    );
     setMaterialId("");
     setMetros("1");
   }, [materiais, materialId, metros]);
@@ -244,7 +247,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       cpfCnpj: string;
     }) => {
       carregandoRef.current = true;
-      setPartData(data.partData);
+      setPartData(mesclarLinhasOrcamento(data.partData));
       setCpfCnpj(data.cpfCnpj.replace(/\D/g, "") === "00000000000" ? "" : data.cpfCnpj);
       setObservacao(data.observacao);
       const sub = inventarioSubtotalOrcamento(data.partData);
@@ -290,7 +293,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       modo === "total" ? valorMostrar : desc.total,
     );
     return {
-      partData,
+      partData: mesclarLinhasOrcamento(partData),
       formaPagamento,
       descontoModo: modo,
       descontoPercent: resolved.percent,

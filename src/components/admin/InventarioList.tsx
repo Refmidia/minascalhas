@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { EnderecoCell, TelefoneCell } from "@/components/admin/inventario-ui";
+import { EnderecoCell, TelefoneCell, VisitaDataCell, VisitaHoraCell } from "@/components/admin/inventario-ui";
+import { horaParaExibicaoVisita } from "@/lib/inventario-format";
 import {
   INVENTARIO_STATUS,
   type InventarioStatus,
@@ -111,7 +112,12 @@ export function InventarioList({ statusFilter }: { statusFilter: InventarioStatu
                   <th className="inv-col-cliente">Cliente</th>
                   <th className="inv-col-telefone">Telefone</th>
                   <th className="inv-col-endereco">Endereço</th>
-                  {showVisita && <th className="inv-col-visita">Visita</th>}
+                  {showVisita ? (
+                    <>
+                      <th className="inv-col-visita">Data</th>
+                      <th className="inv-col-hora">Hora</th>
+                    </>
+                  ) : null}
                   {showValor && <th className="inv-col-valor">Valor</th>}
                   <th className="inv-col-actions">Status</th>
                 </tr>
@@ -131,11 +137,16 @@ export function InventarioList({ statusFilter }: { statusFilter: InventarioStatu
                     <td className="inv-col-endereco inv-col-endereco--compact">
                       <EnderecoCell item={item} />
                     </td>
-                    {showVisita && (
-                      <td className="inv-col-visita">
-                        {item.dataVisita} {item.horaVisita}
-                      </td>
-                    )}
+                    {showVisita ? (
+                      <>
+                        <td className="inv-col-visita">
+                          <VisitaDataCell data={item.dataVisita} />
+                        </td>
+                        <td className="inv-col-hora">
+                          <VisitaHoraCell hora={horaParaExibicaoVisita(item)} />
+                        </td>
+                      </>
+                    ) : null}
                     {showValor && (
                       <td className="inv-col-valor">
                         <span className="inv-valor-tag">

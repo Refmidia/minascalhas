@@ -167,6 +167,41 @@ export function inventarioSubtotalOrcamento(itens: OrcamentoLinha[]): number {
   return Math.round(total * 100) / 100;
 }
 
+/** Agrupa linhas iguais (mesma descrição + mesmo valor unitário). */
+export function chaveLinhaOrcamento(linha: OrcamentoLinha): string {
+  const nome = linha.material.trim().toLowerCase();
+  const valor = Math.round((Number(linha.valor) || 0) * 100) / 100;
+  return `${nome}|${valor.toFixed(2)}`;
+}
+
+export function mesclarLinhasOrcamento(linhas: OrcamentoLinha[]): OrcamentoLinha[] {
+  const ordem: string[] = [];
+  const map = new Map<string, OrcamentoLinha>();
+
+  for (const linha of linhas) {
+    const key = chaveLinhaOrcamento(linha);
+    const metros = Math.round((Number(linha.metros) || 0) * 100) / 100;
+    const existente = map.get(key);
+    if (existente) {
+      existente.metros = Math.round(((Number(existente.metros) || 0) + metros) * 100) / 100;
+      if (linha.id != null && existente.id == null) existente.id = linha.id;
+      if (linha.valor_custo != null && existente.valor_custo == null) {
+        existente.valor_custo = linha.valor_custo;
+      }
+    } else {
+      ordem.push(key);
+      map.set(key, {
+        ...linha,
+        material: linha.material.trim(),
+        metros,
+        valor: Math.round((Number(linha.valor) || 0) * 100) / 100,
+      });
+    }
+  }
+
+  return ordem.map((k) => map.get(k)!);
+}
+
 function normalizarDescontoPercent(raw: unknown): number {
   const n = parseMoneyBr(raw);
   return Math.min(100, Math.max(0, n));

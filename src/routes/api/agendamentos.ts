@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import {
+  backfillInventarioHorasVazias,
   buildInventarioCreateData,
+  criarInventarioAgendamento,
   dbErrorMessage,
   inventarioWhereStatus,
   serializeInventario,
@@ -62,6 +64,7 @@ export const Route = createFileRoute("/api/agendamentos")({
             orderBy: { id: "desc" },
             take: limit,
           });
+          await backfillInventarioHorasVazias(prisma, rows);
           return jsonResponse({
             ok: true,
             items: rows.map(serializeInventario),
@@ -112,9 +115,10 @@ export const Route = createFileRoute("/api/agendamentos")({
           const session = getAdminSessionFromRequest(request);
           const funcionarioId =
             session?.visao === "funcionário" ? session.userId : null;
-          const row = await prisma.inventario.create({
-            data: buildInventarioCreateData(data, funcionarioId),
-          });
+          const row = await criarInventarioAgendamento(
+            prisma,
+            buildInventarioCreateData(data, funcionarioId),
+          );
           return corsJson({ ok: true, id: row.id, message: "Agendamento recebido." });
         } catch (err) {
           console.error("[POST /api/agendamentos]", err);

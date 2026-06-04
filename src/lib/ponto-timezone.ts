@@ -4,7 +4,8 @@ export const PONTO_TIMEZONE = "America/Sao_Paulo";
 /** Brasil sem horário de verão desde 2019. */
 const PONTO_ISO_OFFSET = "-03:00";
 
-const SQL_DT_RE = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
+export const PONTO_SQL_DT_RE = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
+const SQL_DT_RE = PONTO_SQL_DT_RE;
 
 /**
  * Converte valor vindo do MySQL/Prisma/JSON para `Y-m-d H:i:s` de parede (São Paulo).
@@ -108,6 +109,29 @@ export function formatDataHoraPontoTz(raw: string): { data: string; hora: string
     data: formatDataPontoTz(raw),
     hora: formatHoraPontoTz(raw),
   };
+}
+
+/** Hora para input type="time" com segundos (HH:MM:SS). */
+export function horaInputFromPontoSql(raw: string): string {
+  const sql = pontoSerializarDatetime(raw);
+  const m = sql.match(/(\d{2}):(\d{2}):(\d{2})/);
+  if (m) return `${m[1]}:${m[2]}:${m[3]}`;
+  const m2 = sql.match(/(\d{2}):(\d{2})/);
+  if (m2) return `${m2[1]}:${m2[2]}:00`;
+  return "";
+}
+
+/** Monta Y-m-d H:i:s a partir da data da jornada e hora digitada. */
+export function montarDatetimePonto(dataIso: string, horaRaw: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dataIso.trim())) return null;
+  const h = horaRaw.trim();
+  const m = h.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (!m) return null;
+  const hh = m[1].padStart(2, "0");
+  const mi = m[2].padStart(2, "0");
+  const se = (m[3] ?? "00").padStart(2, "0");
+  if (Number(hh) > 23 || Number(mi) > 59 || Number(se) > 59) return null;
+  return `${dataIso} ${hh}:${mi}:${se}`;
 }
 
 export function formatAgoraPontoControle(): string {

@@ -16,6 +16,7 @@ import {
   inventarioSubtotalOrcamento,
   normalizarFormaPagamento,
   normalizarModoDesconto,
+  mesclarLinhasOrcamento,
   parseOrcamentoJson,
   type OrcamentoLinha,
 } from "@/lib/orcamento.server";
@@ -139,7 +140,7 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
             return jsonResponse({ ok: false, message: "Visita não encontrada." }, 404);
           }
 
-          const linhas = normalizeLinhas(parsed.data.partData);
+          const linhas = mesclarLinhasOrcamento(normalizeLinhas(parsed.data.partData));
           const subtotal = inventarioSubtotalOrcamento(linhas);
           const modo = normalizarModoDesconto(parsed.data.descontoModo ?? "percent");
           const resolved = garantirTotalOrcamentoConsistente(
@@ -217,7 +218,7 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
             return jsonResponse({ ok: false, message: "Orçamento não encontrado." }, 404);
           }
 
-          const linhas = normalizeLinhas(parsed.data.partData);
+          const linhas = mesclarLinhasOrcamento(normalizeLinhas(parsed.data.partData));
           const subtotal = inventarioSubtotalOrcamento(linhas);
           const modo = normalizarModoDesconto(parsed.data.descontoModo ?? "percent");
           const resolved = garantirTotalOrcamentoConsistente(

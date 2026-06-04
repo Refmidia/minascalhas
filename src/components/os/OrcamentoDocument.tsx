@@ -10,7 +10,7 @@ import {
   quantidadeLinhaOrcamento,
   totalLinhaOrcamento,
 } from "@/lib/os-document";
-import type { OrcamentoLinha } from "@/lib/orcamento.server";
+import { mesclarLinhasOrcamento, type OrcamentoLinha } from "@/lib/orcamento.server";
 
 type Props = {
   item: AgendamentoItem;
@@ -20,7 +20,8 @@ type Props = {
 export function OrcamentoDocument({ item, itens }: Props) {
   const { data, hora } = dataEmissaoOs();
   const valorFinal = Number(item.valor) || 0;
-  const { bruto, desconto, total } = calcTotaisOrcamento(itens, valorFinal);
+  const linhas = mesclarLinhasOrcamento(itens);
+  const { bruto, desconto, total } = calcTotaisOrcamento(linhas, valorFinal);
   const empresa = OS_ORCAMENTO_EMPRESA;
 
   return (
@@ -86,14 +87,14 @@ export function OrcamentoDocument({ item, itens }: Props) {
           </tr>
         </thead>
         <tbody>
-          {itens.length === 0 ? (
+          {linhas.length === 0 ? (
             <tr>
               <td colSpan={5} className="center">
                 Nenhum produto encontrado
               </td>
             </tr>
           ) : (
-            itens.map((linha, index) => {
+            linhas.map((linha, index) => {
               const qtd = quantidadeLinhaOrcamento(linha);
               const totalItem = totalLinhaOrcamento(linha);
               return (

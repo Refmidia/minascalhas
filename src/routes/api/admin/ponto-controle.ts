@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 
 import { dbErrorMessage } from "@/lib/agendamento.server";
 import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarPonto } from "@/lib/auth.server";
@@ -6,11 +7,26 @@ import { jsonResponse } from "@/lib/http.server";
 import {
   apagarJornadaPonto,
   apagarRegistroPonto,
+  atualizarRegistroPonto,
   buscarRegistrosAdmin,
   listarFuncionariosPonto,
+  mapaValorDiarioFuncionarios,
   montarJornadasAdmin,
 } from "@/lib/ponto.server";
-import { formatAgoraPontoControle, pontoHojeIso } from "@/lib/ponto-timezone";
+import {
+  formatAgoraPontoControle,
+  montarDatetimePonto,
+  pontoHojeIso,
+  PONTO_SQL_DT_RE,
+  pontoSerializarDatetime,
+} from "@/lib/ponto-timezone";
+
+const patchSchema = z.object({
+  id: z.number().int().positive(),
+  registrado_em: z.string().trim().min(1).optional(),
+  data: z.string().trim().optional(),
+  hora: z.string().trim().optional(),
+});
 
 export const Route = createFileRoute("/api/admin/ponto-controle")({
   server: {
@@ -38,7 +54,9 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
             de,
             ate,
           );
-          const jornadas = montarJornadasAdmin(registros);
+          const ids = [...new Set(registros.map((r) => r.usuario_id))];
+          const valorDiarioMap = await mapaValorDiarioFuncionarios(ids);
+          const jornadas = montarJornadasAdmin(registros, valorDiarioMap);
           return jsonResponse({
             ok: true,
             updated_at: formatAgoraPontoControle(),
@@ -46,6 +64,50 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
             registros,
             jornadas,
           });
+        } catch (err) {
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
+
+      PATCH: async ({ request }) => {
+        if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
+        const session = getAdminSessionFromRequest(request);
+        if (!session || !podeGerenciarPonto(session)) {
+          return jsonResponse(
+            { ok: false, message: "Somente administradores podem corrigir horários de ponto." },
+            403,
+          );
+        }
+
+        let body: unknown;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse({ ok: false, message: "JSON inválido." }, 400);
+        }
+
+        const parsed = patchSchema.safeParse(body);
+        if (!parsed.success) {
+          return jsonResponse({ ok: false, message: "Dados inválidos." }, 422);
+        }
+
+        let registradoEm = parsed.data.registrado_em?.trim() ?? "";
+        if (!registradoEm && parsed.data.data && parsed.data.hora) {
+          const montado = montarDatetimePonto(parsed.data.data, parsed.data.hora);
+          if (!montado) {
+            return jsonResponse({ ok: false, message: "Data ou hora inválida." }, 422);
+          }
+          registradoEm = montado;
+        }
+
+        registradoEm = pontoSerializarDatetime(registradoEm);
+        if (!PONTO_SQL_DT_RE.test(registradoEm)) {
+          return jsonResponse({ ok: false, message: "Informe data e hora válidas." }, 422);
+        }
+
+        try {
+          const res = await atualizarRegistroPonto(parsed.data.id, registradoEm);
+          return jsonResponse({ ok: res.ok, message: res.message }, res.ok ? 200 : 400);
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
         }

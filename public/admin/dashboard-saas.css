@@ -4867,6 +4867,7 @@ html[data-bs-theme="dark"] .forn-lancar-compra {
 .inv-data-table--balanced .inv-col-actions,
 .inv-data-table--balanced .inv-col-valor,
 .inv-data-table--balanced .inv-col-visita,
+.inv-data-table--balanced .inv-col-hora,
 .inv-data-table--balanced .inv-col-montagem,
 .inv-data-table--balanced .inv-col-doc {
     width: 1%;
@@ -4989,6 +4990,79 @@ html[data-bs-theme="dark"] .forn-lancar-compra {
 .inv-visita-line__sep {
     color: #cbd5e1;
     font-weight: 400;
+}
+
+.inv-visita-inline {
+    display: inline;
+    white-space: nowrap;
+    line-height: 1.35;
+    font-size: 0.8125rem;
+}
+
+.inv-visita-inline__data {
+    font-weight: 600;
+    color: #475569;
+}
+
+.inv-visita-inline__sep {
+    color: #94a3b8;
+    font-weight: 400;
+    margin: 0 0.1em;
+}
+
+.inv-visita-inline__hora {
+    font-weight: 600;
+    color: #0a9d5c;
+    font-variant-numeric: tabular-nums;
+}
+
+html[data-bs-theme="dark"] .inv-visita-inline__data {
+    color: #e5e5e5 !important;
+}
+
+html[data-bs-theme="dark"] .inv-visita-inline__sep {
+    color: #64748b !important;
+}
+
+html[data-bs-theme="dark"] .inv-visita-inline__hora {
+    color: #6ee7b7 !important;
+}
+
+.inv-visita-data {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.inv-visita-hora {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: #0a9d5c;
+    font-variant-numeric: tabular-nums;
+}
+
+html[data-bs-theme="dark"] .inv-visita-data {
+    color: #e5e5e5 !important;
+}
+
+html[data-bs-theme="dark"] .inv-visita-hora {
+    color: #6ee7b7 !important;
+}
+
+.inv-data-table .inv-col-hora {
+    text-align: center !important;
+}
+
+.inv-visita-inline__sem-hora {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-left: 0.15em;
+}
+
+html[data-bs-theme="dark"] .inv-visita-inline__sem-hora {
+    color: #64748b !important;
 }
 
 .inv-data-table .inv-col-endereco {

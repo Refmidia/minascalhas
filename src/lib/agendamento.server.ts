@@ -1,5 +1,11 @@
-import type { AgendamentoInput, AgendamentoSiteInput } from "@/lib/validation";
+import type { PrismaClient } from "@prisma/client";
+
+import {
+  formatHoraVisitaExibicao,
+  resolveHoraVisitaInventario,
+} from "@/lib/inventario-format";
 import { parseOrcamentoJson, valorOrcamentoParaExibicao } from "@/lib/orcamento.server";
+import type { AgendamentoInput, AgendamentoSiteInput } from "@/lib/validation";
 
 export { INVENTARIO_STATUS, type InventarioStatus } from "@/lib/agendamento-constants";
 
@@ -23,6 +29,70 @@ export function dataInputParaDb(isoDate: string): string {
   return toDataVisitaBr(isoDate);
 }
 
+/** Hora atual (America/Sao_Paulo) — quando o cliente agenda pelo site sem informar horário. */
+export function agendamentoHoraAtualBr(): string {
+  return new Date().toLocaleTimeString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+/** Normaliza hora do formulário (input time) para gravar em hora-visita (HH:MM). */
+export function normalizarHoraVisitaDb(horaRaw: string): string {
+  const fmt = formatHoraVisitaExibicao(horaRaw.trim());
+  return (fmt || agendamentoHoraAtualBr()).slice(0, 50);
+}
+
+/** Data/hora da visita agendada (fuso São Paulo) para coluna agendado_em. */
+export function montarAgendadoEm(dataInput: string, horaRaw: string): Date {
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(dataInput.trim())
+    ? dataInput.trim()
+    : dataBrParaInput(dataInput.trim());
+  const hora = normalizarHoraVisitaDb(horaRaw);
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const hm = hora.match(/^(\d{2}):(\d{2})$/);
+  if (!m || !hm) return new Date();
+  return new Date(`${m[1]}-${m[2]}-${m[3]}T${hm[1]}:${hm[2]}:00-03:00`);
+}
+
+function horaInformadaNoPayload(data: AgendamentoInput | AgendamentoSiteInput): string {
+  return "hora" in data && typeof data.hora === "string" ? data.hora.trim() : "";
+}
+
+/** Preenche hora-visita vazia no banco a partir de agendado_em / data (máx. por requisição). */
+export async function backfillInventarioHorasVazias(
+  prisma: PrismaClient,
+  rows: { id: number; status: string; horaVisita: string; dataVisita: string; agendadoEm?: Date | null }[],
+  limit = 40,
+): Promise<void> {
+  let gravados = 0;
+  for (const row of rows) {
+    if (gravados >= limit) break;
+    if (String(row.horaVisita ?? "").trim()) continue;
+
+    const resolvida = resolveHoraVisitaInventario({
+      horaVisita: row.horaVisita,
+      dataVisita: row.dataVisita,
+      agendadoEm: row.agendadoEm,
+      status: row.status,
+    });
+    if (!resolvida) continue;
+
+    try {
+      await prisma.inventario.update({
+        where: { id: row.id },
+        data: { horaVisita: resolvida },
+      });
+      row.horaVisita = resolvida;
+      gravados++;
+    } catch {
+      /* coluna ou permissão — exibição ainda usa resolve na serialização */
+    }
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeInventario(row: any) {
   const orcamentoItens = parseOrcamentoJson(row.orcamento);
@@ -44,7 +114,13 @@ export function serializeInventario(row: any) {
     cep: row.cep ?? "",
     numero: row.numero,
     dataVisita: row.dataVisita,
-    horaVisita: row.horaVisita,
+    horaVisita: resolveHoraVisitaInventario({
+      horaVisita: row.horaVisita,
+      dataVisita: row.dataVisita,
+      agendadoEm: row.agendadoEm,
+      status: row.status,
+    }),
+    agendadoEm: row.agendadoEm ?? null,
     observacao: row.observacao ?? null,
     funcionario: row.funcionario ?? null,
     valor,
@@ -78,7 +154,7 @@ export function buildInventarioCreateData(
     numero: data.numero.slice(0, 50),
     cep: (data.cep?.trim() || "").slice(0, 50),
     dataVisita: toDataVisitaBr(data.data),
-    horaVisita: ("hora" in data && typeof data.hora === "string" ? data.hora : "").trim().slice(0, 50),
+    horaVisita: normalizarHoraVisitaDb(horaInformadaNoPayload(data) || agendamentoHoraAtualBr()),
     observacao: data.observacao?.trim() || null,
     funcionario: funcionarioId ?? null,
     valor: 0,
@@ -86,7 +162,27 @@ export function buildInventarioCreateData(
     formaPagamento: null,
     dataMontagem: null,
     orcamento: null,
+    agendadoEm: montarAgendadoEm(data.data, horaInformadaNoPayload(data) || agendamentoHoraAtualBr()),
   };
+}
+
+/** Cria inventário mesmo se a coluna agendado_em ainda não existir no MySQL. */
+export async function criarInventarioAgendamento(
+  prisma: PrismaClient,
+  data: ReturnType<typeof buildInventarioCreateData>,
+) {
+  try {
+    return await prisma.inventario.create({ data });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "";
+    const code =
+      err && typeof err === "object" && "code" in err ? String((err as { code: string }).code) : "";
+    if (code === "P2022" || msg.includes("agendado_em")) {
+      const { agendadoEm: _omit, ...semAgendado } = data;
+      return await prisma.inventario.create({ data: semAgendado });
+    }
+    throw err;
+  }
 }
 
 export function dbErrorMessage(err: unknown): string {

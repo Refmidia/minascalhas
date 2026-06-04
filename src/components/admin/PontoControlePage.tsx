@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero } from "@/components/admin/DashPageHero";
+import { PontoEditarJornadaModal } from "@/components/admin/PontoEditarJornadaModal";
 import { PontoFuncCell, PontoJornadaHoras } from "@/components/admin/PontoFuncCell";
 import {
   formatDataHoraPonto,
@@ -25,6 +26,11 @@ type PontoJornada = {
   saida_fmt: string;
   intervalo_fmt: string;
   total_fmt: string;
+  minutos_trabalhados: number | null;
+  valor_diario: number;
+  valor_hora_fmt: string;
+  ganho_dia_fmt: string;
+  ganho_parcial: boolean;
   aberto: boolean;
   status_label: string;
 };
@@ -58,6 +64,14 @@ export function PontoControlePage() {
   const [jornadas, setJornadas] = useState<PontoJornada[]>([]);
   const [registros, setRegistros] = useState<PontoRegistroAdmin[]>([]);
   const [detalheOpen, setDetalheOpen] = useState(true);
+  const [editarOpen, setEditarOpen] = useState(false);
+  const [editarJornada, setEditarJornada] = useState<{
+    usuario_id: number;
+    usuario_nome: string;
+    data: string;
+    data_fmt: string;
+  } | null>(null);
+  const [editarRegistroId, setEditarRegistroId] = useState<number | null>(null);
 
   const [fUsuario, setFUsuario] = useState(String(usuarioFiltro || ""));
   const [fDe, setFDe] = useState(de);
@@ -155,6 +169,29 @@ export function PontoControlePage() {
     } catch (err) {
       dashToast(err instanceof Error ? err.message : "Erro.", "danger");
     }
+  }
+
+  function abrirEditarJornada(j: PontoJornada) {
+    setEditarJornada({
+      usuario_id: j.usuario_id,
+      usuario_nome: j.usuario_nome,
+      data: j.data,
+      data_fmt: j.data_fmt,
+    });
+    setEditarRegistroId(null);
+    setEditarOpen(true);
+  }
+
+  function abrirEditarRegistro(r: PontoRegistroAdmin) {
+    const { data } = formatDataHoraPonto(r.registrado_em);
+    setEditarJornada({
+      usuario_id: r.usuario_id,
+      usuario_nome: r.usuario_nome,
+      data: pontoDiaChave(r.registrado_em),
+      data_fmt: data,
+    });
+    setEditarRegistroId(r.id);
+    setEditarOpen(true);
   }
 
   async function excluirRegistro(r: PontoRegistroAdmin) {
@@ -285,6 +322,8 @@ export function PontoControlePage() {
                         <th className="text-center">Saída</th>
                         <th className="text-center">Intervalo</th>
                         <th className="text-center">Trabalhado</th>
+                        <th className="text-center">R$/h</th>
+                        <th className="text-center">Ganho no dia</th>
                         <th className="text-center">Status</th>
                         <th className="text-end dash-ponto-table__col-acoes">Ações</th>
                       </tr>
@@ -292,7 +331,7 @@ export function PontoControlePage() {
                     <tbody>
                       {jornadas.length === 0 ? (
                         <tr>
-                          <td colSpan={10} className="dash-ponto-table__empty">
+                          <td colSpan={12} className="dash-ponto-table__empty">
                             Nenhum registro encontrado para os filtros selecionados.
                           </td>
                         </tr>
@@ -311,6 +350,26 @@ export function PontoControlePage() {
                               intervalo={j.intervalo_fmt}
                               total={j.total_fmt}
                             />
+                            <td className="text-center dash-ponto-cel--valor" title={j.valor_diario > 0 ? `Diária cadastrada: ${j.valor_diario.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (8h)` : "Cadastre o valor diário em Pagamentos"}>
+                              <span className="dash-ponto-valor-h">{j.valor_hora_fmt}</span>
+                            </td>
+                            <td className="text-center dash-ponto-cel--valor">
+                              <strong
+                                className={`dash-ponto-ganho${j.ganho_parcial ? " dash-ponto-ganho--parcial" : ""}`}
+                                title={
+                                  j.ganho_parcial
+                                    ? "Estimativa até o momento (jornada em aberto)"
+                                    : j.ganho_dia_fmt !== "—"
+                                      ? "Proporcional às horas trabalhadas (base 8h/dia)"
+                                      : undefined
+                                }
+                              >
+                                {j.ganho_dia_fmt}
+                              </strong>
+                              {j.ganho_parcial ? (
+                                <span className="dash-ponto-ganho__hint">est.</span>
+                              ) : null}
+                            </td>
                             <td className="text-center">
                               {j.aberto ? (
                                 <span className="dash-ponto-status dash-ponto-status--aberto">
@@ -321,15 +380,26 @@ export function PontoControlePage() {
                               )}
                             </td>
                             <td className="text-end dash-ponto-table__col-acoes">
-                              <button
-                                type="button"
-                                className="dash-pag-func-act dash-pag-func-act--delete"
-                                title="Excluir jornada inteira"
-                                aria-label={`Excluir jornada de ${j.usuario_nome} em ${j.data_fmt}`}
-                                onClick={() => void excluirJornada(j)}
-                              >
-                                <i className="bi bi-trash3" aria-hidden="true" />
-                              </button>
+                              <div className="dash-pag-func-actions" role="group" aria-label="Ações da jornada">
+                                <button
+                                  type="button"
+                                  className="dash-pag-func-act dash-pag-func-act--edit"
+                                  title="Corrigir horários das batidas"
+                                  aria-label={`Corrigir horários de ${j.usuario_nome} em ${j.data_fmt}`}
+                                  onClick={() => abrirEditarJornada(j)}
+                                >
+                                  <i className="bi bi-pencil-square" aria-hidden="true" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="dash-pag-func-act dash-pag-func-act--delete"
+                                  title="Excluir jornada inteira"
+                                  aria-label={`Excluir jornada de ${j.usuario_nome} em ${j.data_fmt}`}
+                                  onClick={() => void excluirJornada(j)}
+                                >
+                                  <i className="bi bi-trash3" aria-hidden="true" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -395,15 +465,26 @@ export function PontoControlePage() {
                                     </div>
                                   </td>
                                   <td className="text-end">
-                                    <button
-                                      type="button"
-                                      className="dash-pag-func-act dash-pag-func-act--delete"
-                                      title="Excluir registro"
-                                      aria-label="Excluir registro"
-                                      onClick={() => void excluirRegistro(r)}
-                                    >
-                                      <i className="bi bi-trash3" aria-hidden="true" />
-                                    </button>
+                                    <div className="dash-pag-func-actions" role="group" aria-label="Ações do registro">
+                                      <button
+                                        type="button"
+                                        className="dash-pag-func-act dash-pag-func-act--edit"
+                                        title="Corrigir horário"
+                                        aria-label="Corrigir horário"
+                                        onClick={() => abrirEditarRegistro(r)}
+                                      >
+                                        <i className="bi bi-pencil-square" aria-hidden="true" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="dash-pag-func-act dash-pag-func-act--delete"
+                                        title="Excluir registro"
+                                        aria-label="Excluir registro"
+                                        onClick={() => void excluirRegistro(r)}
+                                      >
+                                        <i className="bi bi-trash3" aria-hidden="true" />
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               );
@@ -414,7 +495,7 @@ export function PontoControlePage() {
                     </div>
                   ) : (
                     <p className="dash-ponto-detalhe__hint mb-0">
-                      Clique na seta para ver cada batida e excluir registros individualmente.
+                      Clique na seta para ver cada batida, corrigir horários ou excluir registros.
                     </p>
                   )}
                 </section>
@@ -423,6 +504,19 @@ export function PontoControlePage() {
           ) : null}
         </div>
       </div>
+
+      <PontoEditarJornadaModal
+        open={editarOpen}
+        onClose={() => {
+          setEditarOpen(false);
+          setEditarJornada(null);
+          setEditarRegistroId(null);
+        }}
+        jornada={editarJornada}
+        registros={registros}
+        registroId={editarRegistroId}
+        onSaved={() => void load()}
+      />
     </div>
   );
 }

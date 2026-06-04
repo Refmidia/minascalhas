@@ -22,6 +22,7 @@ model Inventario {
   cep             String  @db.VarChar(50)
   dataVisita      String  @map("data-visita") @db.VarChar(50)
   horaVisita      String  @map("hora-visita") @db.VarChar(50)
+  agendadoEm      DateTime? @map("agendado_em")
   observacao      String? @db.LongText
   funcionario     Int?
   valor           Decimal @default(0.00) @db.Decimal(10, 2)

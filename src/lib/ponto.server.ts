@@ -1,3 +1,4 @@
+import { formatMoeda } from "@/lib/funcionario-pagamento-display";
 import { getPrisma } from "@/lib/db.server";
 import {
   formatDataPontoTz,
@@ -6,7 +7,11 @@ import {
   pontoDiaChave,
   pontoSerializarDatetime,
   parsePontoDatetime,
+  PONTO_SQL_DT_RE,
 } from "@/lib/ponto-timezone";
+
+/** Carga horária de referência para converter valor diário em hora (8h). */
+export const PONTO_MINUTOS_CARGA_DIA = 8 * 60;
 
 const PONTO_DT_SQL = `DATE_FORMAT(registrado_em, '%Y-%m-%d %H:%i:%s') AS registrado_em`;
 
@@ -190,10 +195,12 @@ function calcMinutosTrabalhados(
   almoco: string | null,
   retorno: string | null,
   saida: string | null,
+  fimAlternativo?: string | null,
 ): number | null {
-  if (!entrada || !saida) return null;
+  const fim = saida || fimAlternativo;
+  if (!entrada || !fim) return null;
   const e = parsePontoDatetime(entrada).getTime();
-  const s = parsePontoDatetime(saida).getTime();
+  const s = parsePontoDatetime(fim).getTime();
   if (Number.isNaN(e) || Number.isNaN(s) || s <= e) return null;
   if (almoco && retorno) {
     const a = parsePontoDatetime(almoco).getTime();
@@ -203,6 +210,23 @@ function calcMinutosTrabalhados(
     }
   }
   return Math.floor((s - e) / 60000);
+}
+
+export function valorHoraFromDiario(valorDiario: number): number {
+  if (valorDiario <= 0) return 0;
+  return Math.round((valorDiario / (PONTO_MINUTOS_CARGA_DIA / 60)) * 100) / 100;
+}
+
+export function ganhoDiaFromPonto(valorDiario: number, minutosTrabalhados: number | null): number {
+  if (valorDiario <= 0 || minutosTrabalhados == null || minutosTrabalhados <= 0) return 0;
+  return (
+    Math.round(valorDiario * (minutosTrabalhados / PONTO_MINUTOS_CARGA_DIA) * 100) / 100
+  );
+}
+
+function formatMoedaPonto(valor: number): string {
+  if (valor <= 0) return "—";
+  return formatMoeda(valor);
 }
 
 function calcMinutosAlmoco(almoco: string | null, retorno: string | null): number | null {
@@ -247,6 +271,11 @@ export type PontoJornada = {
   saida_fmt: string;
   intervalo_fmt: string;
   total_fmt: string;
+  minutos_trabalhados: number | null;
+  valor_diario: number;
+  valor_hora_fmt: string;
+  ganho_dia_fmt: string;
+  ganho_parcial: boolean;
   aberto: boolean;
   status_label: string;
 };
@@ -257,6 +286,21 @@ export async function listarFuncionariosPonto() {
     `SELECT id, nome, thumb FROM usuarios WHERE nivel IN ('funcionário', 'funcionario') ORDER BY nome ASC`,
   );
   return rows.map((r) => ({ id: int(r.id), nome: r.nome, thumb: String(r.thumb ?? "nao.png") }));
+}
+
+export async function mapaValorDiarioFuncionarios(ids: number[]): Promise<Map<number, number>> {
+  const map = new Map<number, number>();
+  const uniq = [...new Set(ids.filter((id) => id > 0))];
+  if (uniq.length === 0) return map;
+
+  const prisma = await getPrisma();
+  const rows = await prisma.$queryRawUnsafe<{ id: unknown; valor_diario: unknown }[]>(
+    `SELECT id, valor_diario FROM usuarios WHERE id IN (${uniq.join(",")})`,
+  );
+  for (const r of rows) {
+    map.set(int(r.id), Math.max(0, Number(r.valor_diario) || 0));
+  }
+  return map;
 }
 
 export async function buscarRegistrosAdmin(
@@ -290,7 +334,11 @@ export async function buscarRegistrosAdmin(
   }));
 }
 
-export function montarJornadasAdmin(registros: PontoRegistroAdmin[]): PontoJornada[] {
+export function montarJornadasAdmin(
+  registros: PontoRegistroAdmin[],
+  valorDiarioPorUsuario: Map<number, number> = new Map(),
+): PontoJornada[] {
+  const agora = pontoAgoraSql();
   const porChave = new Map<
     string,
     {
@@ -337,8 +385,17 @@ export function montarJornadasAdmin(registros: PontoRegistroAdmin[]): PontoJorna
     const fechar = () => {
       if (!atual?.entrada) return;
       const aberto = Boolean(atual.entrada && !atual.saida);
-      const minTrab = calcMinutosTrabalhados(atual.entrada, atual.almoco, atual.retorno, atual.saida);
+      const minTrab = calcMinutosTrabalhados(
+        atual.entrada,
+        atual.almoco,
+        atual.retorno,
+        atual.saida,
+        aberto ? agora : null,
+      );
       const minAlm = calcMinutosAlmoco(atual.almoco, atual.retorno);
+      const valorDiario = valorDiarioPorUsuario.get(grupo.usuario_id) ?? 0;
+      const valorHora = valorHoraFromDiario(valorDiario);
+      const ganhoDia = ganhoDiaFromPonto(valorDiario, minTrab);
       jornadas.push({
         usuario_id: grupo.usuario_id,
         usuario_nome: grupo.usuario_nome,
@@ -351,6 +408,11 @@ export function montarJornadasAdmin(registros: PontoRegistroAdmin[]): PontoJorna
         saida_fmt: atual.saida ? formatHoraPonto(atual.saida) : "—",
         intervalo_fmt: formatMinutosPonto(minAlm),
         total_fmt: formatMinutosPonto(minTrab),
+        minutos_trabalhados: minTrab,
+        valor_diario: valorDiario,
+        valor_hora_fmt: formatMoedaPonto(valorHora),
+        ganho_dia_fmt: formatMoedaPonto(ganhoDia),
+        ganho_parcial: aberto && ganhoDia > 0,
         aberto,
         status_label: aberto ? statusJornadaAberta(atual) : "Encerrado",
       });
@@ -427,6 +489,34 @@ export async function apagarJornadaPonto(
         : `${removidos} registros da jornada excluídos.`,
     removidos,
   };
+}
+
+export async function atualizarRegistroPonto(
+  id: number,
+  registradoEm: string,
+): Promise<{ ok: boolean; message: string }> {
+  const regId = int(id);
+  const sql = pontoSerializarDatetime(registradoEm);
+  if (regId <= 0) return { ok: false, message: "Registro inválido." };
+  if (!PONTO_SQL_DT_RE.test(sql)) {
+    return { ok: false, message: "Data ou hora inválida." };
+  }
+
+  const prisma = await getPrisma();
+  const row = await prisma.$queryRawUnsafe<{ id: unknown; tipo: string }[]>(
+    `SELECT id, tipo FROM funcionario_ponto WHERE id = ${regId} LIMIT 1`,
+  );
+  if (!row[0]) return { ok: false, message: "Registro não encontrado." };
+
+  const tipo = pontoNormalizarTipo(String(row[0].tipo));
+  if (!tipo) return { ok: false, message: "Tipo de registro inválido." };
+
+  const emEsc = esc(sql);
+  await prisma.$executeRawUnsafe(
+    `UPDATE funcionario_ponto SET registrado_em = '${emEsc}' WHERE id = ${regId} LIMIT 1`,
+  );
+
+  return { ok: true, message: "Horário atualizado." };
 }
 
 export async function apagarRegistroPonto(id: number): Promise<{ ok: boolean; message: string }> {

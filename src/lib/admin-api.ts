@@ -14,6 +14,7 @@ export type AgendamentoItem = {
   numero: string;
   dataVisita: string;
   horaVisita: string;
+  agendadoEm?: string | Date | null;
   observacao: string | null;
   funcionario: number | null;
   valor: number;

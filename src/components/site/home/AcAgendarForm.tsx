@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 
 import { HOME_SITE, waUrl } from "@/data/home-config";
 import { enviarAgendamento } from "@/lib/agendamentos";
+import { horaAtualBr } from "@/lib/inventario-format";
 import { fetchConsultaDocumentoSite, fetchViaCep } from "@/lib/site-consulta-client";
 import { agendamentoSiteSchema } from "@/lib/validation";
 
@@ -192,7 +193,11 @@ export function AcAgendarForm() {
     e.preventDefault();
     setAlert(null);
 
-    const parsed = agendamentoSiteSchema.safeParse({ ...form, origem: "site" as const });
+    const parsed = agendamentoSiteSchema.safeParse({
+      ...form,
+      origem: "site" as const,
+      hora: horaAtualBr(),
+    });
     if (!parsed.success) {
       showAlert("danger", parsed.error.issues[0]?.message ?? "Preencha os campos obrigatórios.");
       return;

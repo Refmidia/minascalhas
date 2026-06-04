@@ -13,8 +13,10 @@ const agendamentoBase = z.object({
   origem: z.literal("site"),
 });
 
-/** Formulário da landing — sem horário (definido depois no painel). */
-export const agendamentoSiteSchema = agendamentoBase;
+/** Site: hora opcional no payload (se vazio, o servidor grava a hora do envio). */
+export const agendamentoSiteSchema = agendamentoBase.extend({
+  hora: z.string().trim().max(50).optional().or(z.literal("")),
+});
 
 /** Painel e outros fluxos que exigem hora. */
 export const agendamentoSchema = agendamentoBase.extend({
