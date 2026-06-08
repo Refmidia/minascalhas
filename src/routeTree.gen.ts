@@ -59,6 +59,7 @@ import { Route as ApiAdminDashboardRouteImport } from './routes/api/admin/dashbo
 import { Route as ApiAdminConsultaDocumentoRouteImport } from './routes/api/admin/consulta-documento'
 import { Route as ApiAdminConsultaCnpjRouteImport } from './routes/api/admin/consulta-cnpj'
 import { Route as ApiAdminClientesRouteImport } from './routes/api/admin/clientes'
+import { Route as ApiAgendamentosIdRecebimentosRouteImport } from './routes/api/agendamentos/$id/recebimentos'
 import { Route as ApiAgendamentosIdOrcamentoRouteImport } from './routes/api/agendamentos/$id/orcamento'
 import { Route as ApiAgendamentosIdConfirmarMontagemRouteImport } from './routes/api/agendamentos/$id/confirmar-montagem'
 import { Route as ApiAgendamentosIdClienteRouteImport } from './routes/api/agendamentos/$id/cliente'
@@ -322,6 +323,12 @@ const ApiAdminClientesRoute = ApiAdminClientesRouteImport.update({
   path: '/api/admin/clientes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgendamentosIdRecebimentosRoute =
+  ApiAgendamentosIdRecebimentosRouteImport.update({
+    id: '/recebimentos',
+    path: '/recebimentos',
+    getParentRoute: () => ApiAgendamentosIdRoute,
+  } as any)
 const ApiAgendamentosIdOrcamentoRoute =
   ApiAgendamentosIdOrcamentoRouteImport.update({
     id: '/orcamento',
@@ -423,6 +430,7 @@ export interface FileRoutesByFullPath {
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
   '/api/agendamentos/$id/confirmar-montagem': typeof ApiAgendamentosIdConfirmarMontagemRoute
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
+  '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
@@ -482,6 +490,7 @@ export interface FileRoutesByTo {
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
   '/api/agendamentos/$id/confirmar-montagem': typeof ApiAgendamentosIdConfirmarMontagemRoute
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
+  '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
@@ -543,6 +552,7 @@ export interface FileRoutesById {
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
   '/api/agendamentos/$id/confirmar-montagem': typeof ApiAgendamentosIdConfirmarMontagemRoute
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
+  '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
@@ -605,6 +615,7 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/cliente'
     | '/api/agendamentos/$id/confirmar-montagem'
     | '/api/agendamentos/$id/orcamento'
+    | '/api/agendamentos/$id/recebimentos'
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
@@ -664,6 +675,7 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/cliente'
     | '/api/agendamentos/$id/confirmar-montagem'
     | '/api/agendamentos/$id/orcamento'
+    | '/api/agendamentos/$id/recebimentos'
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
@@ -724,6 +736,7 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/cliente'
     | '/api/agendamentos/$id/confirmar-montagem'
     | '/api/agendamentos/$id/orcamento'
+    | '/api/agendamentos/$id/recebimentos'
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
@@ -1115,6 +1128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminClientesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agendamentos/$id/recebimentos': {
+      id: '/api/agendamentos/$id/recebimentos'
+      path: '/recebimentos'
+      fullPath: '/api/agendamentos/$id/recebimentos'
+      preLoaderRoute: typeof ApiAgendamentosIdRecebimentosRouteImport
+      parentRoute: typeof ApiAgendamentosIdRoute
+    }
     '/api/agendamentos/$id/orcamento': {
       id: '/api/agendamentos/$id/orcamento'
       path: '/orcamento'
@@ -1224,6 +1244,7 @@ interface ApiAgendamentosIdRouteChildren {
   ApiAgendamentosIdClienteRoute: typeof ApiAgendamentosIdClienteRoute
   ApiAgendamentosIdConfirmarMontagemRoute: typeof ApiAgendamentosIdConfirmarMontagemRoute
   ApiAgendamentosIdOrcamentoRoute: typeof ApiAgendamentosIdOrcamentoRoute
+  ApiAgendamentosIdRecebimentosRoute: typeof ApiAgendamentosIdRecebimentosRoute
 }
 
 const ApiAgendamentosIdRouteChildren: ApiAgendamentosIdRouteChildren = {
@@ -1231,6 +1252,7 @@ const ApiAgendamentosIdRouteChildren: ApiAgendamentosIdRouteChildren = {
   ApiAgendamentosIdConfirmarMontagemRoute:
     ApiAgendamentosIdConfirmarMontagemRoute,
   ApiAgendamentosIdOrcamentoRoute: ApiAgendamentosIdOrcamentoRoute,
+  ApiAgendamentosIdRecebimentosRoute: ApiAgendamentosIdRecebimentosRoute,
 }
 
 const ApiAgendamentosIdRouteWithChildren =

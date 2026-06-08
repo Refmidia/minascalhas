@@ -76,6 +76,65 @@ export function VisitaHoraCell({ hora }: { hora: string }) {
 }
 
 /** Data à esquerda, hora no centro — entre a data e a coluna de ações. */
+export function InvRecebidoCell({
+  valorOrcamento,
+  valorRecebido = 0,
+  saldoPendente = 0,
+  quitado = false,
+  qtdPagamentos = 0,
+  onClick,
+}: {
+  valorOrcamento: number;
+  valorRecebido?: number;
+  saldoPendente?: number;
+  quitado?: boolean;
+  qtdPagamentos?: number;
+  onClick?: () => void;
+}) {
+  const total = Math.max(0, Number(valorOrcamento) || 0);
+  const recebido = Math.max(0, Number(valorRecebido) || 0);
+  const saldo = quitado ? 0 : Math.max(0, Number(saldoPendente) || Math.max(0, total - recebido));
+
+  const fmt = (n: number) =>
+    n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const classe =
+    quitado || (total > 0 && recebido >= total - 0.009)
+      ? "inv-receb-chip--ok"
+      : recebido > 0
+        ? "inv-receb-chip--parcial"
+        : "inv-receb-chip--vazio";
+
+  const inner = (
+    <>
+      <span className="inv-receb-chip__valores">
+        <strong>R$ {fmt(recebido)}</strong>
+        <span className="inv-receb-chip__sep">/</span>
+        <span>R$ {fmt(total)}</span>
+      </span>
+      {recebido > 0 && !quitado && saldo > 0.009 ? (
+        <span className="inv-receb-chip__saldo">Falta R$ {fmt(saldo)}</span>
+      ) : null}
+      {quitado ? <span className="inv-receb-chip__badge">Quitado</span> : null}
+      {qtdPagamentos > 0 ? (
+        <span className="inv-receb-chip__qtd">
+          {qtdPagamentos} pag.
+        </span>
+      ) : null}
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button type="button" className={`inv-receb-chip ${classe}`} onClick={onClick} title="Ver e registrar pagamentos">
+        {inner}
+      </button>
+    );
+  }
+
+  return <div className={`inv-receb-chip ${classe}`}>{inner}</div>;
+}
+
 export function VisitaDataHoraCell({ data, hora }: { data: string; hora: string }) {
   return (
     <div className="inv-visita-datetime-row">

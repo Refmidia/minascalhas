@@ -9,6 +9,7 @@ import {
   INVENTARIO_PER_PAGE,
   InvActionBtn,
   InvPagination,
+  InvRecebidoCell,
   InvRowActions,
   ListingHeaderMeta,
   paginateItems,
@@ -21,6 +22,7 @@ import { horaParaExibicaoVisita } from "@/lib/inventario-format";
 import { ModalConfirmarMontagem } from "@/components/admin/modals/ModalConfirmarMontagem";
 import { ModalEditarCliente } from "@/components/admin/modals/ModalEditarCliente";
 import { ModalOrcamento } from "@/components/admin/modals/ModalOrcamento";
+import { ModalRecebimentos } from "@/components/admin/modals/ModalRecebimentos";
 import { dashConfirm } from "@/lib/dash-ui";
 import {
   deleteAgendamento,
@@ -83,6 +85,9 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
   const [montagemOpen, setMontagemOpen] = useState(false);
   const [montagemId, setMontagemId] = useState<number | null>(null);
 
+  const [recebimentosOpen, setRecebimentosOpen] = useState(false);
+  const [recebimentosItem, setRecebimentosItem] = useState<AgendamentoItem | null>(null);
+
   const statusFilter = STATUS_FILTER[variant];
 
   const load = useCallback(async () => {
@@ -130,6 +135,19 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
   function openEditarCliente(id: number) {
     setEditClienteId(id);
     setEditClienteOpen(true);
+  }
+
+  function openRecebimentos(item: AgendamentoItem) {
+    setRecebimentosItem(item);
+    setRecebimentosOpen(true);
+  }
+
+  function patchRecebimentosItem(
+    id: number,
+    patch: Pick<AgendamentoItem, "valorRecebido" | "saldoPendente" | "quitado" | "qtdPagamentos">,
+  ) {
+    setItems((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    setRecebimentosItem((prev) => (prev?.id === id ? { ...prev, ...patch } : prev));
   }
 
   async function handleCancelar(id: number) {
@@ -232,6 +250,12 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
       const primary = (
         <>
           <InvActionBtn
+            icon="bi-cash-coin"
+            title="Registrar pagamento do cliente"
+            variant="secondary"
+            onClick={() => openRecebimentos(item)}
+          />
+          <InvActionBtn
             icon="bi-check-lg"
             title="Confirmar montagem"
             onClick={() => {
@@ -257,6 +281,11 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
       );
       const menu = [
         {
+          label: "Pagamentos",
+          icon: "bi-cash-coin",
+          onClick: () => openRecebimentos(item),
+        },
+        {
           label: "Editar",
           icon: "bi-pencil-square",
           className: "inv-dropdown-item--edit",
@@ -279,6 +308,12 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
     if (variant === "confirmado") {
       const primary = (
         <>
+          <InvActionBtn
+            icon="bi-cash-coin"
+            title="Registrar pagamento do cliente"
+            variant="secondary"
+            onClick={() => openRecebimentos(item)}
+          />
           <InvActionBtn
             icon="bi-check-lg"
             title="Finalizar"
@@ -305,6 +340,11 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
           ariaLabel={`Mais ações #${item.id}`}
           primary={primary}
           menu={[
+            {
+              label: "Pagamentos",
+              icon: "bi-cash-coin",
+              onClick: () => openRecebimentos(item),
+            },
             {
               label: "Editar",
               icon: "bi-pencil-square",
@@ -358,6 +398,7 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
 
   const showVisita = variant === "visitas";
   const showValor = variant !== "visitas";
+  const showRecebido = variant === "orcamentado" || variant === "confirmado";
   const showMontagem = variant === "confirmado";
   const showDetalhes = variant === "orcamentado";
 
@@ -423,6 +464,7 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                         {showVisita ? <th className="inv-col-datetime">Data / Hora</th> : null}
                         {showMontagem ? <th className="inv-col-montagem">Montagem</th> : null}
                         {showValor ? <th className="inv-col-valor">Valor</th> : null}
+                        {showRecebido ? <th className="inv-col-recebido">Recebido</th> : null}
                         {showDetalhes ? <th className="inv-col-detalhes">Detalhes</th> : null}
                         <th className="inv-col-actions">Ações</th>
                       </tr>
@@ -461,6 +503,18 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                                   currency: "BRL",
                                 })}
                               </span>
+                            </td>
+                          ) : null}
+                          {showRecebido ? (
+                            <td className="inv-col-recebido">
+                              <InvRecebidoCell
+                                valorOrcamento={Number(item.valor)}
+                                valorRecebido={item.valorRecebido}
+                                saldoPendente={item.saldoPendente}
+                                quitado={item.quitado}
+                                qtdPagamentos={item.qtdPagamentos}
+                                onClick={() => openRecebimentos(item)}
+                              />
                             </td>
                           ) : null}
                           {showDetalhes ? (
@@ -515,6 +569,21 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
                           }
                         />
                       ) : null}
+                      {showRecebido ? (
+                        <MobileKeyValue
+                          label="Recebido"
+                          value={
+                            <InvRecebidoCell
+                              valorOrcamento={Number(item.valor)}
+                              valorRecebido={item.valorRecebido}
+                              saldoPendente={item.saldoPendente}
+                              quitado={item.quitado}
+                              qtdPagamentos={item.qtdPagamentos}
+                              onClick={() => openRecebimentos(item)}
+                            />
+                          }
+                        />
+                      ) : null}
                       {showDetalhes ? <MobileKeyValue label="Detalhes" value={<MateriaisDetalhes item={item} />} /> : null}
                     </div>
                   </article>
@@ -555,6 +624,17 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
         inventarioId={montagemId}
         onSaved={() => {
           setItems((prev) => prev.filter((r) => r.id !== montagemId));
+        }}
+      />
+      <ModalRecebimentos
+        open={recebimentosOpen}
+        onClose={() => {
+          setRecebimentosOpen(false);
+          setRecebimentosItem(null);
+        }}
+        item={recebimentosItem}
+        onSaved={(patch) => {
+          if (recebimentosItem) patchRecebimentosItem(recebimentosItem.id, patch);
         }}
       />
     </div>

@@ -23,6 +23,27 @@ export type AgendamentoItem = {
   dataMontagem: string | null;
   orcamentoItens?: OrcamentoLinha[];
   materiaisCount?: number;
+  valorRecebido?: number;
+  saldoPendente?: number;
+  quitado?: boolean;
+  qtdPagamentos?: number;
+};
+
+export type InventarioRecebimentoItem = {
+  id: number;
+  inventario_id: number;
+  valor: number;
+  tipo: string;
+  pago_em: string;
+  observacao: string | null;
+  registrado_por: number | null;
+};
+
+export type RecebimentoResumo = {
+  valorRecebido: number;
+  saldoPendente: number;
+  quitado: boolean;
+  qtdPagamentos: number;
 };
 
 export type MaterialItem = {
@@ -356,6 +377,67 @@ export async function confirmarMontagem(
 
 export async function finalizarServico(id: number): Promise<AgendamentoItem> {
   return updateAgendamentoStatus(id, "finalizado");
+}
+
+export async function fetchRecebimentosInventario(inventarioId: number): Promise<{
+  valor_orcamento: number;
+  recebimentos: InventarioRecebimentoItem[];
+  resumo: RecebimentoResumo;
+}> {
+  const res = await fetch(`/api/agendamentos/${inventarioId}/recebimentos`, {
+    credentials: "include",
+  });
+  const data = await parseJson<{
+    ok?: boolean;
+    valor_orcamento?: number;
+    recebimentos?: InventarioRecebimentoItem[];
+    resumo?: RecebimentoResumo;
+    message?: string;
+  }>(res);
+  if (!res.ok || !data.resumo) throw new Error(data.message ?? "Erro ao carregar pagamentos.");
+  return {
+    valor_orcamento: data.valor_orcamento ?? 0,
+    recebimentos: data.recebimentos ?? [],
+    resumo: data.resumo,
+  };
+}
+
+export async function registrarRecebimentoInventario(
+  inventarioId: number,
+  payload: { valor: string | number; tipo?: string; pago_em: string; observacao?: string },
+): Promise<{ recebimentos: InventarioRecebimentoItem[]; resumo: RecebimentoResumo }> {
+  const res = await fetch(`/api/agendamentos/${inventarioId}/recebimentos`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await parseJson<{
+    ok?: boolean;
+    recebimentos?: InventarioRecebimentoItem[];
+    resumo?: RecebimentoResumo;
+    message?: string;
+  }>(res);
+  if (!res.ok || !data.resumo) throw new Error(data.message ?? "Erro ao registrar pagamento.");
+  return { recebimentos: data.recebimentos ?? [], resumo: data.resumo };
+}
+
+export async function excluirRecebimentoInventario(
+  inventarioId: number,
+  recebimentoId: number,
+): Promise<{ recebimentos: InventarioRecebimentoItem[]; resumo: RecebimentoResumo }> {
+  const res = await fetch(
+    `/api/agendamentos/${inventarioId}/recebimentos?recebimentoId=${recebimentoId}`,
+    { method: "DELETE", credentials: "include" },
+  );
+  const data = await parseJson<{
+    ok?: boolean;
+    recebimentos?: InventarioRecebimentoItem[];
+    resumo?: RecebimentoResumo;
+    message?: string;
+  }>(res);
+  if (!res.ok || !data.resumo) throw new Error(data.message ?? "Erro ao excluir pagamento.");
+  return { recebimentos: data.recebimentos ?? [], resumo: data.resumo };
 }
 
 export async function criarVisitaPainel(

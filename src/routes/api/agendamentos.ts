@@ -11,6 +11,11 @@ import {
 import { getAdminSessionFromRequest, isAdminRequest } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/db.server";
 import { jsonResponse, PUBLIC_CORS } from "@/lib/http.server";
+import {
+  calcularResumoRecebimento,
+  mapaTotalRecebidoPorInventario,
+  statusPermiteRecebimento,
+} from "@/lib/inventario-recebimento.server";
 import { agendamentoSiteSchema } from "@/lib/validation";
 
 const corsJson = (data: unknown, status = 200) =>
@@ -64,9 +69,27 @@ export const Route = createFileRoute("/api/agendamentos")({
             take: limit,
           });
           await backfillInventarioHorasVazias(prisma, rows);
+
+          const idsRecebimento = rows
+            .filter((r) => statusPermiteRecebimento(r.status))
+            .map((r) => r.id);
+          const mapaRecebido = await mapaTotalRecebidoPorInventario(idsRecebimento);
+
           return jsonResponse({
             ok: true,
-            items: rows.map(serializeInventario),
+            items: rows.map((row) => {
+              const item = serializeInventario(row);
+              if (!statusPermiteRecebimento(row.status)) return item;
+              const agg = mapaRecebido[row.id];
+              const resumo = calcularResumoRecebimento(Number(row.valor), agg?.total ?? 0);
+              return {
+                ...item,
+                valorRecebido: resumo.valorRecebido,
+                saldoPendente: resumo.saldoPendente,
+                quitado: resumo.quitado,
+                qtdPagamentos: agg?.qtd ?? 0,
+              };
+            }),
           });
         } catch (err) {
           console.error("[GET /api/agendamentos]", err);

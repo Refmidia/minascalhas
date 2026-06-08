@@ -5092,6 +5092,140 @@ html[data-bs-theme="dark"] .inv-visita-hora {
     padding-left: 0.35rem !important;
 }
 
+.inv-col-recebido {
+    min-width: 8.5rem;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.inv-receb-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.35);
+    color: inherit;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    cursor: default;
+    text-align: center;
+    max-width: 100%;
+}
+
+button.inv-receb-chip {
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+
+button.inv-receb-chip:hover {
+    border-color: rgba(22, 202, 133, 0.45);
+    background: rgba(22, 202, 133, 0.08);
+    transform: translateY(-1px);
+}
+
+.inv-receb-chip--ok {
+    border-color: rgba(22, 202, 133, 0.4);
+    background: rgba(22, 202, 133, 0.1);
+}
+
+.inv-receb-chip--parcial {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: rgba(245, 158, 11, 0.08);
+}
+
+.inv-receb-chip--vazio {
+    opacity: 0.85;
+}
+
+.inv-receb-chip__valores {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    white-space: nowrap;
+}
+
+.inv-receb-chip__valores strong {
+    color: #16ca85;
+    font-weight: 700;
+}
+
+.inv-receb-chip__sep {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.inv-receb-chip__saldo {
+    font-size: 0.68rem;
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.inv-receb-chip__badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #16ca85;
+}
+
+.inv-receb-chip__qtd {
+    font-size: 0.62rem;
+    color: #94a3b8;
+}
+
+.inv-receb-resumo {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(15, 23, 42, 0.25);
+}
+
+.inv-receb-resumo__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.inv-receb-resumo__label {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.inv-receb-resumo__ok {
+    color: #16ca85 !important;
+}
+
+.inv-receb-resumo__pendente {
+    color: #f59e0b !important;
+}
+
+.inv-receb-hist__obs {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+html[data-bs-theme="light"] .inv-receb-chip {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+html[data-bs-theme="light"] .inv-receb-resumo {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
 .inv-visita-inline__sem-hora {
     font-size: 0.72rem;
     font-weight: 500;
