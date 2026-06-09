@@ -18,7 +18,7 @@ import {
   VisitaDataHoraCell,
   VisitaHoraCell,
 } from "@/components/admin/inventario-ui";
-import { horaParaExibicaoVisita } from "@/lib/inventario-format";
+import { horaParaExibicaoVisita, ordenarInventarioPorMontagem } from "@/lib/inventario-format";
 import { ModalConfirmarMontagem } from "@/components/admin/modals/ModalConfirmarMontagem";
 import { ModalEditarCliente } from "@/components/admin/modals/ModalEditarCliente";
 import { ModalOrcamento } from "@/components/admin/modals/ModalOrcamento";
@@ -107,7 +107,12 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
     void load();
   }, [load]);
 
-  const total = items.length;
+  const sortedItems = useMemo(() => {
+    if (variant !== "confirmado") return items;
+    return ordenarInventarioPorMontagem(items);
+  }, [items, variant]);
+
+  const total = sortedItems.length;
   const totalPages = Math.max(1, Math.ceil(total / INVENTARIO_PER_PAGE));
   const pageSafe = Math.min(page, totalPages);
 
@@ -116,8 +121,8 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
   }, [page, totalPages]);
 
   const pageItems = useMemo(
-    () => paginateItems(items, pageSafe, INVENTARIO_PER_PAGE),
-    [items, pageSafe],
+    () => paginateItems(sortedItems, pageSafe, INVENTARIO_PER_PAGE),
+    [sortedItems, pageSafe],
   );
 
   function openOrcamentoNovo(item: AgendamentoItem) {

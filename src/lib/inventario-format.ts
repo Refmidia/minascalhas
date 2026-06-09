@@ -109,3 +109,25 @@ export function joinEnderecoParts(parts: EnderecoParts): string {
   if (cep) return linha ? `${linha} — ${cep}` : cep;
   return linha;
 }
+
+/** Timestamp para ordenar data de montagem (DD-MM-YYYY ou YYYY-MM-DD). Sem data → topo. */
+export function timestampDataMontagemBr(data: string | null | undefined): number {
+  const t = String(data ?? "").trim();
+  if (!t || t === "0000-00-00") return 0;
+  const br = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(t);
+  if (br) return new Date(Number(br[3]), Number(br[2]) - 1, Number(br[1])).getTime();
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
+  if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])).getTime();
+  return 0;
+}
+
+/** Confirmado: datas antigas no topo, mais novas embaixo (cronológico). */
+export function ordenarInventarioPorMontagem<T extends { id: number; dataMontagem?: string | null }>(
+  items: T[],
+): T[] {
+  return [...items].sort((a, b) => {
+    const diff = timestampDataMontagemBr(a.dataMontagem) - timestampDataMontagemBr(b.dataMontagem);
+    if (diff !== 0) return diff;
+    return b.id - a.id;
+  });
+}
