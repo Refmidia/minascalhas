@@ -77,6 +77,9 @@ export type ClienteInventarioDados = {
 export type OrcamentoSavePayload = {
   partData: OrcamentoLinha[];
   formaPagamento: string;
+  qtdParcelas?: number | string;
+  taxaMaquininhaPct?: number | string;
+  parcelasSemJuros?: number | string;
   descontoModo?: string;
   descontoPercent?: number | string;
   descontoValor?: number | string;
@@ -296,6 +299,7 @@ export async function fetchOrcamentoInventario(id: number): Promise<{
   descontoPercent: number;
   observacao: string;
   cpfCnpj: string;
+  formaPagamento: string;
 }> {
   const res = await fetch(`/api/agendamentos/${id}/orcamento`, { credentials: "include" });
   const data = await parseJson<{
@@ -306,11 +310,15 @@ export async function fetchOrcamentoInventario(id: number): Promise<{
       descontoPercent: number;
       observacao: string;
       cpfCnpj: string;
+      formaPagamento?: string;
     };
     message?: string;
   }>(res);
   if (!res.ok || !data.dados) throw new Error(data.message ?? "Erro ao carregar orçamento.");
-  return data.dados;
+  return {
+    ...data.dados,
+    formaPagamento: data.dados.formaPagamento ?? "",
+  };
 }
 
 export async function salvarOrcamentoNovo(

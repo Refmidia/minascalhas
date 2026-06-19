@@ -1,5 +1,6 @@
 import type { AgendamentoItem } from "@/lib/admin-api";
 import type { OrcamentoLinha } from "@/lib/orcamento.server";
+import { parseFormaPagamento, calcularCreditoMaquininha } from "@/lib/orcamento.server";
 
 /** Dados fixos da empresa no orçamento. */
 export const OS_ORCAMENTO_EMPRESA = {
@@ -93,9 +94,46 @@ export function dataEmissaoOs(): { data: string; hora: string } {
 }
 
 export function condicaoPagamentoExibicao(item: AgendamentoItem): string {
+  const pag = parseFormaPagamento(item.formaPagamento);
+  if (pag.forma === "pix") return "PIX";
+  if (pag.forma === "debito") return "Débito";
+  if (pag.forma === "credito") {
+    const base = pag.qtdParcelas > 1 ? `Crédito em ${pag.qtdParcelas}x` : "Crédito à vista";
+    const { comTaxa } = calcularCreditoMaquininha(
+      Number(item.valor) || 0,
+      pag.qtdParcelas,
+      pag.taxaMaquininhaPct,
+      pag.parcelasSemJuros,
+    );
+    if (comTaxa) {
+      return `${base} (taxa maquininha ${pag.taxaMaquininhaPct.toLocaleString("pt-BR")}%)`;
+    }
+    return base;
+  }
+
   const fp = item.formaPagamento?.trim();
   if (fp) return fp;
   return OS_ORCAMENTO_EMPRESA.condicaoPagamentoPadrao;
+}
+
+export function resumoCreditoOrcamento(item: AgendamentoItem): {
+  acrescimoMaquininha: number;
+  totalCartao: number;
+  comTaxa: boolean;
+} {
+  const pag = parseFormaPagamento(item.formaPagamento);
+  const totalBase = Number(item.valor) || 0;
+  const calc = calcularCreditoMaquininha(
+    totalBase,
+    pag.qtdParcelas,
+    pag.taxaMaquininhaPct,
+    pag.parcelasSemJuros,
+  );
+  return {
+    acrescimoMaquininha: calc.acrescimo,
+    totalCartao: calc.totalFinal,
+    comTaxa: calc.comTaxa,
+  };
 }
 
 export function observacaoExibicao(item: AgendamentoItem): string {

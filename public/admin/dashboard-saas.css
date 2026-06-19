@@ -3758,6 +3758,7 @@ html[data-bs-theme="dark"] .inv-action-btn--muted:hover {
 }
 
 .visitas-orc-modal__content {
+    position: relative;
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 1.5rem);
@@ -4034,9 +4035,27 @@ html[data-bs-theme="dark"] .inv-action-btn--muted:hover {
 
 .visitas-orc-pay-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.65rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
     width: 100%;
+}
+
+.visitas-orc-panel--pay {
+    margin-top: 0.25rem;
+    padding: 1rem 1.05rem 1.1rem;
+    border: 1px solid rgba(22, 202, 133, 0.22);
+    border-radius: 14px;
+    background:
+        linear-gradient(180deg, rgba(22, 202, 133, 0.06) 0%, rgba(22, 202, 133, 0) 42%),
+        var(--dash-card-bg, #fff);
+}
+
+.visitas-orc-panel__head {
+    margin-bottom: 0.85rem;
+}
+
+.visitas-orc-panel--pay .visitas-orc-panel__title {
+    margin-bottom: 0.35rem;
 }
 
 .visitas-orc-pay-card {
@@ -4045,21 +4064,33 @@ html[data-bs-theme="dark"] .inv-action-btn--muted:hover {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
     margin: 0;
-    min-height: 5.5rem;
-    padding: 0.85rem 0.5rem;
-    border: 2px solid var(--dash-card-border, #e2e8f0);
-    border-radius: 10px;
-    background: #f8fafc;
+    width: 100%;
+    min-height: 5.85rem;
+    padding: 0.75rem 0.5rem 0.7rem;
+    border: 1.5px solid var(--dash-card-border, #e2e8f0);
+    border-radius: 12px;
+    background: var(--dash-card-bg, #fff);
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    font: inherit;
+    text-align: center;
+    appearance: none;
+    -webkit-appearance: none;
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
     user-select: none;
+    text-align: center;
 }
 
 .visitas-orc-pay-card:hover {
-    border-color: rgba(22, 202, 133, 0.45);
-    background: #fff;
+    border-color: rgba(22, 202, 133, 0.5);
+    background: rgba(22, 202, 133, 0.04);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 
 .visitas-orc-pay-card__input {
@@ -4078,41 +4109,472 @@ html[data-bs-theme="dark"] .inv-action-btn--muted:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background: #fff;
+    width: 2.85rem;
+    height: 2.85rem;
+    border-radius: 999px;
+    background: #f8fafc;
     color: var(--dash-muted, #64748b);
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     border: 1px solid var(--dash-card-border, #e2e8f0);
-    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    transition:
+        color 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
 }
 
 .visitas-orc-pay-card__name {
-    font-size: 0.9375rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
     color: var(--text-secundary, #2a3342);
+    line-height: 1.2;
 }
 
-.visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked) {
+.visitas-orc-pay-card__desc {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--dash-muted, #64748b);
+    line-height: 1.25;
+}
+
+.visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked),
+.visitas-orc-pay-card--active {
     border-color: var(--primary, #16ca85);
-    background: rgba(22, 202, 133, 0.08);
-    box-shadow: 0 0 0 2px rgba(22, 202, 133, 0.1);
+    background: rgba(22, 202, 133, 0.1);
+    box-shadow:
+        0 0 0 1px rgba(22, 202, 133, 0.18),
+        0 10px 24px rgba(22, 202, 133, 0.12);
 }
 
-.visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked) .visitas-orc-pay-card__icon {
+.visitas-orc-pay-card--active .visitas-orc-pay-card__icon {
     background: var(--primary, #16ca85);
     border-color: var(--primary, #16ca85);
     color: #fff;
+    box-shadow: 0 6px 14px rgba(22, 202, 133, 0.35);
 }
 
-.visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked) .visitas-orc-pay-card__name {
+.visitas-orc-pay-card--active .visitas-orc-pay-card__name {
     color: #0d9660;
 }
 
-.visitas-orc-pay-card:has(.visitas-orc-pay-card__input:focus-visible) {
+.visitas-orc-pay-card--active .visitas-orc-pay-card__desc {
+    color: #14855a;
+}
+
+.visitas-orc-parcelas-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #0d9660 !important;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.visitas-orc-parcelas-link:hover {
+    color: #16ca85 !important;
+    text-decoration: underline !important;
+}
+
+.modal-backdrop.visitas-orc-parcelas-layer {
+    z-index: 2090 !important;
+}
+
+.modal.visitas-orc-parcelas-layer {
+    z-index: 2100 !important;
+}
+
+.visitas-orc-parcelas-modal__dialog {
+    max-width: 400px;
+    margin: 0.75rem auto;
+}
+
+/* Modal de parcelas — estilos isolados (evita conflito com Bootstrap) */
+.visitas-orc-parcelas-layer .orc-parcelas-modal.modal-content {
+    padding: 0;
+    border: 1px solid rgba(22, 202, 133, 0.3);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--dash-card-bg, #fff);
+    box-shadow: 0 24px 56px rgba(15, 23, 42, 0.28);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1rem 0.85rem;
+    background: linear-gradient(180deg, rgba(22, 202, 133, 0.12) 0%, rgba(22, 202, 133, 0) 100%);
+    border-bottom: 1px solid rgba(22, 202, 133, 0.15);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__head-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 10px;
+    background: rgba(22, 202, 133, 0.18);
+    color: #0d9660;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__title {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--text-secundary, #1e293b);
+    line-height: 1.25;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__subtitle {
+    margin: 0.2rem 0 0;
+    font-size: 0.78rem;
+    color: var(--dash-muted, #64748b);
+    line-height: 1.35;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--dash-muted, #64748b);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__close:hover {
+    background: rgba(15, 23, 42, 0.1);
+    color: var(--text-secundary, #1e293b);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__body {
+    padding: 0.9rem 1rem 1rem;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.9rem;
+    border-radius: 12px;
+    background: rgba(22, 202, 133, 0.08);
+    border: 1px solid rgba(22, 202, 133, 0.22);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dash-muted, #64748b);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview-value {
+    margin-top: 0.15rem;
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #0d9660;
+    line-height: 1.1;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview-total {
+    margin-top: 0.25rem;
+    font-size: 0.76rem;
+    color: var(--dash-muted, #64748b);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview-breakdown {
+    margin-top: 0.2rem;
+    font-size: 0.72rem;
+    color: var(--dash-muted, #64748b);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview--com-taxa {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.28);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__preview--com-taxa .orc-parcelas-modal__preview-value {
+    color: #d97706;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__config {
+    margin-bottom: 0.85rem;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-opt {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.5rem;
+    margin: 0;
+    padding: 0 0.5rem;
+    border: 1.5px solid var(--dash-card-border, #dbe3ec);
+    border-radius: 10px;
+    background: var(--dash-card-bg, #fff);
+    color: var(--text-secundary, #1e293b);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-opt i {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-opt:hover {
+    border-color: rgba(22, 202, 133, 0.45);
+    background: rgba(22, 202, 133, 0.06);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-opt.is-active {
+    border-color: rgba(22, 202, 133, 0.55);
+    background: rgba(22, 202, 133, 0.12);
+    color: #0d9660;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-field {
+    margin-top: 0.15rem;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-input {
+    min-height: 2.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__grid-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--dash-muted, #64748b);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+    width: 100%;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__opt {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 2.5rem;
+    margin: 0;
+    padding: 0;
+    border: 1.5px solid var(--dash-card-border, #dbe3ec);
+    border-radius: 10px;
+    background: var(--dash-card-bg, #fff);
+    color: var(--text-secundary, #1e293b);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__opt:hover {
+    border-color: rgba(22, 202, 133, 0.5);
+    background: rgba(22, 202, 133, 0.07);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__opt.is-active {
+    border-color: #16ca85;
+    background: rgba(22, 202, 133, 0.16);
+    color: #0d9660;
+    box-shadow: 0 0 0 2px rgba(22, 202, 133, 0.2);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--dash-card-border, #e8ecf4);
+    background: rgba(15, 23, 42, 0.02);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.95rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__btn--ghost {
+    background: #64748b;
+    color: #fff;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__btn--ghost:hover {
+    background: #475569;
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__btn--primary {
+    background: #16ca85;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(22, 202, 133, 0.35);
+}
+
+.visitas-orc-parcelas-layer .orc-parcelas-modal__btn--primary:hover {
+    background: #12b377;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal.modal-content {
+    background: #1b222e;
+    border-color: rgba(22, 202, 133, 0.28);
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__title {
+    color: #e2e8f0;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__close {
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3b8;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__preview {
+    background: rgba(22, 202, 133, 0.12);
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__preview-value {
+    color: #6ee7b7;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__opt {
+    background: #0d1117;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__opt.is-active {
+    background: rgba(22, 202, 133, 0.2);
+    color: #6ee7b7;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-opt {
+    background: #0d1117;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__taxa-opt.is-active {
+    background: rgba(22, 202, 133, 0.2);
+    color: #6ee7b7;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__preview--com-taxa {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__preview--com-taxa .orc-parcelas-modal__preview-value {
+    color: #fbbf24;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-layer .orc-parcelas-modal__footer {
+    background: #151b24;
+    border-top-color: #334155;
+}
+
+@media (max-width: 575.98px) {
+    .visitas-orc-parcelas-layer .orc-parcelas-modal__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+.visitas-orc-save-btn {
+    background: #16ca85 !important;
+    border: none !important;
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.visitas-orc-save-btn:hover {
+    background: #12b377 !important;
+    color: #fff !important;
+}
+
+@keyframes visitas-orc-popup-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.visitas-orc-pay-card:focus-visible {
     outline: 2px solid var(--primary, #16ca85);
     outline-offset: 2px;
+}
+
+.visitas-orc-panel__hint {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--muted, #64748b);
 }
 
 .visitas-orc-obs .visitas-orc-input {
@@ -4229,8 +4691,16 @@ html[data-bs-theme="dark"] .visitas-orc-pay-card {
     border-color: #2a3342;
 }
 
+html[data-bs-theme="dark"] .visitas-orc-panel--pay {
+    border-color: rgba(22, 202, 133, 0.28);
+    background:
+        linear-gradient(180deg, rgba(22, 202, 133, 0.1) 0%, rgba(22, 202, 133, 0) 45%),
+        #1b222e;
+}
+
 html[data-bs-theme="dark"] .visitas-orc-pay-card:hover {
     background: #1b222e;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
 html[data-bs-theme="dark"] .visitas-orc-pay-card__icon {
@@ -4243,12 +4713,29 @@ html[data-bs-theme="dark"] .visitas-orc-pay-card__name {
     color: #e2e8f0;
 }
 
-html[data-bs-theme="dark"] .visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked) {
-    background: rgba(22, 202, 133, 0.15);
+html[data-bs-theme="dark"] .visitas-orc-pay-card__desc {
+    color: #94a3b8;
 }
 
-html[data-bs-theme="dark"] .visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked) .visitas-orc-pay-card__name {
+html[data-bs-theme="dark"] .visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked),
+html[data-bs-theme="dark"] .visitas-orc-pay-card--active {
+    background: rgba(22, 202, 133, 0.15);
+    box-shadow:
+        0 0 0 1px rgba(22, 202, 133, 0.22),
+        0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+html[data-bs-theme="dark"] .visitas-orc-pay-card:has(.visitas-orc-pay-card__input:checked) .visitas-orc-pay-card__name,
+html[data-bs-theme="dark"] .visitas-orc-pay-card--active .visitas-orc-pay-card__name {
     color: #6ee7b7;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-pay-card--active .visitas-orc-pay-card__desc {
+    color: #86efac;
+}
+
+html[data-bs-theme="dark"] .visitas-orc-parcelas-link {
+    color: #6ee7b7 !important;
 }
 
 html[data-bs-theme="dark"] .visitas-orc-modal__footer {
@@ -4282,6 +4769,10 @@ html[data-bs-theme="dark"] .visitas-orc-del-btn {
     .visitas-orc-pay-card__name {
         font-size: 0.8125rem;
     }
+
+    .visitas-orc-pay-card__desc {
+        font-size: 0.68rem;
+    }
 }
 
 /* Modais de edição — topo e formulário (igual Confirmar Visita) */
@@ -4293,6 +4784,7 @@ html[data-bs-theme="dark"] .visitas-orc-del-btn {
 
 .dash-edit-modal__content,
 .visitas-orc-modal__content {
+    position: relative;
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 1.5rem);

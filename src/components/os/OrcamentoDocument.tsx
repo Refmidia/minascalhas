@@ -7,12 +7,13 @@ import {
   formatOsEndereco,
   formatOsMoney,
   formatOsTelefone,
+  resumoCreditoOrcamento,
   observacaoExibicao,
   OS_ORCAMENTO_EMPRESA,
   quantidadeLinhaOrcamento,
   totalLinhaOrcamento,
 } from "@/lib/os-document";
-import { mesclarLinhasOrcamento, type OrcamentoLinha } from "@/lib/orcamento.server";
+import { mesclarLinhasOrcamento, gerarParcelasOrcamento, type OrcamentoLinha } from "@/lib/orcamento.server";
 
 type Props = {
   item: AgendamentoItem;
@@ -36,17 +37,6 @@ function Kv({ label, value }: { label: string; value: React.ReactNode }) {
       <span className="os-orc-kv__label">{label}</span>
       <span className="os-orc-kv__value">{value}</span>
     </div>
-  );
-}
-
-function PixBrandIcon() {
-  return (
-    <svg className="os-orc-pix__brand-icon" viewBox="0 0 48 48" aria-hidden="true">
-      <path
-        fill="#32BCAD"
-        d="M24 4c2.2 0 4 1.8 4 4v8.8L36.8 12c1.6-1.6 4.1-1.6 5.7 0s1.6 4.1 0 5.7L33.7 26.4H42.4c2.2 0 4 1.8 4 4s-1.8 4-4 4H33.7L42.5 36c1.6 1.6 1.6 4.1 0 5.7s-4.1 1.6-5.7 0L28 33.2V42c0 2.2-1.8 4-4 4s-4-1.8-4-4v-8.8L11.2 36c-1.6 1.6-4.1 1.6-5.7 0s-1.6-4.1 0-5.7L14.3 21.6H5.6c-2.2 0-4-1.8-4-4s1.8-4 4-4h8.7L5.5 12c-1.6-1.6-1.6-4.1 0-5.7s4.1-1.6 5.7 0L20 14.8V6c0-2.2 1.8-4 4-4z"
-      />
-    </svg>
   );
 }
 
@@ -86,6 +76,8 @@ export function OrcamentoDocument({ item, itens }: Props) {
   const valorFinal = Number(item.valor) || 0;
   const linhas = mesclarLinhasOrcamento(itens);
   const { bruto, desconto, total } = calcTotaisOrcamento(linhas, valorFinal);
+  const parcelas = gerarParcelasOrcamento(total, item.formaPagamento, data);
+  const credito = resumoCreditoOrcamento(item);
   const empresa = OS_ORCAMENTO_EMPRESA;
 
   return (
@@ -286,11 +278,13 @@ export function OrcamentoDocument({ item, itens }: Props) {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>01/01</td>
-                  <td>R$ {formatOsMoney(total)}</td>
-                  <td>{data}</td>
-                </tr>
+                {parcelas.map((parcela) => (
+                  <tr key={parcela.label}>
+                    <td>{parcela.label}</td>
+                    <td>R$ {formatOsMoney(parcela.valor)}</td>
+                    <td>{parcela.vencimento}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -303,9 +297,19 @@ export function OrcamentoDocument({ item, itens }: Props) {
               <span>Descontos</span>
               <strong>R$ {formatOsMoney(desconto)}</strong>
             </div>
+            {credito.comTaxa ? (
+              <div className="os-orc-sum-row">
+                <span>Taxa maquininha</span>
+                <strong>R$ {formatOsMoney(credito.acrescimoMaquininha)}</strong>
+              </div>
+            ) : null}
             <div className="os-orc-total-box">
-              <span className="os-orc-total-box__label">Total à vista</span>
-              <strong className="os-orc-total-box__value">R$ {formatOsMoney(total)}</strong>
+              <span className="os-orc-total-box__label">
+                {credito.comTaxa ? "Total no cartão" : "Total à vista"}
+              </span>
+              <strong className="os-orc-total-box__value">
+                R$ {formatOsMoney(credito.comTaxa ? credito.totalCartao : total)}
+              </strong>
             </div>
           </div>
         </div>
@@ -315,7 +319,14 @@ export function OrcamentoDocument({ item, itens }: Props) {
         <section className="os-orc-pix-box">
           <div className="os-orc-pix__grid">
             <div className="os-orc-pix__col os-orc-pix__col--info">
-              <PixBrandIcon />
+              <img
+                src={empresa.logoSrc}
+                alt="Alex Calhas"
+                className="os-orc-pix__logo"
+                width={120}
+                height={32}
+                decoding="async"
+              />
               <p className="os-orc-pix__title">Pagamento via Pix</p>
               <p className="os-orc-pix__lead">
                 Escaneie o QR Code com o app do seu banco para pagar via Pix.

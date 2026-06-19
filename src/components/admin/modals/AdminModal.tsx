@@ -4,18 +4,32 @@ type Props = {
   open: boolean;
   onClose: () => void;
   dialogClass?: string;
+  /** Classe extra no backdrop e no container (ex.: z-index acima de outro modal). */
+  layerClass?: string;
   children: ReactNode;
 };
 
 /** Modal no estilo Bootstrap (classes do dashboard-saas.css). */
-export function AdminModal({ open, onClose, dialogClass = "modal-lg", children }: Props) {
+export function AdminModal({
+  open,
+  onClose,
+  dialogClass = "modal-lg",
+  layerClass = "",
+  children,
+}: Props) {
   if (!open) return null;
+
+  const layer = layerClass.trim();
 
   return (
     <>
-      <div className="modal-backdrop fade show" onClick={onClose} aria-hidden="true" />
       <div
-        className="modal fade show d-block dash-edit-modal"
+        className={`modal-backdrop fade show${layer ? ` ${layer}` : ""}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className={`modal fade show d-block dash-edit-modal${layer ? ` ${layer}` : ""}`}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"

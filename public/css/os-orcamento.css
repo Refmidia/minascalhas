@@ -488,10 +488,13 @@ html.os-orc-embed body {
   min-width: 0;
 }
 
-.os-orc-pix__brand-icon {
+.os-orc-pix__logo {
   display: block;
-  width: 34px;
-  height: 34px;
+  width: auto;
+  max-width: 120px;
+  height: 32px;
+  object-fit: contain;
+  object-position: left center;
   margin-bottom: 2px;
   flex-shrink: 0;
 }

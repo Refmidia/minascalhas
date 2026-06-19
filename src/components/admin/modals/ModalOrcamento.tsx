@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import { AdminModal } from "@/components/admin/modals/AdminModal";
 import { useOrcamentoForm } from "@/hooks/use-orcamento-form";
-import { bloquearTeclaNaoNumerica } from "@/lib/orcamento.server";
+import { bloquearTeclaNaoNumerica, calcularCreditoMaquininha, parseMoneyBr, sanitizarDescontoPct } from "@/lib/orcamento.server";
 import {
   fetchMateriais,
   fetchOrcamentoInventario,
@@ -22,6 +22,157 @@ type Props = {
   onSaved: (item: AgendamentoItem, extra?: { nome: string; telefone: string; valor: number }) => void;
 };
 
+type PayOption = { value: "pix" | "debito" | "credito"; label: string; desc: string; icon: string };
+
+const PAY_OPTIONS: PayOption[] = [
+  { value: "pix", label: "PIX", desc: "Pagamento à vista", icon: "bi-qr-code-scan" },
+  { value: "debito", label: "Débito", desc: "Cartão na hora", icon: "bi-credit-card" },
+  { value: "credito", label: "Crédito", desc: "Parcelado no cartão", icon: "bi-credit-card-2-front" },
+];
+
+type TaxaModo = "sem" | "com";
+
+type PopupParcelasProps = {
+  open: boolean;
+  total: number;
+  draft: string;
+  draftTaxa: string;
+  draftTaxaModo: TaxaModo;
+  onDraftChange: (value: string) => void;
+  onDraftTaxaChange: (value: string) => void;
+  onDraftTaxaModoChange: (value: TaxaModo) => void;
+  onConfirm: () => void;
+  onClose: () => void;
+};
+
+function PopupParcelasCredito({
+  open,
+  total,
+  draft,
+  draftTaxa,
+  draftTaxaModo,
+  onDraftChange,
+  onDraftTaxaChange,
+  onDraftTaxaModoChange,
+  onConfirm,
+  onClose,
+}: PopupParcelasProps) {
+  const qtd = Math.max(1, Number.parseInt(draft, 10) || 1);
+  const taxaPct = draftTaxaModo === "com" ? parseMoneyBr(draftTaxa) : 0;
+  const calc = calcularCreditoMaquininha(total, qtd, taxaPct);
+  const valorParcela = calc.totalFinal > 0 ? calc.totalFinal / qtd : 0;
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  return (
+    <AdminModal
+      open={open}
+      onClose={onClose}
+      layerClass="visitas-orc-parcelas-layer"
+      dialogClass="visitas-orc-parcelas-modal__dialog"
+    >
+      <div className="modal-content orc-parcelas-modal">
+        <div className="orc-parcelas-modal__header">
+          <div className="orc-parcelas-modal__head-main">
+            <span className="orc-parcelas-modal__icon" aria-hidden="true">
+              <i className="bi bi-calendar2-check" />
+            </span>
+            <div>
+              <h5 className="orc-parcelas-modal__title">Parcelas no cartão</h5>
+              <p className="orc-parcelas-modal__subtitle">Escolha em quantas vezes dividir</p>
+            </div>
+          </div>
+          <button type="button" className="orc-parcelas-modal__close" aria-label="Fechar" onClick={onClose}>
+            <i className="bi bi-x-lg" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="orc-parcelas-modal__body">
+          <div className="orc-parcelas-modal__config">
+            <p className="orc-parcelas-modal__grid-label">Taxa da maquininha</p>
+            <div className="orc-parcelas-modal__taxa-toggle" role="group" aria-label="Taxa da maquininha">
+              <button
+                type="button"
+                className={`orc-parcelas-modal__taxa-opt${draftTaxaModo === "sem" ? " is-active" : ""}`}
+                aria-pressed={draftTaxaModo === "sem"}
+                onClick={() => onDraftTaxaModoChange("sem")}
+              >
+                <i className="bi bi-check-circle" aria-hidden="true" />
+                Sem taxa
+              </button>
+              <button
+                type="button"
+                className={`orc-parcelas-modal__taxa-opt${draftTaxaModo === "com" ? " is-active" : ""}`}
+                aria-pressed={draftTaxaModo === "com"}
+                onClick={() => onDraftTaxaModoChange("com")}
+              >
+                <i className="bi bi-percent" aria-hidden="true" />
+                Com taxa
+              </button>
+            </div>
+            {draftTaxaModo === "com" ? (
+              <div className="orc-parcelas-modal__taxa-field">
+                <label className="visually-hidden" htmlFor="orc-parcelas-taxa">
+                  Percentual da taxa
+                </label>
+                <input
+                  id="orc-parcelas-taxa"
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  className="form-control orc-parcelas-modal__taxa-input"
+                  placeholder="Ex.: 2,5"
+                  value={draftTaxa}
+                  onChange={(e) => onDraftTaxaChange(sanitizarDescontoPct(e.target.value))}
+                  onKeyDown={bloquearTeclaNaoNumerica}
+                />
+              </div>
+            ) : null}
+          </div>
+
+          <div className={`orc-parcelas-modal__preview${calc.comTaxa ? " orc-parcelas-modal__preview--com-taxa" : ""}`}>
+            <span className="orc-parcelas-modal__preview-label">{qtd}x de</span>
+            <strong className="orc-parcelas-modal__preview-value">{fmt(valorParcela)}</strong>
+            {calc.comTaxa ? (
+              <span className="orc-parcelas-modal__preview-breakdown">
+                Subtotal {fmt(total)} + taxa {fmt(calc.acrescimo)}
+              </span>
+            ) : null}
+            <span className="orc-parcelas-modal__preview-total">
+              Total {fmt(calc.totalFinal)}
+              {calc.comTaxa ? ` • +${taxaPct.toLocaleString("pt-BR")}%` : ""}
+            </span>
+          </div>
+
+          <p className="orc-parcelas-modal__grid-label">Quantidade de parcelas</p>
+          <div className="orc-parcelas-modal__grid" role="listbox" aria-label="Quantidade de parcelas">
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                role="option"
+                aria-selected={draft === String(n)}
+                className={`orc-parcelas-modal__opt${draft === String(n) ? " is-active" : ""}`}
+                onClick={() => onDraftChange(String(n))}
+              >
+                {n}x
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="orc-parcelas-modal__footer">
+          <button type="button" className="orc-parcelas-modal__btn orc-parcelas-modal__btn--ghost" onClick={onClose}>
+            Cancelar
+          </button>
+          <button type="button" className="orc-parcelas-modal__btn orc-parcelas-modal__btn--primary" onClick={onConfirm}>
+            Confirmar {qtd}x
+          </button>
+        </div>
+      </div>
+    </AdminModal>
+  );
+}
+
 export function ModalOrcamento({
   open,
   onClose,
@@ -37,8 +188,39 @@ export function ModalOrcamento({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [parcelasOpen, setParcelasOpen] = useState(false);
+  const [parcelasDraft, setParcelasDraft] = useState("1");
+  const [parcelasDraftTaxa, setParcelasDraftTaxa] = useState("");
+  const [parcelasDraftTaxaModo, setParcelasDraftTaxaModo] = useState<"sem" | "com">("sem");
 
   const form = useOrcamentoForm(materiais);
+
+  function abrirPopupParcelas() {
+    setParcelasDraft(form.qtdParcelas || "1");
+    setParcelasDraftTaxa(form.taxaMaquininha || "");
+    setParcelasDraftTaxaModo(parseMoneyBr(form.taxaMaquininha) > 0 ? "com" : "sem");
+    setParcelasOpen(true);
+  }
+
+  function selecionarFormaPagamento(value: PayOption["value"]) {
+    if (value === "credito") {
+      form.setFormaPagamento("credito");
+      abrirPopupParcelas();
+      return;
+    }
+    form.setFormaPagamento(value);
+    setParcelasOpen(false);
+  }
+
+  function confirmarParcelas() {
+    form.setQtdParcelas(parcelasDraft);
+    form.setTaxaMaquininha(parcelasDraftTaxaModo === "com" ? parcelasDraftTaxa : "");
+    setParcelasOpen(false);
+  }
+
+  useEffect(() => {
+    if (!open) setParcelasOpen(false);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -80,7 +262,7 @@ export function ModalOrcamento({
       setError("Adicione pelo menos um material.");
       return;
     }
-    if (!form.formaPagamento && mode === "novo") {
+    if (!form.formaPagamento) {
       setError("Selecione a forma de pagamento.");
       return;
     }
@@ -106,9 +288,20 @@ export function ModalOrcamento({
 
   const titulo = mode === "novo" ? "Novo orçamento" : "Editar orçamento";
   const mostrarDescontos = mode === "editar";
+  const qtdParcelasNum = Math.max(1, Number.parseInt(form.qtdParcelas, 10) || 1);
+  const taxaNum = parseMoneyBr(form.taxaMaquininha);
+  const creditoCalc = calcularCreditoMaquininha(form.totalOrcamento, qtdParcelasNum, taxaNum);
+  const valorParcela = creditoCalc.totalFinal > 0 ? creditoCalc.totalFinal / qtdParcelasNum : 0;
+  const resumoCredito =
+    form.formaPagamento === "credito"
+      ? creditoCalc.comTaxa
+        ? `${qtdParcelasNum}x • ${valorParcela.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (+${taxaNum.toLocaleString("pt-BR")}%)`
+        : `${qtdParcelasNum}x • ${valorParcela.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`
+      : "";
 
   return (
-    <AdminModal open={open} onClose={onClose} dialogClass="visitas-orc-modal__dialog modal-lg">
+    <>
+      <AdminModal open={open} onClose={onClose} dialogClass="visitas-orc-modal__dialog modal-lg">
       <div className="modal-content visitas-orc-modal__content">
         <div className="modal-header visitas-orc-modal__header flex-shrink-0">
           <div className="visitas-orc-modal__head">
@@ -348,30 +541,48 @@ export function ModalOrcamento({
                   </div>
                 </section>
 
-                {mode === "novo" ? (
-                  <section className="visitas-orc-panel">
+                <section className="visitas-orc-panel visitas-orc-panel--pay">
+                  <div className="visitas-orc-panel__head">
                     <h5 className="visitas-orc-panel__title">
                       <i className="bi bi-wallet2" aria-hidden="true" /> Pagamento
                     </h5>
-                    <div className="visitas-orc-pay-grid" role="radiogroup">
-                      {(["pix", "debito", "credito"] as const).map((v) => (
-                        <label key={v} className="visitas-orc-pay-card">
-                          <input
-                            type="radio"
-                            name="forma_pagamento"
-                            value={v}
-                            checked={form.formaPagamento === v}
-                            onChange={() => form.setFormaPagamento(v)}
-                            className="visitas-orc-pay-card__input"
-                          />
-                          <span className="visitas-orc-pay-card__name">
-                            {v === "pix" ? "PIX" : v === "debito" ? "Débito" : "Crédito"}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </section>
-                ) : null}
+                    <p className="visitas-orc-panel__hint">
+                      Escolha a forma de pagamento. No crédito, você define as parcelas em um passo rápido.
+                    </p>
+                  </div>
+
+                  <div className="visitas-orc-pay-grid" role="radiogroup" aria-label="Forma de pagamento">
+                    {PAY_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={form.formaPagamento === opt.value}
+                        className={`visitas-orc-pay-card${form.formaPagamento === opt.value ? " visitas-orc-pay-card--active" : ""}`}
+                        onClick={() => selecionarFormaPagamento(opt.value)}
+                      >
+                        <span className="visitas-orc-pay-card__icon" aria-hidden="true">
+                          <i className={`bi ${opt.icon}`} />
+                        </span>
+                        <span className="visitas-orc-pay-card__name">{opt.label}</span>
+                        <span className="visitas-orc-pay-card__desc">
+                          {opt.value === "credito" && form.formaPagamento === "credito"
+                            ? resumoCredito
+                            : opt.desc}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {form.formaPagamento === "credito" ? (
+                    <button
+                      type="button"
+                      className="visitas-orc-parcelas-link btn btn-link btn-sm"
+                      onClick={abrirPopupParcelas}
+                    >
+                      <i className="bi bi-pencil-square" aria-hidden="true" /> Alterar parcelas ({qtdParcelasNum}x)
+                    </button>
+                  ) : null}
+                </section>
 
                 <div className="visitas-orc-obs mt-2">
                   <label className="visitas-orc-label">Observação</label>
@@ -397,5 +608,19 @@ export function ModalOrcamento({
         </form>
       </div>
     </AdminModal>
+
+      <PopupParcelasCredito
+        open={open && parcelasOpen}
+        total={form.totalOrcamento}
+        draft={parcelasDraft}
+        draftTaxa={parcelasDraftTaxa}
+        draftTaxaModo={parcelasDraftTaxaModo}
+        onDraftChange={setParcelasDraft}
+        onDraftTaxaChange={setParcelasDraftTaxa}
+        onDraftTaxaModoChange={setParcelasDraftTaxaModo}
+        onConfirm={confirmarParcelas}
+        onClose={() => setParcelasOpen(false)}
+      />
+    </>
   );
 }

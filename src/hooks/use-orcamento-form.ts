@@ -10,6 +10,7 @@ import {
   mesclarLinhasOrcamento,
   parseMoneyBr,
   sanitizarDescontoPct,
+  parseFormaPagamento,
   sanitizarNumeroBr,
   type OrcamentoLinha,
   type OrcamentoModoDesconto,
@@ -27,6 +28,8 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   const [descontoValor, setDescontoValor] = useState("");
   const [valorMostrar, setValorMostrar] = useState("");
   const [formaPagamento, setFormaPagamento] = useState("");
+  const [qtdParcelas, setQtdParcelas] = useState("1");
+  const [taxaMaquininha, setTaxaMaquininha] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [observacao, setObservacao] = useState("");
   const [pesquisa, setPesquisa] = useState("");
@@ -53,6 +56,8 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     },
     [subtotal, descontoPct, descontoValor, valorMostrar],
   );
+
+  const totalOrcamento = useMemo(() => calcComCampos().total, [calcComCampos]);
 
   /** Igual PHP: atualiza o outro campo e o valor total (não o campo que está sendo editado). */
   const sincronizarDescontoPar = useCallback(
@@ -228,6 +233,8 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     setDescontoValor("");
     setValorMostrar("");
     setFormaPagamento("");
+    setQtdParcelas("1");
+    setTaxaMaquininha("");
     setCpfCnpj("");
     setObservacao("");
     setPesquisa("");
@@ -245,6 +252,7 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       descontoPercent: number;
       observacao: string;
       cpfCnpj: string;
+      formaPagamento?: string;
     }) => {
       carregandoRef.current = true;
       setPartData(mesclarLinhasOrcamento(data.partData));
@@ -265,7 +273,14 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
         resolved.valor > 0 ? formatDescontoValorOrc(resolved.valor) : "",
       );
       setValorMostrar(formatDescontoValorOrc(resolved.total));
-      setFormaPagamento("");
+      const pagamento = parseFormaPagamento(data.formaPagamento);
+      setFormaPagamento(pagamento.forma);
+      setQtdParcelas(String(pagamento.qtdParcelas || 1));
+      setTaxaMaquininha(
+        pagamento.taxaMaquininhaPct > 0
+          ? pagamento.taxaMaquininhaPct.toLocaleString("pt-BR", { maximumFractionDigits: 2 })
+          : "",
+      );
       descontoSourceRef.current = "percent";
       valorBaseManualRef.current = 0;
       queueMicrotask(() => {
@@ -295,6 +310,8 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     return {
       partData: mesclarLinhasOrcamento(partData),
       formaPagamento,
+      qtdParcelas: formaPagamento === "credito" ? qtdParcelas : undefined,
+      taxaMaquininhaPct: formaPagamento === "credito" ? taxaMaquininha : undefined,
       descontoModo: modo,
       descontoPercent: resolved.percent,
       descontoValor: resolved.valor,
@@ -305,6 +322,8 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   }, [
     partData,
     formaPagamento,
+    qtdParcelas,
+    taxaMaquininha,
     calcComCampos,
     subtotal,
     cpfCnpj,
@@ -330,6 +349,10 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     descontoValor,
     valorMostrar,
     formaPagamento,
+    qtdParcelas,
+    taxaMaquininha,
+    setQtdParcelas,
+    setTaxaMaquininha,
     setFormaPagamento,
     cpfCnpj,
     setCpfCnpj,
@@ -357,5 +380,6 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     onDescontoValorBlur,
     onDescontoValorFocus,
     subtotal,
+    totalOrcamento,
   };
 }

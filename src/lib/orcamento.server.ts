@@ -215,9 +215,120 @@ export function normalizarModoDesconto(raw: string): OrcamentoModoDesconto {
 
 export function normalizarFormaPagamento(raw: string): string {
   let v = raw.trim().toLowerCase();
+  if (v.startsWith("credito:")) v = "credito";
   if (v === "débito") v = "debito";
   if (v === "crédito") v = "credito";
   return ["pix", "debito", "credito"].includes(v) ? v : "";
+}
+
+export function parseFormaPagamento(raw: string | null | undefined): {
+  forma: "" | "pix" | "debito" | "credito";
+  qtdParcelas: number;
+  taxaMaquininhaPct: number;
+  parcelasSemJuros: number;
+} {
+  const fp = (raw ?? "").trim().toLowerCase();
+  const creditoMatch = fp.match(/^credito:(\d+)(?:@([\d.]+))?(?:~(\d+))?$/);
+  if (creditoMatch) {
+    const qtd = Math.min(24, Math.max(1, Number.parseInt(creditoMatch[1], 10) || 1));
+    const taxa = Math.max(0, Number.parseFloat(creditoMatch[2] ?? "0") || 0);
+    const semJuros = Math.min(12, Math.max(1, Number.parseInt(creditoMatch[3] ?? "3", 10) || 3));
+    return { forma: "credito", qtdParcelas: qtd, taxaMaquininhaPct: taxa, parcelasSemJuros: semJuros };
+  }
+
+  const forma = normalizarFormaPagamento(fp) as "" | "pix" | "debito" | "credito";
+  return {
+    forma,
+    qtdParcelas: forma === "credito" ? 1 : 0,
+    taxaMaquininhaPct: 0,
+    parcelasSemJuros: 3,
+  };
+}
+
+export function calcularCreditoMaquininha(
+  totalBase: number,
+  _qtdParcelas?: number,
+  taxaMaquininhaPct?: number | string,
+  _parcelasSemJuros?: number,
+): { totalFinal: number; acrescimo: number; comTaxa: boolean } {
+  const base = Math.round(Math.max(0, totalBase) * 100) / 100;
+  const taxa = parseMoneyBr(taxaMaquininhaPct);
+
+  if (taxa <= 0) {
+    return { totalFinal: base, acrescimo: 0, comTaxa: false };
+  }
+
+  const acrescimo = Math.round(base * (taxa / 100) * 100) / 100;
+  return {
+    totalFinal: Math.round((base + acrescimo) * 100) / 100,
+    acrescimo,
+    comTaxa: true,
+  };
+}
+
+export function encodeFormaPagamento(
+  forma: string,
+  qtdParcelas?: number | string,
+  taxaMaquininhaPct?: number | string,
+  parcelasSemJuros?: number | string,
+): string {
+  const base = normalizarFormaPagamento(forma);
+  if (!base) return "";
+  if (base !== "credito") return base;
+
+  const qtd = Math.min(24, Math.max(1, Math.round(Number(qtdParcelas) || 1)));
+  const taxa = parseMoneyBr(taxaMaquininhaPct);
+
+  let encoded = qtd > 1 ? `credito:${qtd}` : "credito";
+  if (taxa > 0) encoded += `@${taxa}`;
+  return encoded;
+}
+
+export function calcularValoresParcelas(total: number, qtd: number): number[] {
+  const parcelas = Math.min(24, Math.max(1, Math.round(qtd) || 1));
+  const valorBase = Math.floor((total / parcelas) * 100) / 100;
+  const valores = Array.from({ length: parcelas }, () => valorBase);
+  const soma = Math.round(valorBase * parcelas * 100) / 100;
+  const diff = Math.round((total - soma) * 100) / 100;
+  valores[parcelas - 1] = Math.round((valorBase + diff) * 100) / 100;
+  return valores;
+}
+
+function addMesesDataBr(dataBr: string, meses: number): string {
+  const [dia, mes, ano] = dataBr.split("/").map((p) => Number.parseInt(p, 10));
+  if (!dia || !mes || !ano) return dataBr;
+  const dt = new Date(ano, mes - 1 + meses, dia);
+  return dt.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+export function gerarParcelasOrcamento(
+  total: number,
+  formaPagamento: string | null | undefined,
+  dataEmissao: string,
+): Array<{ label: string; valor: number; vencimento: string }> {
+  const pag = parseFormaPagamento(formaPagamento);
+  const { totalFinal } = calcularCreditoMaquininha(
+    total,
+    pag.qtdParcelas,
+    pag.taxaMaquininhaPct,
+    pag.parcelasSemJuros,
+  );
+  const valor = Math.round(Math.max(0, totalFinal) * 100) / 100;
+
+  if (pag.forma !== "credito" || pag.qtdParcelas <= 1) {
+    return [{ label: "01/01", valor, vencimento: dataEmissao }];
+  }
+
+  const valores = calcularValoresParcelas(valor, pag.qtdParcelas);
+  return valores.map((parcelaValor, index) => ({
+    label: `${String(index + 1).padStart(2, "0")}/${String(pag.qtdParcelas).padStart(2, "0")}`,
+    valor: parcelaValor,
+    vencimento: addMesesDataBr(dataEmissao, index),
+  }));
 }
 
 /**

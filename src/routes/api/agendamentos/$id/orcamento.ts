@@ -12,9 +12,9 @@ import {
   sessionEhAdmin,
 } from "@/lib/inventario-permissions.server";
 import {
+  encodeFormaPagamento,
   garantirTotalOrcamentoConsistente,
   inventarioSubtotalOrcamento,
-  normalizarFormaPagamento,
   normalizarModoDesconto,
   mesclarLinhasOrcamento,
   parseOrcamentoJson,
@@ -32,6 +32,9 @@ const linhaSchema = z.object({
 const saveSchema = z.object({
   partData: z.array(linhaSchema).min(1),
   formaPagamento: z.string(),
+  qtdParcelas: z.union([z.number(), z.string()]).optional(),
+  taxaMaquininhaPct: z.union([z.number(), z.string()]).optional(),
+  parcelasSemJuros: z.union([z.number(), z.string()]).optional(),
   descontoModo: z.string().optional(),
   descontoPercent: z.union([z.number(), z.string()]).optional(),
   descontoValor: z.union([z.number(), z.string()]).optional(),
@@ -89,6 +92,7 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
               descontoPercent: Number(row.descontoPercent),
               observacao: row.observacao ?? "",
               cpfCnpj: row.cpfCnpj ?? "",
+              formaPagamento: row.formaPagamento ?? "",
             },
           });
         } catch (err) {
@@ -123,7 +127,12 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
           return jsonResponse({ ok: false, message: "Dados inválidos." }, 422);
         }
 
-        const forma = normalizarFormaPagamento(parsed.data.formaPagamento);
+        const forma = encodeFormaPagamento(
+          parsed.data.formaPagamento,
+          parsed.data.qtdParcelas,
+          parsed.data.taxaMaquininhaPct,
+          parsed.data.parcelasSemJuros,
+        );
         if (!forma) {
           return jsonResponse(
             { ok: false, message: "Selecione PIX, Débito ou Crédito." },
@@ -206,6 +215,19 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
           return jsonResponse({ ok: false, message: "Dados inválidos." }, 422);
         }
 
+        const forma = encodeFormaPagamento(
+          parsed.data.formaPagamento,
+          parsed.data.qtdParcelas,
+          parsed.data.taxaMaquininhaPct,
+          parsed.data.parcelasSemJuros,
+        );
+        if (!forma) {
+          return jsonResponse(
+            { ok: false, message: "Selecione PIX, Débito ou Crédito." },
+            422,
+          );
+        }
+
         try {
           const prisma = await getPrisma();
           const row = await prisma.inventario.findFirst({
@@ -236,6 +258,7 @@ export const Route = createFileRoute("/api/agendamentos/$id/orcamento")({
               orcamento: JSON.stringify(linhas),
               valor: resolved.total,
               descontoPercent: resolved.percent,
+              formaPagamento: forma,
               observacao: parsed.data.observacao?.trim() || null,
               cpfCnpj: cpfRaw !== "" ? cpfRaw : row.cpfCnpj,
             },
