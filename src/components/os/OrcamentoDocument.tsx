@@ -79,7 +79,6 @@ export function OrcamentoDocument({ item, itens }: Props) {
   const parcelas = gerarParcelasOrcamento(total, item.formaPagamento, data);
   const credito = resumoCreditoOrcamento(item);
   const pagamento = parseFormaPagamento(item.formaPagamento);
-  const mostrarVencimento = pagamento.forma !== "credito";
   const isCredito = pagamento.forma === "credito";
   const qtdParcelasCredito = pagamento.qtdParcelas;
   const totalExibir = isCredito ? credito.totalCartao : total;
@@ -274,27 +273,29 @@ export function OrcamentoDocument({ item, itens }: Props) {
             <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
           </svg>
         </SecHead>
-        <div className="os-orc-finance">
-          <div className="os-orc-finance__parcelas">
-            <table className={`os-orc-table os-orc-parcelas${mostrarVencimento ? "" : " os-orc-parcelas--cartao"}`}>
-              <thead>
-                <tr>
-                  <th>Parcela</th>
-                  <th>Valor</th>
-                  {mostrarVencimento ? <th>Vencimento</th> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {parcelas.map((parcela) => (
-                  <tr key={parcela.label}>
-                    <td>{parcela.label}</td>
-                    <td>R$ {formatOsMoney(parcela.valor)}</td>
-                    {mostrarVencimento ? <td>{parcela.vencimento}</td> : null}
+        <div className={`os-orc-finance${isCredito ? " os-orc-finance--cartao" : ""}`}>
+          {!isCredito ? (
+            <div className="os-orc-finance__parcelas">
+              <table className="os-orc-table os-orc-parcelas">
+                <thead>
+                  <tr>
+                    <th>Parcela</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {parcelas.map((parcela) => (
+                    <tr key={parcela.label}>
+                      <td>{parcela.label}</td>
+                      <td>R$ {formatOsMoney(parcela.valor)}</td>
+                      <td>{parcela.vencimento}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
           <div className="os-orc-finance__totals">
             <div className="os-orc-sum-row">
               <span>Total dos itens</span>
