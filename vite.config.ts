@@ -42,6 +42,9 @@ export default defineConfig(({ command, mode }) => {
       host: "::",
       port: 8080,
     },
+    optimizeDeps: {
+      include: ["html2pdf.js", "html2canvas", "jspdf"],
+    },
     plugins: [
       tailwindcss(),
       tsconfigPaths({ projects: ["./tsconfig.json"] }),

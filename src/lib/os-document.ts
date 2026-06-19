@@ -1,14 +1,25 @@
 import type { AgendamentoItem } from "@/lib/admin-api";
 import type { OrcamentoLinha } from "@/lib/orcamento.server";
 
-/** Cabeçalho fixo do PDF de orçamento (Alex os.php). */
+/** Dados fixos da empresa no orçamento. */
 export const OS_ORCAMENTO_EMPRESA = {
-  tagline: "Calhas - Rufos e Pingadeiras",
-  telefones: "18 996475269    996069273",
-  cnpjIe: "CNPJ: 28.376.837/0001-59 - IE:731.021.804.118",
-  enderecoLinha1: "Endereço: Rua Angelim, 137 - Distrito Industrial",
-  enderecoLinha2: "Tarumã - SP",
+  tagline: "Calhas • Rufos • Pingadeiras",
+  telefone1: "(18) 99757-8060",
+  telefone2: "(18) 99757-8060",
+  whatsapp: "18 996475269  996069273",
+  cnpj: "28.376.837/0001-59",
+  ie: "731.021.804.118",
+  enderecoLinha1: "Avenida dos Lírios, 1219",
+  enderecoLinha2: "Vila das Árvores - 19622-094",
+  cidade: "Tarumã - SP",
   logoSrc: "/images/logo/logo-preto.png",
+  pixQrSrc: "/images/Pix%20Qrcod/qrcod.jpeg",
+  chavePix: "contato@alexcalhas.com",
+  assinaturaSrc: "/images/Pix%20Qrcod/Assinatura.png",
+  assinaturaNome: "Alex Calhas",
+  assinaturaCargo: "Responsável pela empresa",
+  validadeProposta: "30 dias",
+  condicaoPagamentoPadrao: "50% de sinal + 50% na instalação",
 } as const;
 
 export function formatOsMoney(value: number): string {
@@ -37,10 +48,10 @@ export function formatOsEndereco(item: AgendamentoItem): string {
   const base = parts.join(", ");
   const cep = (item.cep ?? "").trim();
   if (!base && !cep) return "—";
-  return cep ? `${base} - ${cep}` : base;
+  return cep ? `${base} — ${cep}` : base;
 }
 
-/** Quantidade na linha do PDF (igual os.php: metros ≤ 0 → 1). */
+/** Quantidade na linha do PDF (metros ≤ 0 → 1). */
 export function quantidadeLinhaOrcamento(linha: OrcamentoLinha): number {
   const qtd = Number(linha.metros) || 0;
   return qtd > 0 ? qtd : 1;
@@ -51,7 +62,6 @@ export function totalLinhaOrcamento(linha: OrcamentoLinha): number {
   return Math.round(quantidadeLinhaOrcamento(linha) * unit * 100) / 100;
 }
 
-/** Soma dos itens exibidos no orçamento impresso. */
 export function subtotalOrcamentoDocumento(itens: OrcamentoLinha[]): number {
   let total = 0;
   for (const linha of itens) {
@@ -60,10 +70,6 @@ export function subtotalOrcamentoDocumento(itens: OrcamentoLinha[]): number {
   return Math.round(total * 100) / 100;
 }
 
-/**
- * Totais do PDF: bruto = soma das linhas; total a vista = valor gravado só se for desconto válido (≤ bruto).
- * Evita exibir valor incorreto do banco (ex.: 41.958 quando a soma dos itens é 441,66).
- */
 export function calcTotaisOrcamento(itens: OrcamentoLinha[], valorFinal: number) {
   const bruto = subtotalOrcamentoDocumento(itens);
   const valor = Number(valorFinal) || 0;
@@ -84,4 +90,16 @@ export function dataEmissaoOs(): { data: string; hora: string } {
   });
   const hora = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", hour12: false });
   return { data, hora };
+}
+
+export function condicaoPagamentoExibicao(item: AgendamentoItem): string {
+  const fp = item.formaPagamento?.trim();
+  if (fp) return fp;
+  return OS_ORCAMENTO_EMPRESA.condicaoPagamentoPadrao;
+}
+
+export function observacaoExibicao(item: AgendamentoItem): string {
+  const obs = item.observacao?.trim();
+  if (obs) return obs;
+  return OS_ORCAMENTO_EMPRESA.condicaoPagamentoPadrao;
 }

@@ -23,7 +23,7 @@ import { ModalConfirmarMontagem } from "@/components/admin/modals/ModalConfirmar
 import { ModalEditarCliente } from "@/components/admin/modals/ModalEditarCliente";
 import { ModalOrcamento } from "@/components/admin/modals/ModalOrcamento";
 import { ModalRecebimentos } from "@/components/admin/modals/ModalRecebimentos";
-import { dashConfirm } from "@/lib/dash-ui";
+import { dashConfirm, dashToast } from "@/lib/dash-ui";
 import {
   deleteAgendamento,
   fetchAgendamentos,
@@ -32,6 +32,7 @@ import {
 } from "@/lib/admin-api";
 import { INVENTARIO_LISTING_META } from "@/lib/inventario-listing-meta";
 import { abrirWhatsappOrcamento, gerarOS } from "@/lib/whatsapp-orcamento";
+import { baixarPdfOrcamento, baixarPngOrcamento } from "@/lib/os-pdf";
 
 export type InventarioVariant = "visitas" | "orcamentado" | "confirmado" | "finalizado";
 
@@ -87,6 +88,7 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
 
   const [recebimentosOpen, setRecebimentosOpen] = useState(false);
   const [recebimentosItem, setRecebimentosItem] = useState<AgendamentoItem | null>(null);
+  const [pdfGerandoId, setPdfGerandoId] = useState<number | null>(null);
 
   const statusFilter = STATUS_FILTER[variant];
 
@@ -145,6 +147,34 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
   function openRecebimentos(item: AgendamentoItem) {
     setRecebimentosItem(item);
     setRecebimentosOpen(true);
+  }
+
+  async function handleBaixarPdf(item: AgendamentoItem) {
+    if (pdfGerandoId != null) return;
+    setPdfGerandoId(item.id);
+    try {
+      dashToast("Gerando PDF…", "info");
+      await baixarPdfOrcamento(item.id, item.nome);
+      dashToast("PDF baixado com sucesso.", "success");
+    } catch (err) {
+      dashToast(err instanceof Error ? err.message : "Erro ao gerar PDF.", "danger");
+    } finally {
+      setPdfGerandoId(null);
+    }
+  }
+
+  async function handleBaixarPng(item: AgendamentoItem) {
+    if (pdfGerandoId != null) return;
+    setPdfGerandoId(item.id);
+    try {
+      dashToast("Gerando imagem…", "info");
+      await baixarPngOrcamento(item.id, item.nome);
+      dashToast("Imagem baixada com sucesso.", "success");
+    } catch (err) {
+      dashToast(err instanceof Error ? err.message : "Erro ao gerar imagem.", "danger");
+    } finally {
+      setPdfGerandoId(null);
+    }
   }
 
   function patchRecebimentosItem(
@@ -268,7 +298,13 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
               setMontagemOpen(true);
             }}
           />
-          <InvActionBtn icon="bi-file-text" title="Gerar OS" variant="secondary" onClick={() => gerarOS(item.id)} />
+          <InvActionBtn icon="bi-file-text" title="Ver orçamento (OS)" variant="secondary" onClick={() => gerarOS(item.id)} />
+          <InvActionBtn
+            icon="bi-file-earmark-pdf"
+            title="Baixar PDF do orçamento"
+            variant="secondary"
+            onClick={() => void handleBaixarPdf(item)}
+          />
           <InvActionBtn
             icon="bi-whatsapp"
             title="Enviar orçamento no WhatsApp"
@@ -285,6 +321,21 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
         </>
       );
       const menu = [
+        {
+          label: "Baixar PDF",
+          icon: "bi-file-earmark-pdf",
+          onClick: () => void handleBaixarPdf(item),
+        },
+        {
+          label: "Baixar imagem",
+          icon: "bi-file-earmark-image",
+          onClick: () => void handleBaixarPng(item),
+        },
+        {
+          label: "Ver orçamento",
+          icon: "bi-file-text",
+          onClick: () => gerarOS(item.id),
+        },
         {
           label: "Pagamentos",
           icon: "bi-cash-coin",
@@ -324,7 +375,13 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
             title="Finalizar"
             onClick={() => void handleFinalizar(item.id)}
           />
-          <InvActionBtn icon="bi-file-text" title="Gerar OS" variant="secondary" onClick={() => gerarOS(item.id)} />
+          <InvActionBtn icon="bi-file-text" title="Ver orçamento (OS)" variant="secondary" onClick={() => gerarOS(item.id)} />
+          <InvActionBtn
+            icon="bi-file-earmark-pdf"
+            title="Baixar PDF do orçamento"
+            variant="secondary"
+            onClick={() => void handleBaixarPdf(item)}
+          />
           <InvActionBtn
             icon="bi-whatsapp"
             title="WhatsApp"
@@ -346,6 +403,21 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
           primary={primary}
           menu={[
             {
+              label: "Baixar PDF",
+              icon: "bi-file-earmark-pdf",
+              onClick: () => void handleBaixarPdf(item),
+            },
+            {
+              label: "Baixar imagem",
+              icon: "bi-file-earmark-image",
+              onClick: () => void handleBaixarPng(item),
+            },
+            {
+              label: "Ver orçamento",
+              icon: "bi-file-text",
+              onClick: () => gerarOS(item.id),
+            },
+            {
               label: "Pagamentos",
               icon: "bi-cash-coin",
               onClick: () => openRecebimentos(item),
@@ -366,7 +438,13 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
 
     const primary = (
       <>
-        <InvActionBtn icon="bi-file-text" title="Gerar OS" variant="secondary" onClick={() => gerarOS(item.id)} />
+        <InvActionBtn icon="bi-file-text" title="Ver orçamento (OS)" variant="secondary" onClick={() => gerarOS(item.id)} />
+        <InvActionBtn
+          icon="bi-file-earmark-pdf"
+          title="Baixar PDF do orçamento"
+          variant="secondary"
+          onClick={() => void handleBaixarPdf(item)}
+        />
         <InvActionBtn
           icon="bi-whatsapp"
           title="WhatsApp"
@@ -387,6 +465,21 @@ export function InventarioPage({ variant }: { variant: InventarioVariant }) {
         ariaLabel={`Mais ações #${item.id}`}
         primary={primary}
         menu={[
+          {
+            label: "Baixar PDF",
+            icon: "bi-file-earmark-pdf",
+            onClick: () => void handleBaixarPdf(item),
+          },
+          {
+            label: "Baixar imagem",
+            icon: "bi-file-earmark-image",
+            onClick: () => void handleBaixarPng(item),
+          },
+          {
+            label: "Ver orçamento",
+            icon: "bi-file-text",
+            onClick: () => gerarOS(item.id),
+          },
           {
             label: "Editar",
             icon: "bi-pencil-square",
