@@ -403,6 +403,11 @@ html.os-orc-embed body {
   border-bottom: 1px solid var(--os-gray-border) !important;
 }
 
+.os-orc-parcelas--cartao thead th:last-child,
+.os-orc-parcelas--cartao tbody td:last-child {
+  text-align: right;
+}
+
 .os-orc-finance__totals {
   display: flex;
   flex-direction: column;
@@ -423,6 +428,19 @@ html.os-orc-embed body {
   color: var(--os-text) !important;
 }
 
+.os-orc-sum-row--destaque {
+  padding: 6px 8px;
+  background: rgba(22, 202, 133, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(22, 202, 133, 0.22);
+}
+
+.os-orc-sum-row--destaque span,
+.os-orc-sum-row--destaque strong {
+  color: var(--os-green-dark) !important;
+  font-weight: 700;
+}
+
 .os-orc-total-box {
   margin-top: 6px;
   padding: 14px 16px;
@@ -433,6 +451,22 @@ html.os-orc-embed body {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+}
+
+.os-orc-total-box__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.os-orc-total-box__parcelas {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--os-green-dark) !important;
+  opacity: 0.88;
 }
 
 .os-orc-total-box__label {

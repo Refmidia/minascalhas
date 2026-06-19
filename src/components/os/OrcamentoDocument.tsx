@@ -13,7 +13,7 @@ import {
   quantidadeLinhaOrcamento,
   totalLinhaOrcamento,
 } from "@/lib/os-document";
-import { mesclarLinhasOrcamento, gerarParcelasOrcamento, type OrcamentoLinha } from "@/lib/orcamento.server";
+import { mesclarLinhasOrcamento, gerarParcelasOrcamento, parseFormaPagamento, type OrcamentoLinha } from "@/lib/orcamento.server";
 
 type Props = {
   item: AgendamentoItem;
@@ -78,6 +78,13 @@ export function OrcamentoDocument({ item, itens }: Props) {
   const { bruto, desconto, total } = calcTotaisOrcamento(linhas, valorFinal);
   const parcelas = gerarParcelasOrcamento(total, item.formaPagamento, data);
   const credito = resumoCreditoOrcamento(item);
+  const pagamento = parseFormaPagamento(item.formaPagamento);
+  const mostrarVencimento = pagamento.forma !== "credito";
+  const isCredito = pagamento.forma === "credito";
+  const qtdParcelasCredito = pagamento.qtdParcelas;
+  const totalExibir = isCredito ? credito.totalCartao : total;
+  const valorParcelaResumo =
+    isCredito && qtdParcelasCredito > 1 && parcelas.length > 0 ? parcelas[0].valor : 0;
   const empresa = OS_ORCAMENTO_EMPRESA;
 
   return (
@@ -269,12 +276,12 @@ export function OrcamentoDocument({ item, itens }: Props) {
         </SecHead>
         <div className="os-orc-finance">
           <div className="os-orc-finance__parcelas">
-            <table className="os-orc-table os-orc-parcelas">
+            <table className={`os-orc-table os-orc-parcelas${mostrarVencimento ? "" : " os-orc-parcelas--cartao"}`}>
               <thead>
                 <tr>
                   <th>Parcela</th>
                   <th>Valor</th>
-                  <th>Vencimento</th>
+                  {mostrarVencimento ? <th>Vencimento</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -282,7 +289,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
                   <tr key={parcela.label}>
                     <td>{parcela.label}</td>
                     <td>R$ {formatOsMoney(parcela.valor)}</td>
-                    <td>{parcela.vencimento}</td>
+                    {mostrarVencimento ? <td>{parcela.vencimento}</td> : null}
                   </tr>
                 ))}
               </tbody>
@@ -303,13 +310,26 @@ export function OrcamentoDocument({ item, itens }: Props) {
                 <strong>R$ {formatOsMoney(credito.acrescimoMaquininha)}</strong>
               </div>
             ) : null}
+            {isCredito && qtdParcelasCredito > 1 ? (
+              <div className="os-orc-sum-row os-orc-sum-row--destaque">
+                <span>Parcelamento no cartão</span>
+                <strong>
+                  {qtdParcelasCredito}x de R$ {formatOsMoney(valorParcelaResumo)}
+                </strong>
+              </div>
+            ) : null}
             <div className="os-orc-total-box">
-              <span className="os-orc-total-box__label">
-                {credito.comTaxa ? "Total no cartão" : "Total à vista"}
-              </span>
-              <strong className="os-orc-total-box__value">
-                R$ {formatOsMoney(credito.comTaxa ? credito.totalCartao : total)}
-              </strong>
+              <div className="os-orc-total-box__info">
+                <span className="os-orc-total-box__label">
+                  {isCredito ? "Total no cartão" : "Total à vista"}
+                </span>
+                {isCredito && qtdParcelasCredito > 1 ? (
+                  <span className="os-orc-total-box__parcelas">
+                    Compra dividida em {qtdParcelasCredito}x no cartão do cliente
+                  </span>
+                ) : null}
+              </div>
+              <strong className="os-orc-total-box__value">R$ {formatOsMoney(totalExibir)}</strong>
             </div>
           </div>
         </div>
