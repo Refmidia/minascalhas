@@ -383,10 +383,6 @@ html.os-orc-embed body {
   align-items: start;
 }
 
-.os-orc-finance--cartao {
-  grid-template-columns: 1fr;
-}
-
 .os-orc-parcelas thead th {
   background: var(--os-green-dark) !important;
   color: #fff !important;
@@ -405,6 +401,11 @@ html.os-orc-embed body {
   background: #fff !important;
   color: var(--os-text) !important;
   border-bottom: 1px solid var(--os-gray-border) !important;
+}
+
+.os-orc-parcelas--cartao thead th:last-child,
+.os-orc-parcelas--cartao tbody td:last-child {
+  text-align: right;
 }
 
 .os-orc-finance__totals {
