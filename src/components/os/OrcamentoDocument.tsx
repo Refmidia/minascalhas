@@ -75,12 +75,12 @@ export function OrcamentoDocument({ item, itens }: Props) {
   const { data, hora } = dataEmissaoOs();
   const valorFinal = Number(item.valor) || 0;
   const linhas = mesclarLinhasOrcamento(itens);
-  const { bruto, desconto, total } = calcTotaisOrcamento(linhas, valorFinal);
+  const { bruto, total } = calcTotaisOrcamento(linhas, valorFinal);
   const parcelas = gerarParcelasOrcamento(total, item.formaPagamento, data);
   const credito = resumoCreditoOrcamento(item);
   const pagamento = parseFormaPagamento(item.formaPagamento);
-  const mostrarVencimento = pagamento.forma !== "credito";
   const isCredito = pagamento.forma === "credito";
+  const isPix = pagamento.forma === "pix";
   const qtdParcelasCredito = pagamento.qtdParcelas;
   const totalExibir = isCredito ? credito.totalCartao : total;
   const valorParcelaResumo =
@@ -274,132 +274,138 @@ export function OrcamentoDocument({ item, itens }: Props) {
             <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
           </svg>
         </SecHead>
-        <div className="os-orc-finance">
-          <div className="os-orc-finance__parcelas">
-            <table className={`os-orc-table os-orc-parcelas${mostrarVencimento ? "" : " os-orc-parcelas--cartao"}`}>
-              <thead>
-                <tr>
-                  <th>Parcela</th>
-                  <th>Valor</th>
-                  {mostrarVencimento ? <th>Vencimento</th> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {parcelas.map((parcela) => (
-                  <tr key={parcela.label}>
-                    <td>{parcela.label}</td>
-                    <td>R$ {formatOsMoney(parcela.valor)}</td>
-                    {mostrarVencimento ? <td>{parcela.vencimento}</td> : null}
+        <div className={`os-orc-finance${isCredito ? " os-orc-finance--cartao" : ""}`}>
+          {!isCredito ? (
+            <div className="os-orc-finance__parcelas">
+              <table className="os-orc-table os-orc-parcelas">
+                <thead>
+                  <tr>
+                    <th>Parcela</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="os-orc-finance__totals">
-            <div className="os-orc-sum-row">
-              <span>Total dos itens</span>
-              <strong>R$ {formatOsMoney(bruto)}</strong>
+                </thead>
+                <tbody>
+                  {parcelas.map((parcela) => (
+                    <tr key={parcela.label}>
+                      <td>{parcela.label}</td>
+                      <td>R$ {formatOsMoney(parcela.valor)}</td>
+                      <td>{parcela.vencimento}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="os-orc-sum-row">
-              <span>Descontos</span>
-              <strong>R$ {formatOsMoney(desconto)}</strong>
-            </div>
-            {credito.comTaxa ? (
-              <div className="os-orc-sum-row">
-                <span>Taxa maquininha</span>
-                <strong>R$ {formatOsMoney(credito.acrescimoMaquininha)}</strong>
-              </div>
-            ) : null}
-            {isCredito && qtdParcelasCredito > 1 ? (
-              <div className="os-orc-sum-row os-orc-sum-row--destaque">
-                <span>Parcelamento no cartão</span>
-                <strong>
-                  {qtdParcelasCredito}x de R$ {formatOsMoney(valorParcelaResumo)}
-                </strong>
-              </div>
-            ) : null}
-            <div className="os-orc-total-box">
-              <div className="os-orc-total-box__info">
-                <span className="os-orc-total-box__label">
-                  {isCredito ? "Total no cartão" : "Total à vista"}
-                </span>
-                {isCredito && qtdParcelasCredito > 1 ? (
-                  <span className="os-orc-total-box__parcelas">
-                    Compra dividida em {qtdParcelasCredito}x no cartão do cliente
-                  </span>
+          ) : null}
+
+          <div className={`os-orc-finance__side${isCredito ? " os-orc-finance__side--wide" : ""}`}>
+            <div className="os-orc-finance__totals-panel">
+              <div className="os-orc-finance__totals">
+                <div className="os-orc-sum-row">
+                  <span>Total dos itens</span>
+                  <strong>R$ {formatOsMoney(bruto)}</strong>
+                </div>
+                {credito.comTaxa ? (
+                  <div className="os-orc-sum-row">
+                    <span>Taxa maquininha</span>
+                    <strong>R$ {formatOsMoney(credito.acrescimoMaquininha)}</strong>
+                  </div>
                 ) : null}
+                {isCredito && qtdParcelasCredito > 1 ? (
+                  <div className="os-orc-sum-row os-orc-sum-row--destaque">
+                    <span>Parcelamento no cartão</span>
+                    <strong>
+                      {qtdParcelasCredito}x de R$ {formatOsMoney(valorParcelaResumo)}
+                    </strong>
+                  </div>
+                ) : null}
+                <div className="os-orc-total-box">
+                  <div className="os-orc-total-box__info">
+                    <span className="os-orc-total-box__label">
+                      {isCredito ? "Total no cartão" : "Total à vista"}
+                    </span>
+                    {isCredito && qtdParcelasCredito > 1 ? (
+                      <span className="os-orc-total-box__parcelas">
+                        Dividido em {qtdParcelasCredito}x no cartão do cliente
+                      </span>
+                    ) : null}
+                  </div>
+                  <strong className="os-orc-total-box__value">R$ {formatOsMoney(totalExibir)}</strong>
+                </div>
               </div>
-              <strong className="os-orc-total-box__value">R$ {formatOsMoney(totalExibir)}</strong>
             </div>
+
+            <section className="os-orc-pix-box os-orc-pix-box--fin" aria-label="Pagamento via Pix">
+              <span className="os-orc-pix-box__tag">Pix</span>
+              <div className="os-orc-pix__grid os-orc-pix__grid--fin">
+                <div className="os-orc-pix__col os-orc-pix__col--info">
+                  <img
+                    src={empresa.logoSrc}
+                    alt="Alex Calhas"
+                    className="os-orc-pix__logo"
+                    width={108}
+                    height={28}
+                    decoding="async"
+                  />
+                  <p className="os-orc-pix__title">
+                    {isPix ? "Pagamento via Pix" : "Opção alternativa de pagamento"}
+                  </p>
+                  <p className="os-orc-pix__lead">
+                    {isPix
+                      ? "Escaneie o QR Code no app do seu banco."
+                      : "Este orçamento também pode ser quitado via Pix."}
+                  </p>
+                  <p className="os-orc-pix__chave">
+                    <span className="os-orc-pix__chave-label">Chave Pix</span>
+                    <span className="os-orc-pix__chave-valor">{empresa.chavePix}</span>
+                  </p>
+                </div>
+                <div className="os-orc-pix__col os-orc-pix__col--qr">
+                  <img
+                    src={empresa.pixQrSrc}
+                    alt="QR Code Pix Alex Calhas"
+                    width={104}
+                    height={104}
+                    decoding="async"
+                  />
+                </div>
+                <ul className="os-orc-pix__checks os-orc-pix__checks--fin">
+                  <li>Pagamento instantâneo</li>
+                  <li>Guarde o comprovante</li>
+                </ul>
+              </div>
+            </section>
           </div>
         </div>
       </section>
 
       <div className="os-orc-pix-page">
-        <section className="os-orc-pix-box">
-          <div className="os-orc-pix__grid">
-            <div className="os-orc-pix__col os-orc-pix__col--info">
-              <img
-                src={empresa.logoSrc}
-                alt="Alex Calhas"
-                className="os-orc-pix__logo"
-                width={120}
-                height={32}
-                decoding="async"
-              />
-              <p className="os-orc-pix__title">Pagamento via Pix</p>
-              <p className="os-orc-pix__lead">
-                Escaneie o QR Code com o app do seu banco para pagar via Pix.
-              </p>
-              <p className="os-orc-pix__chave">
-                <strong>Chave Pix:</strong> {empresa.chavePix}
-              </p>
-            </div>
-            <div className="os-orc-pix__col os-orc-pix__col--qr">
-              <img
-                src={empresa.pixQrSrc}
-                alt="QR Code Pix Alex Calhas"
-                width={132}
-                height={132}
-                decoding="async"
-              />
-            </div>
-            <ul className="os-orc-pix__checks">
-              <li>Verifique os dados antes de confirmar.</li>
-              <li>Pagamento aprovado em poucos segundos.</li>
-              <li>Guarde o comprovante para sua segurança.</li>
-            </ul>
-          </div>
-        </section>
-
         <section className="os-orc-aprovacao" aria-label="Aprovação do orçamento">
-          <div className="os-orc-aprovacao__box">
-            <h3 className="os-orc-aprovacao__title">Aprovação do orçamento</h3>
-            <p className="os-orc-aprovacao__decl">
-              Declaro que li e aprovo os itens, valores e condições deste orçamento.
-            </p>
-            <div className="os-orc-aprovacao__grid">
-              <div className="os-orc-aprovacao__col">
-                <div className="os-orc-aprovacao__sign-area">
-                  <img
-                    src={empresa.assinaturaSrc}
-                    alt="Assinatura Alex Calhas"
-                    className="os-orc-aprovacao__img"
-                    width={200}
-                    height={56}
-                    decoding="async"
-                  />
-                </div>
-                <span className="os-orc-aprovacao__line" aria-hidden="true" />
-                <strong>{empresa.assinaturaNome}</strong>
-                <span>{empresa.assinaturaCargo}</span>
+          <h3 className="os-orc-aprovacao__title">Aprovação do orçamento</h3>
+          <p className="os-orc-aprovacao__decl">
+            Declaro que li e aprovo os itens, valores e condições deste orçamento.
+          </p>
+          <div className="os-orc-aprovacao__grid">
+            <div className="os-orc-aprovacao__col">
+              <div className="os-orc-aprovacao__sign-area">
+                <img
+                  src={empresa.assinaturaSrc}
+                  alt="Assinatura Alex Calhas"
+                  className="os-orc-aprovacao__img"
+                  width={180}
+                  height={48}
+                  decoding="async"
+                />
               </div>
-              <div className="os-orc-aprovacao__col">
-                <div className="os-orc-aprovacao__sign-area os-orc-aprovacao__sign-area--client" aria-hidden="true" />
-                <span className="os-orc-aprovacao__line" aria-hidden="true" />
-                <strong>Assinatura do cliente</strong>
-                <span>Data: ___/___/___</span>
-              </div>
+              <span className="os-orc-aprovacao__line" aria-hidden="true" />
+              <strong>{empresa.assinaturaNome}</strong>
+              <span>{empresa.assinaturaCargo}</span>
+            </div>
+            <div className="os-orc-aprovacao__col">
+              <div className="os-orc-aprovacao__sign-area os-orc-aprovacao__sign-area--client" aria-hidden="true" />
+              <span className="os-orc-aprovacao__line" aria-hidden="true" />
+              <strong>Assinatura do cliente</strong>
+              <span>Data: ___/___/___</span>
             </div>
           </div>
         </section>

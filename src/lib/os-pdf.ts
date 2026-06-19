@@ -95,8 +95,14 @@ function prepararQuebrasPdf(root: HTMLElement): void {
   }
 }
 
+function prepararCompactoPdf(el: HTMLElement): () => void {
+  el.classList.add("os-orc-compact");
+  return () => el.classList.remove("os-orc-compact");
+}
+
 export async function gerarPngDoElemento(el: HTMLElement, filename: string): Promise<void> {
   await aguardarImagens(el);
+  const restaurarCompacto = prepararCompactoPdf(el);
   const restaurar = prepararElementoPdf(el);
 
   try {
@@ -125,12 +131,14 @@ export async function gerarPngDoElemento(el: HTMLElement, filename: string): Pro
     baixarBlob(blob, filename);
   } finally {
     restaurar();
+    restaurarCompacto();
   }
 }
 
 export async function gerarPdfDoElemento(el: HTMLElement, filename: string): Promise<void> {
   await aguardarImagens(el);
   prepararQuebrasPdf(el);
+  const restaurarCompacto = prepararCompactoPdf(el);
   const restaurar = prepararElementoPdf(el);
 
   try {
@@ -178,6 +186,7 @@ export async function gerarPdfDoElemento(el: HTMLElement, filename: string): Pro
     baixarBlob(blob, filename);
   } finally {
     restaurar();
+    restaurarCompacto();
   }
 }
 
