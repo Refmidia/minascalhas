@@ -15,7 +15,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "db:test": "node scripts/test-db.mjs"
+    "db:test": "node scripts/test-db.mjs",
+    "db:limpar": "node scripts/limpar-banco-novo-cliente.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

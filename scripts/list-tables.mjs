@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { resolve } from "path";
 import { PrismaClient } from "@prisma/client";
 
-config({ path: resolve(process.cwd(), ".env") });
+config({ path: resolve(process.cwd(), ".env"), override: true });
 
 const user = process.env.DB_USER;
 const pass = process.env.DB_PASSWORD;
