@@ -1,8 +1,9 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero } from "@/components/admin/DashPageHero";
+import { InvPagination, paginateItems } from "@/components/admin/inventario-ui";
 import { PontoEditarJornadaModal } from "@/components/admin/PontoEditarJornadaModal";
 import { PontoFuncCell, PontoJornadaHoras } from "@/components/admin/PontoFuncCell";
 import {
@@ -50,6 +51,8 @@ type PontoRegistroAdmin = {
 
 type FuncionarioOpt = { id: number; nome: string; thumb: string };
 
+const PONTO_DETALHE_POR_PAGINA = 20;
+
 export function PontoControlePage() {
   const { user, ready } = useAdminAuth();
   const navigate = useNavigate({ from: PontoControleRoute.fullPath });
@@ -67,7 +70,8 @@ export function PontoControlePage() {
   const [funcionarios, setFuncionarios] = useState<FuncionarioOpt[]>([]);
   const [jornadas, setJornadas] = useState<PontoJornada[]>([]);
   const [registros, setRegistros] = useState<PontoRegistroAdmin[]>([]);
-  const [detalheOpen, setDetalheOpen] = useState(true);
+  const [detalheOpen, setDetalheOpen] = useState(false);
+  const [detalhePage, setDetalhePage] = useState(1);
   const [editarOpen, setEditarOpen] = useState(false);
   const [editarJornada, setEditarJornada] = useState<{
     usuario_id: number;
@@ -84,6 +88,20 @@ export function PontoControlePage() {
   const [fUsuario, setFUsuario] = useState(String(usuarioFiltro || ""));
   const [fDe, setFDe] = useState(de);
   const [fAte, setFAte] = useState(ate);
+
+  const detalheTotalPaginas = Math.max(
+    1,
+    Math.ceil(registros.length / PONTO_DETALHE_POR_PAGINA),
+  );
+  const detalhePageSafe = Math.min(detalhePage, detalheTotalPaginas);
+  const registrosPagina = useMemo(
+    () => paginateItems(registros, detalhePageSafe, PONTO_DETALHE_POR_PAGINA),
+    [registros, detalhePageSafe],
+  );
+
+  useEffect(() => {
+    setDetalhePage(1);
+  }, [registros.length, usuarioFiltro, de, ate]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -468,7 +486,7 @@ export function PontoControlePage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {registros.map((r) => {
+                            {registrosPagina.map((r) => {
                               const { data, hora } = formatDataHoraPonto(r.registrado_em);
                               return (
                                 <tr key={r.id} data-ponto-id={r.id}>
@@ -515,6 +533,15 @@ export function PontoControlePage() {
                           </tbody>
                         </table>
                       </div>
+                      {detalheTotalPaginas > 1 ? (
+                        <InvPagination
+                          page={detalhePageSafe}
+                          totalPages={detalheTotalPaginas}
+                          total={registros.length}
+                          perPage={PONTO_DETALHE_POR_PAGINA}
+                          onPageChange={setDetalhePage}
+                        />
+                      ) : null}
                     </div>
                   ) : (
                     <p className="dash-ponto-detalhe__hint mb-0">
