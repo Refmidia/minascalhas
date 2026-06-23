@@ -269,6 +269,10 @@ export type PontoJornada = {
   almoco_fmt: string;
   retorno_fmt: string;
   saida_fmt: string;
+  entrada_id: number | null;
+  almoco_id: number | null;
+  retorno_id: number | null;
+  saida_id: number | null;
   intervalo_fmt: string;
   total_fmt: string;
   minutos_trabalhados: number | null;
@@ -380,6 +384,10 @@ export function montarJornadasAdmin(
       almoco: string | null;
       retorno: string | null;
       saida: string | null;
+      entrada_id: number | null;
+      almoco_id: number | null;
+      retorno_id: number | null;
+      saida_id: number | null;
     } | null = null;
 
     const fechar = () => {
@@ -406,6 +414,10 @@ export function montarJornadasAdmin(
         almoco_fmt: formatHoraPonto(atual.almoco),
         retorno_fmt: formatHoraPonto(atual.retorno),
         saida_fmt: atual.saida ? formatHoraPonto(atual.saida) : "—",
+        entrada_id: atual.entrada_id,
+        almoco_id: atual.almoco_id,
+        retorno_id: atual.retorno_id,
+        saida_id: atual.saida_id,
         intervalo_fmt: formatMinutosPonto(minAlm),
         total_fmt: formatMinutosPonto(minTrab),
         minutos_trabalhados: minTrab,
@@ -422,21 +434,38 @@ export function montarJornadasAdmin(
     for (const ev of grupo.eventos) {
       const tipo = pontoNormalizarTipo(ev.tipo);
       const hora = ev.registrado_em;
+      const evId = int(ev.id);
       if (!tipo || !hora) continue;
       switch (tipo) {
         case "entrada":
           fechar();
-          atual = { entrada: hora, almoco: null, retorno: null, saida: null };
+          atual = {
+            entrada: hora,
+            almoco: null,
+            retorno: null,
+            saida: null,
+            entrada_id: evId,
+            almoco_id: null,
+            retorno_id: null,
+            saida_id: null,
+          };
           break;
         case "almoco":
-          if (atual) atual.almoco = hora;
+          if (atual) {
+            atual.almoco = hora;
+            atual.almoco_id = evId;
+          }
           break;
         case "retorno_almoco":
-          if (atual) atual.retorno = hora;
+          if (atual) {
+            atual.retorno = hora;
+            atual.retorno_id = evId;
+          }
           break;
         case "saida":
           if (atual) {
             atual.saida = hora;
+            atual.saida_id = evId;
             fechar();
           }
           break;
@@ -489,6 +518,42 @@ export async function apagarJornadaPonto(
         : `${removidos} registros da jornada excluídos.`,
     removidos,
   };
+}
+
+export async function criarRegistroPontoAdmin(
+  usuarioId: number,
+  tipoRaw: string,
+  registradoEm: string,
+): Promise<{ ok: boolean; message: string; id?: number }> {
+  const tipo = pontoNormalizarTipo(tipoRaw);
+  if (!tipo) return { ok: false, message: "Tipo de registro inválido." };
+
+  const uid = int(usuarioId);
+  if (uid <= 0) return { ok: false, message: "Funcionário inválido." };
+
+  const sql = pontoSerializarDatetime(registradoEm);
+  if (!PONTO_SQL_DT_RE.test(sql)) {
+    return { ok: false, message: "Data ou hora inválida." };
+  }
+
+  const prisma = await getPrisma();
+  const user = await prisma.$queryRawUnsafe<{ id: unknown }[]>(
+    `SELECT id FROM usuarios WHERE id = ${uid} LIMIT 1`,
+  );
+  if (!user[0]) return { ok: false, message: "Funcionário não encontrado." };
+
+  const tipoEsc = esc(tipo);
+  const emEsc = esc(sql);
+  await prisma.$executeRawUnsafe(
+    `INSERT INTO funcionario_ponto (usuario_id, tipo, registrado_em) VALUES (${uid}, '${tipoEsc}', '${emEsc}')`,
+  );
+
+  const inserted = await prisma.$queryRawUnsafe<{ id: unknown }[]>(
+    `SELECT LAST_INSERT_ID() AS id`,
+  );
+  const id = int(inserted[0]?.id);
+
+  return { ok: true, message: "Registro criado.", id: id > 0 ? id : undefined };
 }
 
 export async function atualizarRegistroPonto(

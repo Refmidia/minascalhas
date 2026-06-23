@@ -24,6 +24,10 @@ type PontoJornada = {
   almoco_fmt: string;
   retorno_fmt: string;
   saida_fmt: string;
+  entrada_id: number | null;
+  almoco_id: number | null;
+  retorno_id: number | null;
+  saida_id: number | null;
   intervalo_fmt: string;
   total_fmt: string;
   minutos_trabalhados: number | null;
@@ -70,6 +74,10 @@ export function PontoControlePage() {
     usuario_nome: string;
     data: string;
     data_fmt: string;
+    entrada_id?: number | null;
+    almoco_id?: number | null;
+    retorno_id?: number | null;
+    saida_id?: number | null;
   } | null>(null);
   const [editarRegistroId, setEditarRegistroId] = useState<number | null>(null);
 
@@ -177,6 +185,10 @@ export function PontoControlePage() {
       usuario_nome: j.usuario_nome,
       data: j.data,
       data_fmt: j.data_fmt,
+      entrada_id: j.entrada_id,
+      almoco_id: j.almoco_id,
+      retorno_id: j.retorno_id,
+      saida_id: j.saida_id,
     });
     setEditarRegistroId(null);
     setEditarOpen(true);
@@ -184,11 +196,22 @@ export function PontoControlePage() {
 
   function abrirEditarRegistro(r: PontoRegistroAdmin) {
     const { data } = formatDataHoraPonto(r.registrado_em);
+    const dia = pontoDiaChave(r.registrado_em);
+    const jornadaMatch = jornadas.find(
+      (j) =>
+        j.usuario_id === r.usuario_id &&
+        j.data === dia &&
+        [j.entrada_id, j.almoco_id, j.retorno_id, j.saida_id].includes(r.id),
+    );
     setEditarJornada({
       usuario_id: r.usuario_id,
       usuario_nome: r.usuario_nome,
-      data: pontoDiaChave(r.registrado_em),
+      data: dia,
       data_fmt: data,
+      entrada_id: jornadaMatch?.entrada_id ?? null,
+      almoco_id: jornadaMatch?.almoco_id ?? null,
+      retorno_id: jornadaMatch?.retorno_id ?? null,
+      saida_id: jornadaMatch?.saida_id ?? null,
     });
     setEditarRegistroId(r.id);
     setEditarOpen(true);
@@ -337,7 +360,7 @@ export function PontoControlePage() {
                         </tr>
                       ) : (
                         jornadas.map((j) => (
-                          <tr key={`${j.usuario_id}-${j.data}`}>
+                          <tr key={`${j.usuario_id}-${j.data}-${j.entrada_id ?? j.entrada_fmt}`}>
                             <td className="dash-ponto-table__col-func">
                               <PontoFuncCell nome={j.usuario_nome} thumb={j.thumb} />
                             </td>

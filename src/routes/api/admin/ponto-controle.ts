@@ -9,6 +9,7 @@ import {
   apagarRegistroPonto,
   atualizarRegistroPonto,
   buscarRegistrosAdmin,
+  criarRegistroPontoAdmin,
   listarFuncionariosPonto,
   mapaValorDiarioFuncionarios,
   montarJornadasAdmin,
@@ -23,6 +24,14 @@ import {
 
 const patchSchema = z.object({
   id: z.number().int().positive(),
+  registrado_em: z.string().trim().min(1).optional(),
+  data: z.string().trim().optional(),
+  hora: z.string().trim().optional(),
+});
+
+const postSchema = z.object({
+  usuario_id: z.number().int().positive(),
+  tipo: z.string().trim().min(1),
   registrado_em: z.string().trim().min(1).optional(),
   data: z.string().trim().optional(),
   hora: z.string().trim().optional(),
@@ -108,6 +117,56 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         try {
           const res = await atualizarRegistroPonto(parsed.data.id, registradoEm);
           return jsonResponse({ ok: res.ok, message: res.message }, res.ok ? 200 : 400);
+        } catch (err) {
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
+
+      POST: async ({ request }) => {
+        if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
+        const session = getAdminSessionFromRequest(request);
+        if (!session || !podeGerenciarPonto(session)) {
+          return jsonResponse(
+            { ok: false, message: "Somente administradores podem corrigir horários de ponto." },
+            403,
+          );
+        }
+
+        let body: unknown;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse({ ok: false, message: "JSON inválido." }, 400);
+        }
+
+        const parsed = postSchema.safeParse(body);
+        if (!parsed.success) {
+          return jsonResponse({ ok: false, message: "Dados inválidos." }, 422);
+        }
+
+        let registradoEm = parsed.data.registrado_em?.trim() ?? "";
+        if (!registradoEm && parsed.data.data && parsed.data.hora) {
+          const montado = montarDatetimePonto(parsed.data.data, parsed.data.hora);
+          if (!montado) {
+            return jsonResponse({ ok: false, message: "Data ou hora inválida." }, 422);
+          }
+          registradoEm = montado;
+        }
+
+        if (!registradoEm) {
+          return jsonResponse({ ok: false, message: "Informe data e hora válidas." }, 422);
+        }
+
+        try {
+          const res = await criarRegistroPontoAdmin(
+            parsed.data.usuario_id,
+            parsed.data.tipo,
+            registradoEm,
+          );
+          return jsonResponse(
+            { ok: res.ok, message: res.message, id: res.id },
+            res.ok ? 200 : 400,
+          );
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
         }
