@@ -1,18 +1,23 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { fetchMateriais } from "@/lib/admin-api";
 import {
   MULTS_INSTALADO_PADRAO,
   MULTS_MATERIAL_PADRAO,
   calcularBobina,
   colunasPadraoInstalado,
   colunasPadraoMaterial,
+  escolherMaterialPorCorte,
   formatBrl,
   formatMultLabel,
   linhasBobinaPadrao,
   linhasCalculadoraParaOrcamento,
+  materiaisPorPerfilCorte,
   parseNumeroBr,
+  sincronizarMaterialLinha,
   type ColunaPersonalizada,
   type LinhaBobina,
+  type MaterialCorteRef,
 } from "@/lib/calculadora-bobina";
 import type { OrcamentoLinha } from "@/lib/orcamento.server";
 
@@ -24,14 +29,61 @@ function formatMult(m: number): string {
   return formatMultLabel(m);
 }
 
-function mobileCardBadge(linha: LinhaBobina, idx: number): string | null {
-  const corte = linha.corteCm.trim();
-  const metragem = linha.metragemM.trim();
-  if (corte && metragem) return `${corte} cm × ${metragem} m`;
-  if (corte) return `${corte} cm`;
-  if (metragem) return `${metragem} m`;
-  if (idx === 0) return "Meu corte";
-  return null;
+type ProdutoLinhaProps = {
+  linha: LinhaBobina;
+  corte: number;
+  matches: MaterialCorteRef[];
+  escolhido: MaterialCorteRef | null;
+  onSelectMaterial: (materialId: number) => void;
+  compact?: boolean;
+};
+
+function ProdutoLinhaCorte({
+  linha,
+  corte,
+  matches,
+  escolhido,
+  onSelectMaterial,
+  compact = false,
+}: ProdutoLinhaProps) {
+  if (corte <= 0) {
+    return compact ? (
+      <span className="bobina-calc__produto-vazio">Digite o corte</span>
+    ) : (
+      <span className="bobina-calc__produto-vazio">—</span>
+    );
+  }
+
+  if (matches.length > 1) {
+    return (
+      <select
+        className={`form-select bobina-calc__produto-select${compact ? " bobina-calc__produto-select--compact" : ""}`}
+        value={linha.materialId ?? escolhido?.id ?? ""}
+        onChange={(e) => onSelectMaterial(Number(e.target.value))}
+        aria-label="Produto pelo corte"
+      >
+        {matches.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.material}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  if (escolhido?.material) {
+    return (
+      <span className="bobina-calc__produto-nome" title={escolhido.material}>
+        {escolhido.material}
+      </span>
+    );
+  }
+
+  return (
+    <span className="bobina-calc__produto-vazio" title={`Nenhum material com C/${Math.round(corte)}`}>
+      C/{Math.round(corte)} não encontrado
+    </span>
+  );
 }
 
 function downloadText(filename: string, content: string, mime: string) {
@@ -67,6 +119,25 @@ export function CalculadoraBobinaWidget({
   const [importIdxMaterial, setImportIdxMaterial] = useState<number | null>(null);
   const [importIdxInstalado, setImportIdxInstalado] = useState<number | null>(4);
   const [importErro, setImportErro] = useState("");
+  const [materiais, setMateriais] = useState<MaterialCorteRef[]>([]);
+
+  useEffect(() => {
+    void fetchMateriais()
+      .then((itens) =>
+        setMateriais(
+          itens.map((m) => ({
+            id: m.id,
+            material: m.material ?? "",
+          })),
+        ),
+      )
+      .catch(() => setMateriais([]));
+  }, []);
+
+  useEffect(() => {
+    if (materiais.length === 0) return;
+    setLinhas((prev) => prev.map((l) => sincronizarMaterialLinha(l, materiais)));
+  }, [materiais]);
 
   const resultado = useMemo(
     () =>
@@ -83,11 +154,50 @@ export function CalculadoraBobinaWidget({
   );
 
   function atualizarLinha(id: string, patch: Partial<LinhaBobina>) {
-    setLinhas((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+    setLinhas((prev) =>
+      prev.map((l) => {
+        if (l.id !== id) return l;
+        const merged = { ...l, ...patch };
+        if ("corteCm" in patch || "materialId" in patch) {
+          return sincronizarMaterialLinha(merged, materiais);
+        }
+        return merged;
+      }),
+    );
+  }
+
+  function selecionarMaterialLinha(id: string, materialId: number) {
+    setLinhas((prev) =>
+      prev.map((l) => {
+        if (l.id !== id) return l;
+        const picked = materiais.find((m) => m.id === materialId);
+        return {
+          ...l,
+          materialId: materialId || null,
+          materialNome: picked?.material?.trim() || null,
+        };
+      }),
+    );
+  }
+
+  function produtoLinha(linha: LinhaBobina) {
+    const corte = parseNumeroBr(linha.corteCm);
+    const matches = materiaisPorPerfilCorte(materiais, corte);
+    const escolhido =
+      linha.materialNome && linha.materialId
+        ? materiais.find((m) => m.id === linha.materialId) ?? {
+            id: linha.materialId,
+            material: linha.materialNome,
+          }
+        : escolherMaterialPorCorte(materiais, corte, linha.materialId);
+    return { corte, matches, escolhido };
   }
 
   function adicionarLinha() {
-    setLinhas((prev) => [...prev, { id: uid(), corteCm: "", metragemM: "" }]);
+    setLinhas((prev) => [
+      ...prev,
+      { id: uid(), corteCm: "", metragemM: "", materialId: null, materialNome: null },
+    ]);
   }
 
   function adicionarColuna() {
@@ -204,7 +314,7 @@ export function CalculadoraBobinaWidget({
       return;
     }
 
-    const linhasOrc = linhasCalculadoraParaOrcamento(resultado.linhas, {
+    const linhasOrc = linhasCalculadoraParaOrcamento(resultado.linhas, linhas, materiais, {
       idxMaterial: importIdxMaterial,
       idxInstalado: importIdxInstalado,
       multsMaterial,
@@ -385,6 +495,9 @@ export function CalculadoraBobinaWidget({
                   <th rowSpan={2} className="bobina-calc__sticky bobina-calc__col-corte">
                     Corte (cm)
                   </th>
+                  <th rowSpan={2} className="bobina-calc__sticky bobina-calc__col-produto">
+                    Produto
+                  </th>
                   <th rowSpan={2} className="bobina-calc__sticky bobina-calc__col-metragem">
                     Metragem aferida
                   </th>
@@ -453,6 +566,7 @@ export function CalculadoraBobinaWidget({
                 {linhas.map((linha, idx) => {
                   const calc = resultado.linhas.find((l) => l.id === linha.id);
                   const temValor = (calc?.custoTotal ?? 0) > 0;
+                  const { corte, matches, escolhido } = produtoLinha(linha);
                   return (
                     <tr key={linha.id} className="inv-data-row bobina-calc__row">
                       <td className="bobina-calc__sticky bobina-calc__col-corte">
@@ -463,6 +577,15 @@ export function CalculadoraBobinaWidget({
                           placeholder={idx === 0 ? "Meu corte" : "cm"}
                           value={linha.corteCm}
                           onChange={(e) => atualizarLinha(linha.id, { corteCm: e.target.value })}
+                        />
+                      </td>
+                      <td className="bobina-calc__sticky bobina-calc__col-produto">
+                        <ProdutoLinhaCorte
+                          linha={linha}
+                          corte={corte}
+                          matches={matches}
+                          escolhido={escolhido}
+                          onSelectMaterial={(materialId) => selecionarMaterialLinha(linha.id, materialId)}
                         />
                       </td>
                       <td className="bobina-calc__sticky bobina-calc__col-metragem">
@@ -548,7 +671,16 @@ export function CalculadoraBobinaWidget({
           {linhas.map((linha, idx) => {
             const calc = resultado.linhas.find((l) => l.id === linha.id);
             const temValor = (calc?.custoTotal ?? 0) > 0;
-            const badge = mobileCardBadge(linha, idx);
+            const { corte, matches, escolhido } = produtoLinha(linha);
+            const badge =
+              escolhido?.material ??
+              (corte > 0
+                ? `C/${Math.round(corte)}`
+                : linha.corteCm.trim() || linha.metragemM.trim()
+                  ? `${linha.corteCm.trim() || "?"} cm · ${linha.metragemM.trim() || "?"} m`
+                  : idx === 0
+                    ? "Meu corte"
+                    : null);
 
             return (
               <article key={linha.id} className="dash-bobina-mobile-card">
@@ -566,6 +698,17 @@ export function CalculadoraBobinaWidget({
                       placeholder={idx === 0 ? "Ex.: 10" : String([15, 20, 25, 30, 35, 40][idx - 1] ?? "cm")}
                       value={linha.corteCm}
                       onChange={(e) => atualizarLinha(linha.id, { corteCm: e.target.value })}
+                    />
+                  </div>
+                  <div className="dash-bobina-mobile-card__field dash-bobina-mobile-card__field--produto">
+                    <label className="dash-bobina-mobile-label">Produto</label>
+                    <ProdutoLinhaCorte
+                      linha={linha}
+                      corte={corte}
+                      matches={matches}
+                      escolhido={escolhido}
+                      compact
+                      onSelectMaterial={(materialId) => selecionarMaterialLinha(linha.id, materialId)}
                     />
                   </div>
                   <div className="dash-bobina-mobile-card__field">

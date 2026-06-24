@@ -22,6 +22,10 @@ export type LinhaBobina = {
   id: string;
   corteCm: string;
   metragemM: string;
+  /** Material cadastrado escolhido pelo perfil C/XX (quando há mais de um). */
+  materialId?: number | null;
+  /** Nome exibido na calculadora — usado na importação para o orçamento. */
+  materialNome?: string | null;
 };
 
 export type ColunaPersonalizada = {
@@ -138,7 +142,100 @@ export function calcularBobina(entrada: CalculadoraBobinaEntrada): {
 }
 
 export function linhasBobinaPadrao(): LinhaBobina[] {
-  return [{ id: "r0", corteCm: "", metragemM: "" }];
+  return [{ id: "r0", corteCm: "", metragemM: "", materialId: null, materialNome: null }];
+}
+
+export type MaterialCorteRef = {
+  id: number;
+  material: string;
+};
+
+/** Extrai o perfil numérico de nomes como "… Perfil: C/100" ou "… C/40". */
+export function extrairPerfilCorte(material: string): number | null {
+  const m = material.match(/C\s*\/\s*(\d+)/i);
+  if (!m) return null;
+  const n = Number.parseInt(m[1], 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+export function materiaisPorPerfilCorte(
+  materiais: MaterialCorteRef[],
+  corteCm: number,
+): MaterialCorteRef[] {
+  if (corteCm <= 0) return [];
+  const alvo = Math.round(corteCm);
+  return materiais.filter((item) => {
+    const perfil = extrairPerfilCorte(item.material ?? "");
+    return perfil != null && perfil === alvo;
+  });
+}
+
+function preferenciaMaterialBobina(a: MaterialCorteRef, b: MaterialCorteRef): number {
+  const score = (nome: string) => {
+    const n = nome.toLowerCase();
+    if (n.startsWith("chapa galvalume")) return 0;
+    if (n.includes("chapa galvalume")) return 1;
+    if (n.includes("calha moldura")) return 2;
+    return 10;
+  };
+  const diff = score(a.material ?? "") - score(b.material ?? "");
+  if (diff !== 0) return diff;
+  return (a.material ?? "").localeCompare(b.material ?? "", "pt-BR");
+}
+
+/** Escolhe material pelo C/XX; mantém seleção manual quando ainda válida. */
+export function escolherMaterialPorCorte(
+  materiais: MaterialCorteRef[],
+  corteCm: number,
+  materialIdAtual?: number | null,
+): MaterialCorteRef | null {
+  const matches = materiaisPorPerfilCorte(materiais, corteCm);
+  if (matches.length === 0) return null;
+
+  if (materialIdAtual != null) {
+    const atual = matches.find((m) => m.id === materialIdAtual);
+    if (atual) return atual;
+  }
+
+  if (matches.length === 1) return matches[0];
+  return [...matches].sort(preferenciaMaterialBobina)[0] ?? null;
+}
+
+export function resolverNomeMaterialOrcamento(
+  corteCm: number,
+  tipo: "material" | "instalado",
+  mult: number,
+  materiais: MaterialCorteRef[],
+  materialId?: number | null,
+  materialNome?: string | null,
+): string {
+  const nomeInformado = materialNome?.trim();
+  if (nomeInformado) return nomeInformado;
+
+  if (materialId != null) {
+    const porId = materiais.find((m) => m.id === materialId);
+    if (porId?.material?.trim()) return porId.material.trim();
+  }
+
+  const escolhido = escolherMaterialPorCorte(materiais, corteCm, materialId);
+  if (escolhido?.material?.trim()) return escolhido.material.trim();
+  return montarDescricaoCalculadora(tipo, corteCm, mult);
+}
+
+export function sincronizarMaterialLinha(
+  linha: LinhaBobina,
+  materiais: MaterialCorteRef[],
+): LinhaBobina {
+  const corte = parseNumeroBr(linha.corteCm);
+  if (corte <= 0) {
+    return { ...linha, materialId: null, materialNome: null };
+  }
+  const escolhido = escolherMaterialPorCorte(materiais, corte, linha.materialId);
+  return {
+    ...linha,
+    materialId: escolhido?.id ?? null,
+    materialNome: escolhido?.material?.trim() || null,
+  };
 }
 
 export function formatMultLabel(mult: number): string {
@@ -228,6 +325,8 @@ export function indiceMultCalculadora(tipo: "material" | "instalado", mult: numb
  */
 export function linhasCalculadoraParaOrcamento(
   linhasCalc: LinhaBobinaCalculada[],
+  linhasInput: LinhaBobina[],
+  materiais: MaterialCorteRef[],
   opts: {
     idxMaterial: number | null;
     idxInstalado: number | null;
@@ -243,6 +342,10 @@ export function linhasCalculadoraParaOrcamento(
   for (const linha of linhasCalc) {
     if (linha.corteCm <= 0 || linha.metragemM <= 0) continue;
 
+    const input = linhasInput.find((l) => l.id === linha.id);
+    const materialId = input?.materialId;
+    const materialNome = input?.materialNome;
+
     const custoUnit =
       linha.custoTotal > 0 && linha.metragemM > 0
         ? Math.round((linha.custoTotal / linha.metragemM) * 100) / 100
@@ -254,9 +357,17 @@ export function linhasCalculadoraParaOrcamento(
       const valorUnit = valorUnitarioCalculadora(linha.corteCm, mult ?? 0);
       if (mult != null && mult > 0 && totalVenda > 0 && valorUnit > 0) {
         out.push({
-          material: `Serviço instalado corte ${linha.corteCm}cm (${formatMultLabel(mult)})`,
+          material: resolverNomeMaterialOrcamento(
+            linha.corteCm,
+            "instalado",
+            mult,
+            materiais,
+            materialId,
+            materialNome,
+          ),
           metros: linha.metragemM,
           valor: valorUnit,
+          ...(materialId != null ? { id: materialId } : {}),
         });
       }
       continue;
@@ -268,10 +379,18 @@ export function linhasCalculadoraParaOrcamento(
       const valorUnit = valorUnitarioCalculadora(linha.corteCm, mult ?? 0);
       if (mult != null && mult > 0 && totalVenda > 0 && valorUnit > 0) {
         out.push({
-          material: `Material corte ${linha.corteCm}cm (${formatMultLabel(mult)})`,
+          material: resolverNomeMaterialOrcamento(
+            linha.corteCm,
+            "material",
+            mult,
+            materiais,
+            materialId,
+            materialNome,
+          ),
           metros: linha.metragemM,
           valor: valorUnit,
           valor_custo: custoUnit,
+          ...(materialId != null ? { id: materialId } : {}),
         });
       }
     }

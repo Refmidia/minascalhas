@@ -209,7 +209,7 @@ export function MateriaisPage() {
 
       <div className="dash-page-body dash-page-body--with-header">
         {msg ? (
-          <div className="alert alert-success alert-dismissible fade show" role="alert">
+          <div className="alert dash-alert-ok alert-dismissible fade show" role="alert">
             {msg}
             <button
               type="button"

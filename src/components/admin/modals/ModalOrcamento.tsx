@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { AdminModal } from "@/components/admin/modals/AdminModal";
+import { OrcMaterialSelect } from "@/components/admin/modals/OrcMaterialSelect";
 import { PopupCalculadoraOrcamento } from "@/components/admin/modals/PopupCalculadoraOrcamento";
 import { useOrcamentoForm } from "@/hooks/use-orcamento-form";
 import { bloquearTeclaNaoNumerica, calcularCreditoMaquininha, parseMoneyBr, sanitizarDescontoPct, sanitizarNumeroBr } from "@/lib/orcamento.server";
@@ -561,25 +562,19 @@ export function ModalOrcamento({
                     </div>
                     <div className="col-12 col-md-4">
                       <label className="visitas-orc-label">Material</label>
-                      <select
-                        className="form-select visitas-orc-input"
+                      <OrcMaterialSelect
                         value={form.materialId}
-                        onChange={(e) => form.setMaterialId(e.target.value)}
+                        onChange={form.setMaterialId}
+                        options={form.materiaisFiltrados}
                         disabled={materiaisLoading || materiais.length === 0}
-                      >
-                        <option value="">
-                          {materiaisLoading
+                        placeholder={
+                          materiaisLoading
                             ? "Carregando…"
                             : materiais.length === 0
                               ? "Sem materiais"
-                              : "Selecione…"}
-                        </option>
-                        {form.materiaisFiltrados.map((m) => (
-                          <option key={m.id} value={m.id}>
-                            {m.material}
-                          </option>
-                        ))}
-                      </select>
+                              : "Selecione…"
+                        }
+                      />
                     </div>
                     <div className="col-12 col-md-2">
                       <label className="visitas-orc-label">Metros</label>
