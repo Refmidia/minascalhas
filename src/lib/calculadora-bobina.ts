@@ -138,14 +138,7 @@ export function calcularBobina(entrada: CalculadoraBobinaEntrada): {
 }
 
 export function linhasBobinaPadrao(): LinhaBobina[] {
-  return [
-    { id: "r0", corteCm: "", metragemM: "" },
-    ...([15, 20, 25, 30, 35, 40].map((corte, i) => ({
-      id: `r${i + 1}`,
-      corteCm: String(corte),
-      metragemM: "",
-    }))),
-  ];
+  return [{ id: "r0", corteCm: "", metragemM: "" }];
 }
 
 export function formatMultLabel(mult: number): string {

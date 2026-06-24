@@ -30,7 +30,7 @@ function mobileCardBadge(linha: LinhaBobina, idx: number): string | null {
   if (corte && metragem) return `${corte} cm × ${metragem} m`;
   if (corte) return `${corte} cm`;
   if (metragem) return `${metragem} m`;
-  if (idx === 0) return "Corte livre";
+  if (idx === 0) return "Meu corte";
   return null;
 }
 

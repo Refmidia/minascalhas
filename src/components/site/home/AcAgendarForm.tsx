@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 
 import { HOME_SITE, waUrl } from "@/data/home-config";
+import { AcAgendarSuccessModal } from "@/components/site/home/AcAgendarSuccessModal";
 import { enviarAgendamento } from "@/lib/agendamentos";
 import { horaAtualBr } from "@/lib/inventario-format";
 import { fetchConsultaDocumentoSite, fetchViaCep } from "@/lib/site-consulta-client";
@@ -62,6 +63,7 @@ function maskTelefone(digits: string): string {
 export function AcAgendarForm() {
   const [form, setForm] = useState<FormState>(initial);
   const [alert, setAlert] = useState<{ type: "success" | "danger"; msg: string } | null>(null);
+  const [successModal, setSuccessModal] = useState<{ nome: string; data: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
@@ -204,9 +206,12 @@ export function AcAgendarForm() {
     }
 
     setSubmitting(true);
+    const nomeEnviado = form.nome.trim();
+    const dataEnviada = form.data;
     try {
-      const res = await enviarAgendamento(parsed.data);
-      showAlert("success", res.message ?? "Visita agendada com sucesso! Em breve entraremos em contato.");
+      await enviarAgendamento(parsed.data);
+      setSuccessModal({ nome: nomeEnviado, data: dataEnviada });
+      setAlert(null);
       setForm(initial);
       lastCepFetched.current = "";
       lastDocFetched.current = "";
@@ -222,7 +227,14 @@ export function AcAgendarForm() {
   const busy = submitting || cepLoading || docLoading;
 
   return (
-    <div className="ac-contact__form-wrap ac-agendar-card">
+    <>
+      <AcAgendarSuccessModal
+        open={successModal != null}
+        nome={successModal?.nome ?? ""}
+        dataVisita={successModal?.data ?? ""}
+        onClose={() => setSuccessModal(null)}
+      />
+      <div className="ac-contact__form-wrap ac-agendar-card">
       <h2>Agendar visita</h2>
       <p className="ac-agendar-card__desc">
         Preencha os dados — o agendamento aparece na área administrativa na hora.
@@ -374,5 +386,6 @@ export function AcAgendarForm() {
         </p>
       </form>
     </div>
+    </>
   );
 }

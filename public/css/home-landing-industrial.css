@@ -1819,6 +1819,174 @@ a {
   width: auto;
 }
 
+/* Popup sucesso — agendar visita */
+.ac-agendar-success {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.ac-agendar-success.is-open {
+  display: flex;
+}
+
+.ac-agendar-success__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(8, 10, 12, 0.78);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.ac-agendar-success__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 100%);
+  overflow: hidden;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+  animation: ac-agendar-success-in 0.28s ease;
+}
+
+@keyframes ac-agendar-success-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ac-agendar-success__hero {
+  position: relative;
+  padding: 1.6rem 1.25rem 1.35rem;
+  text-align: center;
+  background: linear-gradient(135deg, #24a058 0%, #1a8447 100%);
+}
+
+.ac-agendar-success__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4b5563;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.ac-agendar-success__close:hover {
+  background: #ffffff;
+}
+
+.ac-agendar-success__hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 2rem;
+}
+
+.ac-agendar-success__body {
+  padding: 1.15rem 1.35rem 1.35rem;
+  text-align: center;
+  color: #1b1b1b;
+}
+
+.ac-agendar-success__badge {
+  margin: 0 0 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #24a058;
+}
+
+.ac-agendar-success__title {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.15rem, 3.5vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: #111827;
+}
+
+.ac-agendar-success__text {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.ac-agendar-success__text strong {
+  color: #374151;
+  font-weight: 700;
+}
+
+.ac-agendar-success__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-radius: 12px;
+  background: #f0faf4;
+  border: 1px solid rgba(36, 160, 88, 0.16);
+  counter-reset: ac-agendar-step;
+}
+
+.ac-agendar-success__steps li {
+  position: relative;
+  padding: 0.35rem 0 0.35rem 2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.35;
+}
+
+.ac-agendar-success__steps li + li {
+  margin-top: 0.15rem;
+}
+
+.ac-agendar-success__steps li::before {
+  counter-increment: ac-agendar-step;
+  content: counter(ac-agendar-step);
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: #24a058;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35rem;
+  text-align: center;
+}
+
+body.ac-agendar-success-open {
+  overflow: hidden;
+}
+
 @media (max-width: 640px) {
   .ac-form-row {
     grid-template-columns: 1fr;
