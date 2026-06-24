@@ -32,7 +32,7 @@
   background: #fff !important;
   width: 794px !important;
   max-width: 794px !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 html.os-orc-embed,
@@ -41,8 +41,21 @@ html.os-orc-embed body {
   padding: 0 !important;
   width: 794px !important;
   max-width: 794px !important;
-  overflow-x: hidden !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
   background: #fff !important;
+}
+
+html.os-orc-exporting,
+html.os-orc-exporting body,
+html.os-orc-exporting .os-orc-body,
+html.os-orc-exporting .os-orc-body--embed,
+html.os-orc-exporting .os-orc-page {
+  overflow: visible !important;
+}
+
+html.os-orc-exporting .os-orc-page {
+  box-shadow: none !important;
 }
 
 .os-orc-page {
@@ -59,7 +72,7 @@ html.os-orc-embed body {
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .os-orc-body--embed .os-orc-page {
@@ -176,6 +189,7 @@ html.os-orc-embed body {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
+  flex-wrap: wrap;
 }
 
 .os-orc-title-block {
@@ -204,6 +218,7 @@ html.os-orc-embed body {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  max-width: 100%;
 }
 
 .os-orc-meta-chip {
@@ -572,7 +587,7 @@ html.os-orc-embed body {
 
 .os-orc-finance__cartao-row--destaque {
   padding: 8px 10px;
-  margin: 0 -12px;
+  margin: 0;
   background: var(--os-brand-soft) !important;
   border: none !important;
   border-radius: 8px;
@@ -647,6 +662,7 @@ html.os-orc-embed body {
   border: 1.5px solid var(--os-brand) !important;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.12) !important;
+  min-width: 0;
 }
 
 .os-orc-total-panel__hero-label {
@@ -655,14 +671,18 @@ html.os-orc-embed body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--os-brand) !important;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .os-orc-total-panel__hero-value {
-  font-size: 22px;
+  font-size: clamp(16px, 2.8vw, 22px);
   font-weight: 800;
   color: #fff !important;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .os-orc-total-panel__note {
@@ -1275,7 +1295,9 @@ html.os-orc-embed .os-orc-title,
 html.os-orc-embed .os-orc-meta-chip,
 .os-orc-page.os-orc-compact .os-orc-meta-chip {
   padding: 5px 8px;
-  min-width: 92px;
+  min-width: 0;
+  flex: 1 1 92px;
+  max-width: 100%;
   border-radius: 8px;
 }
 

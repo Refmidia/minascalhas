@@ -222,7 +222,10 @@ export function indiceMultCalculadora(tipo: "material" | "instalado", mult: numb
   return best;
 }
 
-/** Converte linhas calculadas em itens do orçamento usando os valores já calculados na tabela. */
+/**
+ * Converte linhas calculadas em itens do orçamento.
+ * Material e serviço instalado são exclusivos: instalado já inclui material + mão de obra.
+ */
 export function linhasCalculadoraParaOrcamento(
   linhasCalc: LinhaBobinaCalculada[],
   opts: {
@@ -233,6 +236,9 @@ export function linhasCalculadoraParaOrcamento(
   },
 ): OrcamentoLinha[] {
   const out: OrcamentoLinha[] = [];
+  const usarInstalado = opts.idxInstalado != null && opts.idxInstalado >= 0;
+  const usarMaterial =
+    !usarInstalado && opts.idxMaterial != null && opts.idxMaterial >= 0;
 
   for (const linha of linhasCalc) {
     if (linha.corteCm <= 0 || linha.metragemM <= 0) continue;
@@ -242,27 +248,30 @@ export function linhasCalculadoraParaOrcamento(
         ? Math.round((linha.custoTotal / linha.metragemM) * 100) / 100
         : undefined;
 
-    if (opts.idxMaterial != null && opts.idxMaterial >= 0) {
-      const mult = opts.multsMaterial[opts.idxMaterial];
-      const totalVenda = linha.vendaMaterial[opts.idxMaterial] ?? 0;
-      if (mult != null && mult > 0 && totalVenda > 0) {
-        out.push({
-          material: `Material corte ${linha.corteCm}cm (${formatMultLabel(mult)})`,
-          metros: linha.metragemM,
-          valor: Math.round((totalVenda / linha.metragemM) * 100) / 100,
-          valor_custo: custoUnit,
-        });
-      }
-    }
-
-    if (opts.idxInstalado != null && opts.idxInstalado >= 0) {
-      const mult = opts.multsInstalado[opts.idxInstalado];
-      const totalVenda = linha.servicoInstalado[opts.idxInstalado] ?? 0;
-      if (mult != null && mult > 0 && totalVenda > 0) {
+    if (usarInstalado) {
+      const mult = opts.multsInstalado[opts.idxInstalado!];
+      const totalVenda = linha.servicoInstalado[opts.idxInstalado!] ?? 0;
+      const valorUnit = valorUnitarioCalculadora(linha.corteCm, mult ?? 0);
+      if (mult != null && mult > 0 && totalVenda > 0 && valorUnit > 0) {
         out.push({
           material: `Serviço instalado corte ${linha.corteCm}cm (${formatMultLabel(mult)})`,
           metros: linha.metragemM,
-          valor: Math.round((totalVenda / linha.metragemM) * 100) / 100,
+          valor: valorUnit,
+        });
+      }
+      continue;
+    }
+
+    if (usarMaterial) {
+      const mult = opts.multsMaterial[opts.idxMaterial!];
+      const totalVenda = linha.vendaMaterial[opts.idxMaterial!] ?? 0;
+      const valorUnit = valorUnitarioCalculadora(linha.corteCm, mult ?? 0);
+      if (mult != null && mult > 0 && totalVenda > 0 && valorUnit > 0) {
+        out.push({
+          material: `Material corte ${linha.corteCm}cm (${formatMultLabel(mult)})`,
+          metros: linha.metragemM,
+          valor: valorUnit,
+          valor_custo: custoUnit,
         });
       }
     }

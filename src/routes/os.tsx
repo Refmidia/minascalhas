@@ -77,7 +77,7 @@ function OsPage() {
 
     void (async () => {
       try {
-        await new Promise((r) => window.setTimeout(r, 500));
+        await new Promise((r) => window.setTimeout(r, 800));
         if (cancelled) return;
         const el = document.getElementById("orcamento-documento");
         if (!el) throw new Error("Documento não encontrado.");
@@ -113,7 +113,7 @@ function OsPage() {
 
     void (async () => {
       try {
-        await new Promise((r) => window.setTimeout(r, 500));
+        await new Promise((r) => window.setTimeout(r, 800));
         if (cancelled) return;
         const el = document.getElementById("orcamento-documento");
         if (!el) throw new Error("Documento não encontrado.");

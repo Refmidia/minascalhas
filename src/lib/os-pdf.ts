@@ -64,16 +64,80 @@ function prepararElementoPdf(el: HTMLElement): () => void {
     maxWidth: el.style.maxWidth,
     margin: el.style.margin,
     boxSizing: el.style.boxSizing,
+    overflow: el.style.overflow,
+    boxShadow: el.style.boxShadow,
   };
   el.style.width = `${PDF_A4_WIDTH_PX}px`;
   el.style.maxWidth = `${PDF_A4_WIDTH_PX}px`;
   el.style.margin = "0";
   el.style.boxSizing = "border-box";
+  el.style.overflow = "visible";
+  el.style.boxShadow = "none";
   return () => {
     el.style.width = prev.width;
     el.style.maxWidth = prev.maxWidth;
     el.style.margin = prev.margin;
     el.style.boxSizing = prev.boxSizing;
+    el.style.overflow = prev.overflow;
+    el.style.boxShadow = prev.boxShadow;
+  };
+}
+
+function prepararExportacaoDocumento(el: HTMLElement): () => void {
+  document.documentElement.classList.add("os-orc-exporting");
+  const restaurarCompacto = prepararCompactoPdf(el);
+  const restaurar = prepararElementoPdf(el);
+  void el.offsetHeight;
+  return () => {
+    document.documentElement.classList.remove("os-orc-exporting");
+    restaurar();
+    restaurarCompacto();
+  };
+}
+
+async function aguardarLayoutExportacao(el: HTMLElement): Promise<void> {
+  void el.offsetHeight;
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
+function dimensoesExportacao(el: HTMLElement): { width: number; height: number } {
+  void el.offsetHeight;
+  return {
+    width: PDF_A4_WIDTH_PX,
+    height: Math.max(el.scrollHeight, el.offsetHeight, 1),
+  };
+}
+
+function opcoesHtml2Canvas(el: HTMLElement): Record<string, unknown> {
+  const { width, height } = dimensoesExportacao(el);
+  return {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    backgroundColor: "#ffffff",
+    scrollX: 0,
+    scrollY: 0,
+    x: 0,
+    y: 0,
+    width,
+    height,
+    windowWidth: width,
+    windowHeight: height,
+    onclone: (doc: Document) => {
+      doc.documentElement.classList.add("os-orc-exporting");
+      const cloned = doc.getElementById("orcamento-documento");
+      if (!cloned) return;
+      cloned.style.width = `${PDF_A4_WIDTH_PX}px`;
+      cloned.style.maxWidth = `${PDF_A4_WIDTH_PX}px`;
+      cloned.style.margin = "0";
+      cloned.style.boxSizing = "border-box";
+      cloned.style.overflow = "visible";
+      cloned.style.boxShadow = "none";
+    },
   };
 }
 
@@ -97,31 +161,22 @@ function prepararQuebrasPdf(root: HTMLElement): void {
 
 function prepararCompactoPdf(el: HTMLElement): () => void {
   el.classList.add("os-orc-compact");
-  return () => el.classList.remove("os-orc-compact");
+  return () => {
+    el.classList.remove("os-orc-compact");
+  };
 }
 
 export async function gerarPngDoElemento(el: HTMLElement, filename: string): Promise<void> {
   await aguardarImagens(el);
-  const restaurarCompacto = prepararCompactoPdf(el);
-  const restaurar = prepararElementoPdf(el);
+  const restaurar = prepararExportacaoDocumento(el);
 
   try {
+    await aguardarLayoutExportacao(el);
     const mod = await import("html2canvas");
     const html2canvas = mod.default;
     if (!html2canvas) throw new Error("Biblioteca de imagem indisponível.");
 
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-      scrollX: 0,
-      scrollY: 0,
-      width: PDF_A4_WIDTH_PX,
-      windowWidth: PDF_A4_WIDTH_PX,
-      height: el.scrollHeight,
-      windowHeight: el.scrollHeight,
-    });
+    const canvas = await html2canvas(el, opcoesHtml2Canvas(el));
 
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob || blob.size < 500) {
@@ -131,17 +186,16 @@ export async function gerarPngDoElemento(el: HTMLElement, filename: string): Pro
     baixarBlob(blob, filename);
   } finally {
     restaurar();
-    restaurarCompacto();
   }
 }
 
 export async function gerarPdfDoElemento(el: HTMLElement, filename: string): Promise<void> {
   await aguardarImagens(el);
   prepararQuebrasPdf(el);
-  const restaurarCompacto = prepararCompactoPdf(el);
-  const restaurar = prepararElementoPdf(el);
+  const restaurar = prepararExportacaoDocumento(el);
 
   try {
+    await aguardarLayoutExportacao(el);
     const mod = await import("html2pdf.js");
     const html2pdf = mod.default;
     if (!html2pdf) throw new Error("Biblioteca de PDF indisponível.");
@@ -151,16 +205,7 @@ export async function gerarPdfDoElemento(el: HTMLElement, filename: string): Pro
         margin: 0,
         filename,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: "#ffffff",
-          scrollX: 0,
-          scrollY: 0,
-          width: PDF_A4_WIDTH_PX,
-          windowWidth: PDF_A4_WIDTH_PX,
-        },
+        html2canvas: opcoesHtml2Canvas(el),
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
         pagebreak: {
           mode: ["avoid-all", "css", "legacy"],
@@ -186,7 +231,6 @@ export async function gerarPdfDoElemento(el: HTMLElement, filename: string): Pro
     baixarBlob(blob, filename);
   } finally {
     restaurar();
-    restaurarCompacto();
   }
 }
 
@@ -209,7 +253,7 @@ export function baixarPdfOrcamento(id: number, nome?: string): Promise<void> {
     iframe.setAttribute("aria-hidden", "true");
     iframe.title = "Gerando PDF do orçamento";
     iframe.style.cssText =
-      "position:fixed;left:-12000px;top:0;width:794px;height:2400px;border:0;opacity:0;pointer-events:none;overflow:hidden";
+      "position:fixed;left:-12000px;top:0;width:834px;height:12000px;border:0;opacity:0;pointer-events:none;overflow:visible";
 
     const timeout = window.setTimeout(() => {
       cleanup();
@@ -257,7 +301,7 @@ export function baixarPngOrcamento(id: number, nome?: string): Promise<void> {
     iframe.setAttribute("aria-hidden", "true");
     iframe.title = "Gerando imagem do orçamento";
     iframe.style.cssText =
-      "position:fixed;left:-12000px;top:0;width:794px;height:2400px;border:0;opacity:0;pointer-events:none;overflow:hidden";
+      "position:fixed;left:-12000px;top:0;width:834px;height:12000px;border:0;opacity:0;pointer-events:none;overflow:visible";
 
     const timeout = window.setTimeout(() => {
       cleanup();

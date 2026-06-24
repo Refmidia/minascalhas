@@ -621,8 +621,11 @@ export function ModalOrcamento({
                         <tr>
                           <th>#</th>
                           <th>Material</th>
-                          <th className="text-end">Venda</th>
+                          <th className="text-end" title="Valor por metro (corte × multiplicador)">
+                            R$/m
+                          </th>
                           <th className="text-end">Metros</th>
+                          <th className="text-end">Total</th>
                           <th />
                         </tr>
                       </thead>
@@ -633,7 +636,7 @@ export function ModalOrcamento({
                             <td>{linha.material}</td>
                             {editingLinhaIdx === i ? (
                               editCalcInfo ? (
-                                <td colSpan={3} className="visitas-orc-table__edit-calc">
+                                <td colSpan={4} className="visitas-orc-table__edit-calc">
                                   <div className="visitas-orc-edit-bar">
                                     <div
                                       className="visitas-orc-edit-pills"
@@ -704,6 +707,12 @@ export function ModalOrcamento({
                                       aria-label="Metros"
                                     />
                                   </td>
+                                  <td className="text-end visitas-orc-table__line-total">
+                                    {(
+                                      parseMoneyBr(editValor) *
+                                      (Number.parseFloat(editMetros.replace(",", ".")) || 0)
+                                    ).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                  </td>
                                   <td className="text-center">
                                     <div className="visitas-orc-row-actions">
                                       <button
@@ -734,6 +743,12 @@ export function ModalOrcamento({
                                   {linha.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                 </td>
                                 <td className="text-end">{linha.metros}</td>
+                                <td className="text-end visitas-orc-table__line-total">
+                                  {(linha.valor * linha.metros).toLocaleString("pt-BR", {
+                                    style: "currency",
+                                    currency: "BRL",
+                                  })}
+                                </td>
                                 <td className="text-center">
                                   <div className="visitas-orc-row-actions">
                                     <button

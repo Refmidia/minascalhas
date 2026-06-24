@@ -4064,6 +4064,11 @@ html[data-bs-theme="dark"] .visitas-orc-calc-btn:hover {
     border-color: #f1f5f9;
 }
 
+.visitas-orc-table__line-total {
+    font-weight: 600;
+    color: var(--dash-text, #0f172a);
+}
+
 .visitas-orc-empty-row td {
     padding: 0 !important;
     border: none !important;
@@ -4548,6 +4553,34 @@ html[data-bs-theme="dark"] .visitas-orc-calc-btn:hover {
 
 .visitas-orc-calculadora-layer .dash-bobina-table-panel .inv-table-scroll {
     max-height: min(42vh, 420px);
+}
+
+.visitas-orc-calculadora-layer button.dash-bobina-import__pill {
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+}
+
+.visitas-orc-calculadora-layer button.dash-bobina-import__pill.is-active {
+    background: linear-gradient(
+        135deg,
+        #854d0e 0%,
+        #a16207 25%,
+        #ca8a04 50%,
+        #eab308 75%,
+        #ca8a04 100%
+    ) !important;
+    border-color: #eab308 !important;
+    color: #ffffff !important;
+    box-shadow:
+        0 4px 14px rgba(202, 138, 4, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+.visitas-orc-calculadora-layer button.dash-bobina-import__pill.is-active .dash-bobina-import__pill-mult,
+.visitas-orc-calculadora-layer button.dash-bobina-import__pill.is-active .dash-bobina-import__pill-val {
+    color: #ffffff !important;
+    opacity: 1;
 }
 
 .visitas-orc-parcelas-modal__dialog {

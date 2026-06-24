@@ -64,8 +64,8 @@ export function CalculadoraBobinaWidget({
   const [multsMaterial, setMultsMaterial] = useState<number[]>([...MULTS_MATERIAL_PADRAO]);
   const [multsInstalado, setMultsInstalado] = useState<number[]>([...MULTS_INSTALADO_PADRAO]);
   const [colunasPersonalizadas, setColunasPersonalizadas] = useState<ColunaPersonalizada[]>([]);
-  const [importIdxMaterial, setImportIdxMaterial] = useState(3);
-  const [importIdxInstalado, setImportIdxInstalado] = useState(0);
+  const [importIdxMaterial, setImportIdxMaterial] = useState<number | null>(null);
+  const [importIdxInstalado, setImportIdxInstalado] = useState<number | null>(4);
   const [importErro, setImportErro] = useState("");
 
   const resultado = useMemo(
@@ -170,9 +170,39 @@ export function CalculadoraBobinaWidget({
     }, 0);
   }
 
+  const totalImportMaterial =
+    importIdxMaterial != null ? totalColunaImport("material", importIdxMaterial) : 0;
+  const totalImportInstalado =
+    importIdxInstalado != null ? totalColunaImport("instalado", importIdxInstalado) : 0;
+  const totalImportOrcamento =
+    importIdxInstalado != null ? totalImportInstalado : totalImportMaterial;
+
+  function selecionarImportMaterial(idx: number) {
+    if (importIdxMaterial === idx) {
+      setImportIdxMaterial(null);
+      return;
+    }
+    setImportIdxMaterial(idx);
+    setImportIdxInstalado(null);
+  }
+
+  function selecionarImportInstalado(idx: number) {
+    if (importIdxInstalado === idx) {
+      setImportIdxInstalado(null);
+      return;
+    }
+    setImportIdxInstalado(idx);
+    setImportIdxMaterial(null);
+  }
+
   function importarParaOrcamento() {
     if (!onImportarOrcamento) return;
     setImportErro("");
+
+    if (importIdxMaterial == null && importIdxInstalado == null) {
+      setImportErro("Selecione ao menos material ou serviço instalado para importar.");
+      return;
+    }
 
     const linhasOrc = linhasCalculadoraParaOrcamento(resultado.linhas, {
       idxMaterial: importIdxMaterial,
@@ -606,58 +636,58 @@ export function CalculadoraBobinaWidget({
           <h2 className="dash-edit-modal__panel-title mb-2">
             <i className="bi bi-clipboard-plus" aria-hidden="true" /> Importar para o orçamento
           </h2>
-          <p className="dash-bobina-import__hint mb-2">
-            Selecione os valores calculados na tabela — o total já aparece em cada opção.
-          </p>
+          {totalImportOrcamento > 0 ? (
+            <p className="dash-bobina-import__total mb-2">
+              Total a importar: <strong>{formatBrl(totalImportOrcamento)}</strong>
+            </p>
+          ) : null}
           <div className="dash-bobina-import__row">
-            <div className="dash-bobina-import__choices">
-              <div className="dash-bobina-import__group">
-                <span className="dash-bobina-import__label">Material</span>
-                <div className="dash-bobina-import__pills" role="radiogroup" aria-label="Coluna de material">
-                  {multsMaterial.map((m, i) => {
-                    const active = importIdxMaterial === i;
-                    const total = totalColunaImport("material", i);
-                    return (
-                      <button
-                        key={`im-${m}`}
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        className={`dash-bobina-import__pill dash-bobina-import__pill--material${active ? " is-active" : ""}`}
-                        onClick={() => setImportIdxMaterial(i)}
-                      >
-                        <span className="dash-bobina-import__pill-mult">{formatMult(m)}</span>
-                        <span className="dash-bobina-import__pill-val">
-                          {total > 0 ? formatBrl(total) : "—"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="dash-bobina-import__group dash-bobina-import__group--instalado">
-                <span className="dash-bobina-import__label">Serviço instalado</span>
-                <div className="dash-bobina-import__pills" role="radiogroup" aria-label="Coluna de serviço instalado">
-                  {multsInstalado.map((m, i) => {
-                    const active = importIdxInstalado === i;
-                    const total = totalColunaImport("instalado", i);
-                    return (
-                      <button
-                        key={`ii-${m}`}
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        className={`dash-bobina-import__pill dash-bobina-import__pill--instalado${active ? " is-active" : ""}`}
-                        onClick={() => setImportIdxInstalado(i)}
-                      >
-                        <span className="dash-bobina-import__pill-mult">{formatMult(m)}</span>
-                        <span className="dash-bobina-import__pill-val">
-                          {total > 0 ? formatBrl(total) : "—"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+            <div
+              className="dash-bobina-import__choices"
+              role="radiogroup"
+              aria-label="Multiplicador para importar no orçamento"
+            >
+              <div className="dash-bobina-import__pills">
+                {multsMaterial.map((m, i) => {
+                  const active = importIdxMaterial === i;
+                  const total = totalColunaImport("material", i);
+                  return (
+                    <button
+                      key={`im-${m}`}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      aria-label={`Material ${formatMult(m)}${total > 0 ? `, ${formatBrl(total)}` : ""}`}
+                      className={`dash-bobina-import__pill${active ? " is-active" : ""}`}
+                      onClick={() => selecionarImportMaterial(i)}
+                    >
+                      <span className="dash-bobina-import__pill-mult">{formatMult(m)}</span>
+                      <span className="dash-bobina-import__pill-val">
+                        {total > 0 ? formatBrl(total) : "—"}
+                      </span>
+                    </button>
+                  );
+                })}
+                {multsInstalado.map((m, i) => {
+                  const active = importIdxInstalado === i;
+                  const total = totalColunaImport("instalado", i);
+                  return (
+                    <button
+                      key={`ii-${m}`}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      aria-label={`Serviço instalado ${formatMult(m)}${total > 0 ? `, ${formatBrl(total)}` : ""}`}
+                      className={`dash-bobina-import__pill${active ? " is-active" : ""}`}
+                      onClick={() => selecionarImportInstalado(i)}
+                    >
+                      <span className="dash-bobina-import__pill-mult">{formatMult(m)}</span>
+                      <span className="dash-bobina-import__pill-val">
+                        {total > 0 ? formatBrl(total) : "—"}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <button
