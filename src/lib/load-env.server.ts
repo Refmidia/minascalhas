@@ -4,11 +4,13 @@ import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 
 function loadEnvFile(path: string) {
-  config({ path, override: true });
+  // Na Vercel as variáveis vêm do painel — nunca sobrescrever com arquivo local.
+  config({ path, override: process.env.NODE_ENV !== "production" });
 }
 
 /** Sobe diretórios até achar `.env` ou `.env.example` (dev). */
 function findAndLoadEnv(startDirs: string[]) {
+  if (process.env.VERCEL) return null;
   for (const start of startDirs) {
     let dir = start;
     for (let i = 0; i < 6; i++) {
