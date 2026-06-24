@@ -16,7 +16,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "db:test": "node scripts/test-db.mjs",
-    "db:limpar": "node scripts/limpar-banco-novo-cliente.mjs"
+    "db:seed-produtos": "node scripts/seed-produtos-home.mjs",
+    "db:limpar": "node scripts/limpar-banco-novo-cliente.mjs",
+    "db:estrutura": "node scripts/clonar-estrutura-banco.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

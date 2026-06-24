@@ -65,7 +65,7 @@ export function AcLoginModal({ open, onClose }: Props) {
           <i className="bi bi-x-lg" aria-hidden="true" />
         </button>
         <div className="ac-login-modal__brand">
-          <img src={HOME_SITE.img.logoHeader} width={96} height={40} alt="Alex Calhas" />
+          <img src={HOME_SITE.img.logoHeader} width={96} height={40} alt="Minas Calhas" />
         </div>
         <h2 className="ac-login-modal__title" id="ac-login-title">
           Acesso ao painel

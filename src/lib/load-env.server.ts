@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 
 function loadEnvFile(path: string) {
-  config({ path, override: false });
+  config({ path, override: true });
 }
 
 /** Sobe diretórios até achar `.env` ou `.env.example` (dev). */

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/nota-entrega")({
   validateSearch: searchSchema,
   component: NotaEntregaPage,
   head: () => ({
-    meta: [{ title: "Nota de entrega — Alex Calhas" }],
+    meta: [{ title: "Nota de entrega — Minas Calhas" }],
     links: [{ rel: "stylesheet", href: "/admin/fornecedor-nota-print.css" }],
   }),
 });

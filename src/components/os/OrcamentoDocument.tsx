@@ -81,6 +81,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
   const pagamento = parseFormaPagamento(item.formaPagamento);
   const isCredito = pagamento.forma === "credito";
   const isPix = pagamento.forma === "pix";
+  const observacaoTexto = observacaoExibicao(item);
   const qtdParcelasCredito = pagamento.qtdParcelas;
   const totalExibir = isCredito ? credito.totalCartao : total;
   const valorParcelaResumo =
@@ -91,7 +92,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
     <div className="os-orc-page" id="orcamento-documento">
       <header className="os-orc-top">
         <div className="os-orc-top__col os-orc-top__col--brand">
-          <img src={empresa.logoSrc} alt="Alex Calhas" width={188} height={48} decoding="async" />
+          <img src={empresa.logoSrc} alt="Minas Calhas" width={188} height={48} decoding="async" />
           <p className="os-orc-top__tagline">{empresa.tagline}</p>
         </div>
 
@@ -156,7 +157,10 @@ export function OrcamentoDocument({ item, itens }: Props) {
       <div className="os-orc-divider" aria-hidden="true" />
 
       <div className="os-orc-title-row">
-        <h1 className="os-orc-title">ORÇAMENTO</h1>
+        <div className="os-orc-title-block">
+          <h1 className="os-orc-title">Orçamento</h1>
+          <p className="os-orc-subtitle">Proposta comercial Minas Calhas</p>
+        </div>
         <div className="os-orc-meta-row">
           <MetaChip
             label="Nº do orçamento"
@@ -213,7 +217,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
           <Kv label="Data de saída" value={data} />
           <Kv label="Condição de pagamento" value={condicaoPagamentoExibicao(item)} />
           <Kv label="Validade da proposta" value={empresa.validadeProposta} />
-          <Kv label="Vendedor" value="Alex Calhas" />
+          <Kv label="Vendedor" value="Minas Calhas" />
         </section>
       </div>
 
@@ -265,7 +269,9 @@ export function OrcamentoDocument({ item, itens }: Props) {
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
           </svg>
         </SecHead>
-        <div className="os-orc-obs-box">{observacaoExibicao(item)}</div>
+        <div className={`os-orc-obs-box${observacaoTexto ? "" : " os-orc-obs-box--empty"}`}>
+          {observacaoTexto || "—"}
+        </div>
       </section>
 
       <section className="os-orc-block">
@@ -341,7 +347,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
                 <div className="os-orc-pix__col os-orc-pix__col--info">
                   <img
                     src={empresa.logoSrc}
-                    alt="Alex Calhas"
+                    alt="Minas Calhas"
                     className="os-orc-pix__logo"
                     width={108}
                     height={28}
@@ -363,7 +369,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
                 <div className="os-orc-pix__col os-orc-pix__col--qr">
                   <img
                     src={empresa.pixQrSrc}
-                    alt="QR Code Pix Alex Calhas"
+                    alt="QR Code Pix Minas Calhas"
                     width={104}
                     height={104}
                     decoding="async"
@@ -390,7 +396,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
               <div className="os-orc-aprovacao__sign-area">
                 <img
                   src={empresa.assinaturaSrc}
-                  alt="Assinatura Alex Calhas"
+                  alt="Assinatura Minas Calhas"
                   className="os-orc-aprovacao__img"
                   width={180}
                   height={48}
@@ -412,7 +418,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
 
         <footer className="os-orc-footer">
           <p className="os-orc-footer__thanks">Agradecemos a preferência!</p>
-          <p className="os-orc-footer__brand">Alex Calhas — Qualidade em calhas, rufos e pingadeiras.</p>
+          <p className="os-orc-footer__brand">Minas Calhas — Qualidade em calhas, rufos e pingadeiras.</p>
         </footer>
       </div>
     </div>

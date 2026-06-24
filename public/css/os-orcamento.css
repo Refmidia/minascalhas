@@ -1,24 +1,26 @@
-/* Orçamento Alex Calhas — layout moderno verde */
+/* Orçamento Minas Calhas — layout premium amarelo */
 @page {
   size: A4;
   margin: 0;
 }
 
 :root {
-  --os-green-dark: #145c3a;
-  --os-green: #1a7a4c;
-  --os-green-soft: #e8f6ef;
-  --os-green-mint: #d4f0e3;
-  --os-gray-bg: #f3f6f5;
-  --os-gray-border: #d5e0da;
-  --os-text: #1a2e24;
-  --os-text-muted: #5a6b63;
+  --os-brand: #f5b400;
+  --os-brand-dark: #ca8a04;
+  --os-brand-deep: #854d0e;
+  --os-brand-soft: #fff8e1;
+  --os-brand-highlight: #fef3c7;
+  --os-table-head: #454545;
+  --os-gray-bg: #f7f7f8;
+  --os-gray-border: #e5e5e5;
+  --os-text: #1b1b1b;
+  --os-text-muted: #6b6b6b;
 }
 
 .os-orc-body {
   margin: 0;
   padding: 20px;
-  background: #e8ecea;
+  background: #ececec;
   font-family: "Segoe UI", Arial, Helvetica, sans-serif;
   color: var(--os-text);
   color-scheme: light;
@@ -56,7 +58,7 @@ html.os-orc-embed body {
   color: var(--os-text) !important;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  box-shadow: 0 4px 24px rgba(20, 92, 58, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -124,7 +126,7 @@ html.os-orc-embed body {
   margin: 4px 0 0;
   font-size: 9.5px;
   font-weight: 600;
-  color: var(--os-green) !important;
+  color: var(--os-brand-dark) !important;
   letter-spacing: 0.01em;
   line-height: 1.2;
 }
@@ -144,26 +146,26 @@ html.os-orc-embed body {
   height: 13px;
   flex-shrink: 0;
   margin-top: 1px;
-  color: var(--os-green) !important;
+  color: var(--os-brand-dark) !important;
 }
 
 .os-orc-top__ico svg {
   width: 13px;
   height: 13px;
-  fill: var(--os-green) !important;
+  fill: var(--os-brand-dark) !important;
 }
 
 .os-orc-top__text {
   font-size: 9px;
   line-height: 1.32;
-  color: #3d4f46 !important;
+  color: #444444 !important;
   font-weight: 500;
 }
 
 .os-orc-divider {
-  height: 4px;
+  height: 3px;
   margin: 0 0 16px;
-  background: var(--os-green-dark) !important;
+  background: var(--os-brand) !important;
   border-radius: 1px;
 }
 
@@ -176,13 +178,25 @@ html.os-orc-embed body {
   margin-bottom: 18px;
 }
 
+.os-orc-title-block {
+  min-width: 0;
+}
+
 .os-orc-title {
   margin: 0;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 800;
-  letter-spacing: 0.04em;
-  color: var(--os-green-dark) !important;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #111111 !important;
+  line-height: 1.05;
+  text-transform: none;
+}
+
+.os-orc-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--os-text-muted) !important;
 }
 
 .os-orc-meta-row {
@@ -197,7 +211,7 @@ html.os-orc-embed body {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--os-gray-bg) !important;
+  background: #ffffff !important;
   border: 1px solid var(--os-gray-border) !important;
   border-radius: 10px;
   min-width: 110px;
@@ -210,15 +224,15 @@ html.os-orc-embed body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--os-green) !important;
-  color: #fff !important;
+  background: var(--os-brand) !important;
+  color: #1b1b1b !important;
   flex-shrink: 0;
 }
 
 .os-orc-meta-chip__icon svg {
   width: 14px;
   height: 14px;
-  fill: #fff !important;
+  fill: #1b1b1b !important;
 }
 
 .os-orc-meta-chip__label {
@@ -272,15 +286,15 @@ html.os-orc-embed body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--os-green) !important;
-  color: #fff !important;
+  background: var(--os-brand) !important;
+  color: #1b1b1b !important;
   flex-shrink: 0;
 }
 
 .os-orc-sec-head__icon svg {
   width: 14px;
   height: 14px;
-  fill: #fff !important;
+  fill: #1b1b1b !important;
 }
 
 .os-orc-sec-head__title {
@@ -288,7 +302,7 @@ html.os-orc-embed body {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--os-green-dark) !important;
+  color: #111111 !important;
 }
 
 .os-orc-kv {
@@ -322,7 +336,7 @@ html.os-orc-embed body {
 }
 
 .os-orc-items thead th {
-  background: var(--os-green-dark) !important;
+  background: var(--os-table-head) !important;
   color: #fff !important;
   font-size: 10px;
   font-weight: 700;
@@ -373,6 +387,11 @@ html.os-orc-embed body {
   line-height: 1.5;
   color: var(--os-text) !important;
   white-space: pre-line;
+}
+
+.os-orc-obs-box--empty {
+  color: var(--os-text-muted) !important;
+  font-style: italic;
 }
 
 /* --- Resumo financeiro --- */
@@ -435,8 +454,8 @@ html.os-orc-embed body {
   transform: translateY(-50%);
   padding: 2px 10px;
   border-radius: 999px;
-  background: var(--os-green) !important;
-  color: #fff !important;
+  background: var(--os-brand) !important;
+  color: #1b1b1b !important;
   font-size: 7.5px;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -474,7 +493,7 @@ html.os-orc-embed body {
   background: #fff !important;
   border: 1px solid var(--os-gray-border) !important;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(20, 92, 58, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .os-orc-pix__grid--fin .os-orc-pix__logo {
@@ -504,8 +523,8 @@ html.os-orc-embed body {
   margin-top: 8px;
   padding: 6px 8px;
   border-radius: 8px;
-  background: var(--os-green-soft) !important;
-  border: 1px solid rgba(22, 202, 133, 0.18);
+  background: var(--os-brand-soft) !important;
+  border: 1px solid rgba(245, 180, 0, 0.22);
 }
 
 .os-orc-pix__chave-label {
@@ -513,7 +532,7 @@ html.os-orc-embed body {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--os-green-dark) !important;
+  color: var(--os-brand-deep) !important;
 }
 
 .os-orc-pix__chave-valor {
@@ -547,11 +566,12 @@ html.os-orc-embed body {
   height: 11px;
   font-size: 7px;
   line-height: 11px;
-  background: var(--os-green-dark) !important;
+  background: var(--os-brand-dark) !important;
+  color: #1b1b1b !important;
 }
 
 .os-orc-parcelas thead th {
-  background: var(--os-green-dark) !important;
+  background: var(--os-table-head) !important;
   color: #fff !important;
   font-size: 9px;
   font-weight: 700;
@@ -595,22 +615,22 @@ html.os-orc-embed body {
 .os-orc-sum-row--destaque {
   padding: 8px 10px;
   margin: 8px 0 4px;
-  background: var(--os-green-soft) !important;
+  background: var(--os-brand-soft) !important;
   border-radius: 8px;
-  border: 1px solid rgba(26, 122, 76, 0.18) !important;
+  border: 1px solid rgba(245, 180, 0, 0.25) !important;
 }
 
 .os-orc-sum-row--destaque span,
 .os-orc-sum-row--destaque strong {
-  color: var(--os-green-dark) !important;
+  color: var(--os-brand-deep) !important;
   font-weight: 700;
 }
 
 .os-orc-total-box {
   margin-top: auto;
   padding: 12px 14px;
-  background: linear-gradient(135deg, var(--os-green-mint) 0%, #e8f6ef 100%) !important;
-  border: 1.5px solid var(--os-green) !important;
+  background: linear-gradient(135deg, #fff8dc 0%, #fef3c7 100%) !important;
+  border: 1.5px solid var(--os-brand) !important;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
@@ -630,7 +650,7 @@ html.os-orc-embed body {
   font-size: 9.5px;
   font-weight: 600;
   line-height: 1.3;
-  color: var(--os-green-dark) !important;
+  color: var(--os-brand-deep) !important;
   opacity: 0.88;
 }
 
@@ -639,13 +659,13 @@ html.os-orc-embed body {
   font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--os-green-dark) !important;
+  color: var(--os-brand-deep) !important;
 }
 
 .os-orc-total-box__value {
   font-size: 22px;
   font-weight: 800;
-  color: var(--os-green-dark) !important;
+  color: #111111 !important;
   font-variant-numeric: tabular-nums;
 }
 
@@ -704,7 +724,7 @@ html.os-orc-embed body {
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--os-green-dark) !important;
+  color: #111111 !important;
   line-height: 1.2;
 }
 
@@ -724,7 +744,7 @@ html.os-orc-embed body {
 }
 
 .os-orc-pix__chave strong {
-  color: var(--os-green-dark) !important;
+  color: var(--os-brand-deep) !important;
   font-weight: 800;
 }
 
@@ -771,8 +791,8 @@ html.os-orc-embed body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--os-green) !important;
-  color: #fff !important;
+  background: var(--os-brand) !important;
+  color: #1b1b1b !important;
   font-size: 9px;
   font-weight: 800;
   line-height: 14px;
@@ -795,7 +815,7 @@ html.os-orc-embed body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-align: center;
-  color: var(--os-green-dark) !important;
+  color: #111111 !important;
   line-height: 1.2;
 }
 
@@ -854,7 +874,7 @@ html.os-orc-embed body {
   width: 92%;
   max-width: 220px;
   height: 0;
-  border-top: 1px solid #1a2e24 !important;
+  border-top: 1px solid #1b1b1b !important;
   margin: 2px 0 4px;
 }
 
@@ -885,7 +905,7 @@ html.os-orc-embed body {
   margin: 0 0 4px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--os-green-dark) !important;
+  color: #111111 !important;
 }
 
 .os-orc-footer__brand {
@@ -904,39 +924,57 @@ html.os-orc-embed body {
 }
 
 .os-orc-print-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   border: none;
-  border-radius: 8px;
-  background: var(--os-green);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  padding: 10px 20px;
+  border-radius: 10px;
+  background: var(--os-brand);
+  color: #1b1b1b;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 18px;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .os-orc-print-btn--pdf {
-  background: #2563eb;
+  background: #3d3d3d;
+  color: #ffffff;
 }
 
 .os-orc-print-btn--pdf:hover {
-  background: #1d4ed8;
+  background: #1b1b1b;
 }
 
 .os-orc-print-btn--png {
-  background: #7c3aed;
+  background: var(--os-brand);
+  color: #1b1b1b;
 }
 
 .os-orc-print-btn--png:hover {
-  background: #6d28d9;
+  background: var(--os-brand-dark);
+}
+
+.os-orc-print-btn--print {
+  background: #ffffff;
+  color: #1b1b1b;
+  border: 1px solid #d1d5db;
+}
+
+.os-orc-print-btn--print:hover {
+  background: #f7f7f7;
 }
 
 .os-orc-print-btn:hover {
-  background: var(--os-green-dark);
+  transform: translateY(-1px);
 }
 
 .os-orc-print-btn:disabled {
   opacity: 0.65;
   cursor: wait;
+  transform: none;
 }
 
 /* --- Compacto: PDF (embed + geração) e impressão --- */

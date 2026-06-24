@@ -62,15 +62,15 @@ export const DIFFERENTIALS: Differential[] = [
 ];
 
 export const CONTACT: ContactInfo = {
-  whatsapp: "(18) 99647-5269",
-  whatsappLink: "https://wa.me/5518996475269",
-  phone: "(18) 99608-9273",
-  email: "contato@alexcalhas.com",
-  address: "Rua Angelim, 137, Parque Industrial, Tarumã/SP",
+  whatsapp: "(18) 99732-6783",
+  whatsappLink: "https://wa.me/5518997326783",
+  phone: "(18) 99636-6042",
+  email: "contato@minascalhas.com",
+  address: "Rua Benedito Cardoso Coelho, Florínea/SP — CEP 19870-210",
 };
 
 export const COMPANY = {
-  name: "Alex Calhas",
+  name: "Minas Calhas",
   tagline: "Soluções em calhas, rufos e acabamentos com qualidade e confiança.",
   year: 2026,
 };

@@ -17,16 +17,16 @@ export const Route = createFileRoute("/")({
   }),
   head: () => ({
     meta: [
-      { title: "Alex Calhas — Calhas, rufos e pingadeiras com instalação profissional" },
+      { title: "Minas Calhas — Calhas sob medida da infiltração ao acabamento" },
       {
         name: "description",
         content:
-          "Soluções sob medida em calhas, rufos, pingadeiras, condutores, coifas e caixas térmicas. Atendimento rápido e acabamento impecável.",
+          "Projeto, fabricação e instalação de calhas, rufos, pingadeiras e condutores em Florínea e região. Acabamento premium e atendimento rápido.",
       },
-      { property: "og:title", content: "Alex Calhas — Qualidade que protege" },
+      { property: "og:title", content: "Minas Calhas — Proteção e acabamento premium" },
       {
         property: "og:description",
-        content: "Calhas, rufos e pingadeiras com instalação profissional.",
+        content: "Calhas sob medida para proteger sua obra da infiltração ao acabamento.",
       },
     ],
     links: [
@@ -40,8 +40,7 @@ export const Route = createFileRoute("/")({
         rel: "stylesheet",
         href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
       },
-      { rel: "stylesheet", href: "/css/home-landing.css" },
-      { rel: "stylesheet", href: "/css/home-landing-enhance.css" },
+      { rel: "stylesheet", href: "/css/home-landing-industrial.css" },
     ],
   }),
   component: Index,

@@ -1,4 +1,5 @@
 import { getPrisma } from "@/lib/db.server";
+import { removerThumbArquivo } from "@/lib/usuario-thumb.server";
 
 export type UsuarioRow = {
   id: number;
@@ -211,4 +212,43 @@ export async function createUsuario(data: {
     data.usuario,
   );
   return int(rows[0]?.id ?? 0);
+}
+
+async function countAdmins(): Promise<number> {
+  const prisma = await getPrisma();
+  const rows = await prisma.$queryRawUnsafe<{ c: unknown }[]>(
+    `SELECT COUNT(*) AS c FROM usuarios WHERE LOWER(TRIM(nivel)) = 'admin'`,
+  );
+  return int(rows[0]?.c);
+}
+
+export async function deleteUsuario(
+  id: number,
+  actorId: number,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (id === actorId) {
+    return {
+      ok: false,
+      message: "Você não pode excluir sua própria conta enquanto estiver logado.",
+    };
+  }
+
+  const alvo = await getUsuarioById(id);
+  if (!alvo) return { ok: false, message: "Usuário não encontrado." };
+
+  const nivel = alvo.nivel.trim().toLowerCase();
+  if (nivel === "admin") {
+    const qtdAdmins = await countAdmins();
+    if (qtdAdmins <= 1) {
+      return {
+        ok: false,
+        message: "Não é possível excluir o único administrador do sistema.",
+      };
+    }
+  }
+
+  const prisma = await getPrisma();
+  await prisma.$executeRawUnsafe(`DELETE FROM usuarios WHERE id = ?`, id);
+  await removerThumbArquivo(alvo.thumb);
+  return { ok: true };
 }

@@ -13,7 +13,7 @@ export function AcSiteChat() {
 
   const onAgendar = () => {
     setOpen(false);
-    document.getElementById("contato")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("agendar")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -21,7 +21,7 @@ export function AcSiteChat() {
       className={`ac-chat${open ? " is-open" : ""}`}
       id="ac-chat"
       data-wa-number={HOME_SITE.whatsapp}
-      data-agendar-url="/#contato"
+      data-agendar-url="/#agendar"
       data-atendente={chat.nome}
     >
       <div
@@ -55,7 +55,7 @@ export function AcSiteChat() {
           <div className="ac-chat__thread">
             <article className="ac-chat__bubble ac-chat__bubble--in">
               <p className="ac-chat__bubble-text">
-                Oi! 😊 Sou a <strong>{chat.nome}</strong>, da Alex Calhas. Em que posso te ajudar hoje?
+                Oi! 😊 Sou a <strong>{chat.nome}</strong>, da Minas Calhas. Em que posso te ajudar hoje?
               </p>
               <time className="ac-chat__bubble-time" dateTime={new Date().toISOString()}>
                 Agora
@@ -65,16 +65,27 @@ export function AcSiteChat() {
               Escolha uma opção abaixo.
             </p>
             <div className="ac-chat__pills" id="ac-chat-pills">
-              <button type="button" className="ac-chat__pill" data-flow="whatsapp" onClick={onWa}>
+              <button type="button" className="ac-chat__pill ac-chat__pill--wa" data-flow="whatsapp" onClick={onWa}>
                 Falar no WhatsApp
               </button>
-              <button type="button" className="ac-chat__pill" data-flow="orcamento" onClick={onAgendar}>
+              <button type="button" className="ac-chat__pill ac-chat__pill--agendar" data-flow="orcamento" onClick={onAgendar}>
                 Agendar visita
               </button>
             </div>
           </div>
         </div>
       </div>
+      <a
+        href="#agendar"
+        className="ac-chat__mobile-cta"
+        onClick={(e) => {
+          e.preventDefault();
+          onAgendar();
+        }}
+      >
+        <i className="bi bi-calendar-check" aria-hidden="true" />
+        Agendar visita
+      </a>
       <button
         type="button"
         className="ac-chat__toggle"

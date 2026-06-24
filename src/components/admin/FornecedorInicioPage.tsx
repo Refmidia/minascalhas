@@ -158,7 +158,7 @@ export function FornecedorInicioPage() {
                     </span>
                   </div>
                   <strong className="metric-card__value">{data.resumo.total}</strong>
-                  <span className="metric-card__hint">Total enviadas ao Alex Calhas</span>
+                  <span className="metric-card__hint">Total enviadas ao Minas Calhas</span>
                 </Link>
                 <Link to={entregasTo.to} search={entregasTo.search} className="metric-card metric-card--func">
                   <div className="metric-card__top">

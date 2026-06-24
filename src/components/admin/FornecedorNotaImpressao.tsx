@@ -51,7 +51,7 @@ export function FornecedorNotaImpressao({ entrega, autoPrint = true }: Props) {
 
       <header className="forn-nota__head">
         <div className="forn-nota__brand">
-          <img src={HOME_SITE.img.logoHeader} width={220} height={64} alt="Alex Calhas" />
+          <img src={HOME_SITE.img.logoHeader} width={220} height={64} alt="Minas Calhas" />
         </div>
         <div className="forn-nota__meta">
           <strong>Nota de entrega:</strong> {numeroNota}
@@ -66,7 +66,7 @@ export function FornecedorNotaImpressao({ entrega, autoPrint = true }: Props) {
         <div className="forn-nota__badges">
           {recebido ? (
             <>
-              <span className="forn-nota__status forn-nota__status--ok">Recebido pela Alex Calhas</span>
+              <span className="forn-nota__status forn-nota__status--ok">Recebido pela Minas Calhas</span>
               {entrega.pagamento_status === "pago" ? (
                 <span className="forn-nota__status forn-nota__status--pago">Pagamento: pago</span>
               ) : (
@@ -142,7 +142,7 @@ export function FornecedorNotaImpressao({ entrega, autoPrint = true }: Props) {
       ) : null}
 
       <footer className="forn-nota__foot">
-        Documento gerado pelo sistema Alex Calhas — uso interno para conferência de materiais recebidos.
+        Documento gerado pelo sistema Minas Calhas — uso interno para conferência de materiais recebidos.
       </footer>
     </div>
   );

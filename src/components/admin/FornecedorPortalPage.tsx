@@ -96,7 +96,7 @@ export function FornecedorPortalPage() {
     <div className="analytics-page dash-form-page--pro dashboard-page--fornecedores">
       <DashPageHero
         title={titulo}
-        subtitle="Envie notas de entrega de materiais à Alex Calhas."
+        subtitle="Envie notas de entrega de materiais à Minas Calhas."
         iconClass="bi-truck"
         accent="fornecedores"
         layout="header"

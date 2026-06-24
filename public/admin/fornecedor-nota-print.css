@@ -42,9 +42,9 @@ body.fornecedor-nota-print-page {
 }
 
 .forn-nota__btn--primary {
-    background: #1a7f37;
+    background: #CA8A04;
     color: #fff;
-    border-color: #1a7f37;
+    border-color: #CA8A04;
 }
 
 .forn-nota__btn:hover {
@@ -52,7 +52,7 @@ body.fornecedor-nota-print-page {
 }
 
 .forn-nota__head {
-    border-bottom: 2px solid #1a7f37;
+    border-bottom: 2px solid #CA8A04;
     padding-bottom: 12px;
     margin-bottom: 20px;
 }

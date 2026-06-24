@@ -99,7 +99,7 @@ export function PainelLoginModal({ open, onClose }: PainelLoginModalProps) {
 
             <img
               src={LOGO_BRANCO}
-              alt="Alex Calhas"
+              alt="Minas Calhas"
               className="relative mx-auto h-[52px] w-auto max-w-[220px] object-contain drop-shadow-[0_4px_24px_rgba(7,148,90,0.25)]"
               width={220}
               height={52}

@@ -5,19 +5,19 @@ import { parseFormaPagamento, calcularCreditoMaquininha } from "@/lib/orcamento.
 /** Dados fixos da empresa no orçamento. */
 export const OS_ORCAMENTO_EMPRESA = {
   tagline: "Calhas • Rufos • Pingadeiras",
-  telefone1: "(18) 99757-8060",
-  telefone2: "(18) 99757-8060",
-  whatsapp: "18 996475269  996069273",
+  telefone1: "(18) 99732-6783",
+  telefone2: "(18) 99636-6042",
+  whatsapp: "(18) 99732-6783 / (18) 99636-6042",
   cnpj: "28.376.837/0001-59",
   ie: "731.021.804.118",
-  enderecoLinha1: "Avenida dos Lírios, 1219",
-  enderecoLinha2: "Vila das Árvores - 19622-094",
-  cidade: "Tarumã - SP",
+  enderecoLinha1: "Rua Benedito Cardoso Coelho",
+  enderecoLinha2: "Florínea — CEP 19870-210",
+  cidade: "Florínea - SP",
   logoSrc: "/images/logo/logo-preto.png",
   pixQrSrc: "/images/Pix%20Qrcod/qrcod.jpeg",
-  chavePix: "contato@alexcalhas.com",
+  chavePix: "contato@minascalhas.com",
   assinaturaSrc: "/images/Pix%20Qrcod/Assinatura.png",
-  assinaturaNome: "Alex Calhas",
+  assinaturaNome: "Minas Calhas",
   assinaturaCargo: "Responsável pela empresa",
   validadeProposta: "30 dias",
   condicaoPagamentoPadrao: "50% de sinal + 50% na instalação",
@@ -137,7 +137,5 @@ export function resumoCreditoOrcamento(item: AgendamentoItem): {
 }
 
 export function observacaoExibicao(item: AgendamentoItem): string {
-  const obs = item.observacao?.trim();
-  if (obs) return obs;
-  return OS_ORCAMENTO_EMPRESA.condicaoPagamentoPadrao;
+  return item.observacao?.trim() ?? "";
 }

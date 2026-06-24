@@ -20,16 +20,16 @@ type ChartData = {
 
 const STATUS_STYLES: Record<string, { color: string; soft: string }> = {
   Agendado: { color: "#3b82f6", soft: "rgba(59, 130, 246, 0.14)" },
-  Orçamentado: { color: "#f59e0b", soft: "rgba(245, 158, 11, 0.14)" },
-  Orcamentado: { color: "#f59e0b", soft: "rgba(245, 158, 11, 0.14)" },
-  Confirmado: { color: "#16ca85", soft: "rgba(22, 202, 133, 0.14)" },
+  Orçamentado: { color: "#EAB308", soft: "rgba(234, 179, 8, 0.14)" },
+  Orcamentado: { color: "#EAB308", soft: "rgba(234, 179, 8, 0.14)" },
+  Confirmado: { color: "#CA8A04", soft: "rgba(202, 138, 4, 0.14)" },
   Finalizado: { color: "#8b5cf6", soft: "rgba(139, 92, 246, 0.14)" },
 };
 
 const STATUS_FALLBACK = [
   { color: "#3b82f6", soft: "rgba(59, 130, 246, 0.14)" },
-  { color: "#f59e0b", soft: "rgba(245, 158, 11, 0.14)" },
-  { color: "#16ca85", soft: "rgba(22, 202, 133, 0.14)" },
+  { color: "#EAB308", soft: "rgba(234, 179, 8, 0.14)" },
+  { color: "#CA8A04", soft: "rgba(202, 138, 4, 0.14)" },
   { color: "#8b5cf6", soft: "rgba(139, 92, 246, 0.14)" },
 ];
 
@@ -78,7 +78,7 @@ function PieTooltip({
     <div className="dash-chart-tooltip dash-chart-tooltip--pie" role="status">
       <span
         className="dash-chart-tooltip__dot"
-        style={{ background: String(item?.color ?? "#16ca85") }}
+        style={{ background: String(item?.color ?? "#CA8A04") }}
         aria-hidden="true"
       />
       <div>
@@ -115,8 +115,8 @@ export function DashboardCharts({ data }: { data: ChartData }) {
 
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const gridColor = isDark ? "rgba(148, 163, 184, 0.12)" : "rgba(15, 23, 42, 0.06)";
-  const barFill = isDark ? "#22d3a0" : "#16ca85";
-  const barFillDim = isDark ? "rgba(34, 211, 160, 0.35)" : "rgba(22, 202, 133, 0.35)";
+  const barFill = isDark ? "#EAB308" : "#CA8A04";
+  const barFillDim = isDark ? "rgba(234, 179, 8, 0.35)" : "rgba(202, 138, 4, 0.35)";
 
   return (
     <section className="analytics-section analytics-section--charts" aria-labelledby="charts-title">

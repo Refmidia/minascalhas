@@ -128,7 +128,7 @@ export function FornecedorNovaEntregaSection({
     <>
       <p className="text-muted small mb-3 mb-md-4">
         Adicione cada produto à nota, revise a lista e clique em{" "}
-        <strong>Confirmar e enviar</strong>. A Alex Calhas receberá tudo em uma única nota de
+        <strong>Confirmar e enviar</strong>. A Minas Calhas receberá tudo em uma única nota de
         entrega.
       </p>
 
@@ -138,7 +138,7 @@ export function FornecedorNovaEntregaSection({
         </h3>
         {materiais.length === 0 ? (
           <p className="inv-detail-empty mb-0">
-            Nenhum material liberado ainda. Peça ao administrador da Alex Calhas.
+            Nenhum material liberado ainda. Peça ao administrador da Minas Calhas.
           </p>
         ) : (
           <form className="dash-form" onSubmit={adicionarItem}>

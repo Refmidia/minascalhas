@@ -60,7 +60,7 @@ body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel {
 
     var(--dash-card-bg, #fff) 0%,
 
-    rgba(22, 202, 133, 0.05) 100%
+    rgba(202, 138, 4, 0.05) 100%
 
   ) !important;
 
@@ -88,7 +88,7 @@ body.dashboard-app--react .dashboard-page--agendar .dash-form-page__panel-last {
 
 body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel-title {
 
-  color: var(--text-secundary, #2a3342) !important;
+  color: var(--text-secundary, #333333) !important;
 
   font-size: 0.8125rem !important;
 
@@ -102,7 +102,7 @@ body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel-title
 
 body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__panel-title .bi {
 
-  color: var(--primary, #16ca85) !important;
+  color: var(--primary, #CA8A04) !important;
 
 }
 
@@ -140,7 +140,7 @@ body.dashboard-app--react .dashboard-page--agendar .form-control {
 
   background: #fff !important;
 
-  color: var(--text-secundary, #2a3342) !important;
+  color: var(--text-secundary, #333333) !important;
 
   font-size: 0.875rem !important;
 
@@ -162,15 +162,15 @@ body.dashboard-app--react .dashboard-page--agendar .form-control::placeholder {
 
 body.dashboard-app--react .dashboard-page--agendar .form-control:focus {
 
-  border-color: var(--primary, #16ca85) !important;
+  border-color: var(--primary, #CA8A04) !important;
 
-  box-shadow: 0 0 0 3px rgba(22, 202, 133, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.15) !important;
 
   outline: none !important;
 
   background: #fff !important;
 
-  color: var(--text-secundary, #2a3342) !important;
+  color: var(--text-secundary, #333333) !important;
 
 }
 
@@ -312,11 +312,11 @@ body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-save {
 
 body.dashboard-app--react .dashboard-page--agendar .alert-success {
 
-  background: rgba(22, 202, 133, 0.1) !important;
+  background: rgba(202, 138, 4, 0.1) !important;
 
-  border: 1px solid rgba(22, 202, 133, 0.3) !important;
+  border: 1px solid rgba(202, 138, 4, 0.3) !important;
 
-  color: #0d9660 !important;
+  color: #A16207 !important;
 
 }
 
@@ -338,9 +338,9 @@ body.dashboard-app--react .dashboard-page--agendar .alert-danger {
 
 html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-page-body--solo {
 
-  background: var(--dash-page-bg, #0d1117) !important;
+  background: var(--dash-page-bg, #1A1A1A) !important;
 
-  border-color: var(--dash-card-border, #2a3342) !important;
+  border-color: var(--dash-card-border, #333333) !important;
 
 }
 
@@ -352,13 +352,13 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .d
 
     145deg,
 
-    #1b222e 0%,
+    #181818 0%,
 
-    rgba(22, 202, 133, 0.08) 100%
+    rgba(202, 138, 4, 0.08) 100%
 
   ) !important;
 
-  border-color: #2a3342 !important;
+  border-color: #333333 !important;
 
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 
@@ -386,9 +386,9 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .d
 
 html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .form-control {
 
-  border-color: var(--border-imputs, #313c4d) !important;
+  border-color: var(--border-imputs, #383838) !important;
 
-  background: var(--background-imputs, #1c2330) !important;
+  background: var(--background-imputs, #181818) !important;
 
   color: var(--text-secundary, #e2e8f0) !important;
 
@@ -406,7 +406,7 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .f
 
 html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .form-control:focus {
 
-  background: var(--background-imputs, #1c2330) !important;
+  background: var(--background-imputs, #181818) !important;
 
   color: #f1f5f9 !important;
 
@@ -434,9 +434,9 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .d
 
 html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-cancel {
 
-  border-color: #2a3342 !important;
+  border-color: #333333 !important;
 
-  background: #1c2330 !important;
+  background: #181818 !important;
 
   color: #cbd5e1 !important;
 
@@ -446,7 +446,7 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .d
 
 html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .dash-edit-modal__btn-cancel:hover {
 
-  background: #232c3a !important;
+  background: #2E2E2E !important;
 
   border-color: #3d4a5e !important;
 
@@ -474,11 +474,11 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .d
 
 html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--agendar .alert-success {
 
-  background: rgba(22, 202, 133, 0.12) !important;
+  background: rgba(202, 138, 4, 0.12) !important;
 
-  border-color: rgba(22, 202, 133, 0.35) !important;
+  border-color: rgba(202, 138, 4, 0.35) !important;
 
-  color: #6ee7b7 !important;
+  color: #FDE047 !important;
 
 }
 

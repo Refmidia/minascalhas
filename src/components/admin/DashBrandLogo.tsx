@@ -12,7 +12,7 @@ export function DashBrandLogo({ className = "" }: Props) {
     <>
       <img
         src={LOGO_PRETO}
-        alt="Alex Calhas"
+        alt="Minas Calhas"
         className={`dash-sidebar__logo dash-sidebar__logo--light${extra}`}
         width={200}
         height={56}

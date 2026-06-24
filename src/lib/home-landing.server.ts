@@ -1,13 +1,13 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-import { HOME_SITE, siteAsset, type HomeGaleriaItem, type HomeLandingData, type HomeServico, type HomeSlide } from "@/data/home-config";
+import { HOME_SITE, landingServicesFallback, siteAsset, type HomeGaleriaItem, type HomeLandingData, type HomeServico, type HomeSlide } from "@/data/home-config";
 import { getPrisma } from "@/lib/db.server";
-import { resolveProdutoImagemUrl } from "@/lib/produtos-site.server";
+import { resolveProdutoImagemUrl, staticProdutoImageUrl } from "@/lib/produtos-site.server";
 import { fotoPublicUrl } from "@/lib/produtos-upload.server";
 
 function staticLanding(): HomeLandingData {
-  const servicos = HOME_SITE.img.servicos.map((s) => ({
+  const servicos = landingServicesFallback().map((s) => ({
     ...s,
     img: siteAsset(s.img),
   }));
@@ -47,7 +47,7 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
       slug: p.slug,
       titulo: p.nome,
       texto: p.descricao?.trim() || "",
-      img: img || resolvePublicUrl(`/images/galeria/${p.slug}.jpg`),
+      img: img || staticProdutoImageUrl(p.slug),
     });
 
     const fotos = await prisma.produtoFoto.findMany({
@@ -75,7 +75,7 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
 
   const heroSlides: HomeSlide[] =
     galeria.length > 0
-      ? galeria.map((g) => ({ src: g.src, alt: g.legenda || "Alex Calhas" }))
+      ? galeria.map((g) => ({ src: g.src, alt: g.legenda || "Minas Calhas" }))
       : staticLanding().heroSlides;
 
   return { servicos, galeria, heroSlides };

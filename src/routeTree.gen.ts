@@ -31,7 +31,9 @@ import { Route as PainelFinanceiroRouteImport } from './routes/painel/financeiro
 import { Route as PainelFinalizadoRouteImport } from './routes/painel/finalizado'
 import { Route as PainelConfirmadoRouteImport } from './routes/painel/confirmado'
 import { Route as PainelClientesRouteImport } from './routes/painel/clientes'
+import { Route as PainelCalculadoraBobinaRouteImport } from './routes/painel/calculadora-bobina'
 import { Route as PainelAgendarRouteImport } from './routes/painel/agendar'
+import { Route as GaleriaSlugRouteImport } from './routes/galeria/$slug'
 import { Route as ApiOsRouteImport } from './routes/api/os'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiConsultaDocumentoRouteImport } from './routes/api/consulta-documento'
@@ -179,10 +181,20 @@ const PainelClientesRoute = PainelClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => PainelRouteRoute,
 } as any)
+const PainelCalculadoraBobinaRoute = PainelCalculadoraBobinaRouteImport.update({
+  id: '/calculadora-bobina',
+  path: '/calculadora-bobina',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
 const PainelAgendarRoute = PainelAgendarRouteImport.update({
   id: '/agendar',
   path: '/agendar',
   getParentRoute: () => PainelRouteRoute,
+} as any)
+const GaleriaSlugRoute = GaleriaSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => GaleriaRoute,
 } as any)
 const ApiOsRoute = ApiOsRouteImport.update({
   id: '/api/os',
@@ -377,14 +389,16 @@ const ApiAdminProdutosIdFotosFotoIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/painel': typeof PainelRouteRouteWithChildren
-  '/galeria': typeof GaleriaRoute
+  '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
+  '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/calculadora-bobina': typeof PainelCalculadoraBobinaRoute
   '/painel/clientes': typeof PainelClientesRoute
   '/painel/confirmado': typeof PainelConfirmadoRoute
   '/painel/finalizado': typeof PainelFinalizadoRoute
@@ -437,14 +451,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/galeria': typeof GaleriaRoute
+  '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
+  '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/calculadora-bobina': typeof PainelCalculadoraBobinaRoute
   '/painel/clientes': typeof PainelClientesRoute
   '/painel/confirmado': typeof PainelConfirmadoRoute
   '/painel/finalizado': typeof PainelFinalizadoRoute
@@ -499,14 +515,16 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/painel': typeof PainelRouteRouteWithChildren
-  '/galeria': typeof GaleriaRoute
+  '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
+  '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/calculadora-bobina': typeof PainelCalculadoraBobinaRoute
   '/painel/clientes': typeof PainelClientesRoute
   '/painel/confirmado': typeof PainelConfirmadoRoute
   '/painel/finalizado': typeof PainelFinalizadoRoute
@@ -569,7 +587,9 @@ export interface FileRouteTypes {
     | '/api/consulta-documento'
     | '/api/health'
     | '/api/os'
+    | '/galeria/$slug'
     | '/painel/agendar'
+    | '/painel/calculadora-bobina'
     | '/painel/clientes'
     | '/painel/confirmado'
     | '/painel/finalizado'
@@ -629,7 +649,9 @@ export interface FileRouteTypes {
     | '/api/consulta-documento'
     | '/api/health'
     | '/api/os'
+    | '/galeria/$slug'
     | '/painel/agendar'
+    | '/painel/calculadora-bobina'
     | '/painel/clientes'
     | '/painel/confirmado'
     | '/painel/finalizado'
@@ -690,7 +712,9 @@ export interface FileRouteTypes {
     | '/api/consulta-documento'
     | '/api/health'
     | '/api/os'
+    | '/galeria/$slug'
     | '/painel/agendar'
+    | '/painel/calculadora-bobina'
     | '/painel/clientes'
     | '/painel/confirmado'
     | '/painel/finalizado'
@@ -745,7 +769,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PainelRouteRoute: typeof PainelRouteRouteWithChildren
-  GaleriaRoute: typeof GaleriaRoute
+  GaleriaRoute: typeof GaleriaRouteWithChildren
   NotaEntregaRoute: typeof NotaEntregaRoute
   OsRoute: typeof OsRoute
   ApiAgendamentosRoute: typeof ApiAgendamentosRouteWithChildren
@@ -932,12 +956,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelClientesRouteImport
       parentRoute: typeof PainelRouteRoute
     }
+    '/painel/calculadora-bobina': {
+      id: '/painel/calculadora-bobina'
+      path: '/calculadora-bobina'
+      fullPath: '/painel/calculadora-bobina'
+      preLoaderRoute: typeof PainelCalculadoraBobinaRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
     '/painel/agendar': {
       id: '/painel/agendar'
       path: '/agendar'
       fullPath: '/painel/agendar'
       preLoaderRoute: typeof PainelAgendarRouteImport
       parentRoute: typeof PainelRouteRoute
+    }
+    '/galeria/$slug': {
+      id: '/galeria/$slug'
+      path: '/$slug'
+      fullPath: '/galeria/$slug'
+      preLoaderRoute: typeof GaleriaSlugRouteImport
+      parentRoute: typeof GaleriaRoute
     }
     '/api/os': {
       id: '/api/os'
@@ -1196,6 +1234,7 @@ declare module '@tanstack/react-router' {
 
 interface PainelRouteRouteChildren {
   PainelAgendarRoute: typeof PainelAgendarRoute
+  PainelCalculadoraBobinaRoute: typeof PainelCalculadoraBobinaRoute
   PainelClientesRoute: typeof PainelClientesRoute
   PainelConfirmadoRoute: typeof PainelConfirmadoRoute
   PainelFinalizadoRoute: typeof PainelFinalizadoRoute
@@ -1217,6 +1256,7 @@ interface PainelRouteRouteChildren {
 
 const PainelRouteRouteChildren: PainelRouteRouteChildren = {
   PainelAgendarRoute: PainelAgendarRoute,
+  PainelCalculadoraBobinaRoute: PainelCalculadoraBobinaRoute,
   PainelClientesRoute: PainelClientesRoute,
   PainelConfirmadoRoute: PainelConfirmadoRoute,
   PainelFinalizadoRoute: PainelFinalizadoRoute,
@@ -1239,6 +1279,17 @@ const PainelRouteRouteChildren: PainelRouteRouteChildren = {
 const PainelRouteRouteWithChildren = PainelRouteRoute._addFileChildren(
   PainelRouteRouteChildren,
 )
+
+interface GaleriaRouteChildren {
+  GaleriaSlugRoute: typeof GaleriaSlugRoute
+}
+
+const GaleriaRouteChildren: GaleriaRouteChildren = {
+  GaleriaSlugRoute: GaleriaSlugRoute,
+}
+
+const GaleriaRouteWithChildren =
+  GaleriaRoute._addFileChildren(GaleriaRouteChildren)
 
 interface ApiAgendamentosIdRouteChildren {
   ApiAgendamentosIdClienteRoute: typeof ApiAgendamentosIdClienteRoute
@@ -1331,7 +1382,7 @@ const ApiAdminUsuariosRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PainelRouteRoute: PainelRouteRouteWithChildren,
-  GaleriaRoute: GaleriaRoute,
+  GaleriaRoute: GaleriaRouteWithChildren,
   NotaEntregaRoute: NotaEntregaRoute,
   OsRoute: OsRoute,
   ApiAgendamentosRoute: ApiAgendamentosRouteWithChildren,

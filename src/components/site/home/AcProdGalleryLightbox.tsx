@@ -93,7 +93,7 @@ export function AcProdGalleryLightbox({ items, openIndex, onClose }: Props) {
           </>
         ) : null}
         <figure className="ac-prod-lightbox__figure">
-          <img src={item.src} alt={item.legenda || "Trabalho Alex Calhas"} />
+          <img src={item.src} alt={item.legenda || "Trabalho Minas Calhas"} />
           <figcaption>{item.legenda}</figcaption>
         </figure>
       </div>

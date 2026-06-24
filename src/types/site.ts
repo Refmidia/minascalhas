@@ -15,6 +15,14 @@ export type ProdutoSiteHome = {
   image: string;
 };
 
+/** Galeria pública de um produto. */
+export type ProdutoGaleriaPublica = {
+  slug: string;
+  nome: string;
+  descricao: string;
+  fotos: { src: string; legenda: string }[];
+};
+
 export type GalleryItem = {
   image: string;
   label: string;

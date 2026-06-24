@@ -171,7 +171,7 @@ export function ProdutosPage() {
     <div className="dash-produtos-page">
       <DashPageHero
         title="Produtos"
-        subtitle="Cadastre os produtos do site e gerencie a galeria de fotos de cada um."
+        subtitle="Cadastre os produtos exibidos na home (Soluções completas) e gerencie a galeria de fotos de cada um."
         iconClass="bi-images"
         accent="produtos"
         showNovaVisita={false}

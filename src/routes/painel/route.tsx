@@ -9,7 +9,7 @@ import { DashUiProvider } from "@/components/admin/DashUiProvider";
 export const Route = createFileRoute("/painel")({
   head: () => ({
     meta: [
-      { title: "Painel — Alex Calhas" },
+      { title: "Painel — Minas Calhas" },
       { name: "robots", content: "noindex" },
     ],
     links: [

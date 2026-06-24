@@ -6,7 +6,7 @@ export function ContactSection() {
     <section id="contato" className="bg-brand-green py-24 lg:py-32 text-white" aria-labelledby="contato-title">
       <div className="mx-auto max-w-7xl px-6 grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <h2 id="contato-title" className="text-3xl sm:text-4xl lg:text-5xl font-bold">Fale com a Alex Calhas</h2>
+          <h2 id="contato-title" className="text-3xl sm:text-4xl lg:text-5xl font-bold">Fale com a Minas Calhas</h2>
           <p className="mt-4 text-white/85 text-lg">Solicite seu orçamento sem compromisso.</p>
 
           <ul className="mt-10 space-y-5">
@@ -19,7 +19,7 @@ export function ContactSection() {
 
         <div className="rounded-[22px] overflow-hidden shadow-2xl border border-white/20 bg-white">
           <iframe
-            title="Localização da Alex Calhas no mapa"
+            title="Localização da Minas Calhas no mapa"
             src="https://www.openstreetmap.org/export/embed.html?bbox=-50.595%2C-22.760%2C-50.555%2C-22.730&amp;layer=mapnik"
             className="w-full h-[420px] border-0"
             loading="lazy"

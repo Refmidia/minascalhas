@@ -26,8 +26,14 @@ export const Route = createFileRoute("/os")({
   }),
   component: OsPage,
   head: () => ({
-    meta: [{ title: "Orçamento — Alex Calhas" }],
-    links: [{ rel: "stylesheet", href: "/css/os-orcamento.css" }],
+    meta: [{ title: "Orçamento — Minas Calhas" }],
+    links: [
+      { rel: "stylesheet", href: "/css/os-orcamento.css" },
+      {
+        rel: "stylesheet",
+        href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+      },
+    ],
   }),
 });
 
@@ -192,6 +198,7 @@ function OsPage() {
             onClick={() => void handleBaixarPdf()}
             disabled={baixando != null}
           >
+            <i className="bi bi-file-earmark-pdf" aria-hidden="true" />
             {baixando === "pdf" ? "Gerando PDF…" : "Baixar PDF"}
           </button>
           <button
@@ -200,9 +207,16 @@ function OsPage() {
             onClick={() => void handleBaixarPng()}
             disabled={baixando != null}
           >
+            <i className="bi bi-image" aria-hidden="true" />
             {baixando === "png" ? "Gerando imagem…" : "Baixar imagem"}
           </button>
-          <button type="button" className="os-orc-print-btn" onClick={() => window.print()} disabled={baixando != null}>
+          <button
+            type="button"
+            className="os-orc-print-btn os-orc-print-btn--print"
+            onClick={() => window.print()}
+            disabled={baixando != null}
+          >
+            <i className="bi bi-printer" aria-hidden="true" />
             Imprimir
           </button>
         </div>

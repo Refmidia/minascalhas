@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { SERVICES } from "@/data/site";
-import { listProdutosSitePublicos } from "@/lib/produtos-site.server";
+import { loadProdutoGaleriaPublica, listProdutosSitePublicos } from "@/lib/produtos-site.server";
 import type { ProdutoSiteHome } from "@/types/site";
 
 function staticHomeServices(): ProdutoSiteHome[] {
@@ -22,3 +22,7 @@ export const getProdutosSiteHome = createServerFn({ method: "GET" }).handler(asy
   }
   return staticHomeServices();
 });
+
+export const getProdutoGaleriaPublica = createServerFn({ method: "GET" })
+  .inputValidator((slug: string) => slug.trim().toLowerCase())
+  .handler(async ({ data: slug }) => loadProdutoGaleriaPublica(slug));

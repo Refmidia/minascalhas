@@ -24,7 +24,7 @@ export function AcProdGalleryGrid({ items }: Props) {
       <div className="ac-prod-gallery__grid">
         {items.map((item, i) => {
           const legenda = item.legenda.trim();
-          const alt = legenda || "Trabalho Alex Calhas";
+          const alt = legenda || "Trabalho Minas Calhas";
           return (
             <figure key={`${item.src}-${i}`} className="ac-prod-gallery__item">
               <button

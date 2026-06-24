@@ -6,7 +6,7 @@ import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarUsuarios } fro
 import { jsonResponse } from "@/lib/http.server";
 import { hashPasswordPhp } from "@/lib/password.server";
 import { thumbPublicUrl } from "@/lib/usuario-thumb.server";
-import { getUsuarioById, updateUsuario } from "@/lib/usuarios.server";
+import { getUsuarioById, updateUsuario, deleteUsuario } from "@/lib/usuarios.server";
 
 const NIVEIS = ["admin", "funcionário", "funcionario", "fornecedor"] as const;
 
@@ -100,6 +100,27 @@ export const Route = createFileRoute("/api/admin/usuarios/$id")({
                 }
               : null,
           });
+        } catch (err) {
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
+
+      DELETE: async ({ request, params }) => {
+        if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
+        const session = getAdminSessionFromRequest(request);
+        if (!podeGerenciarUsuarios(session)) {
+          return jsonResponse({ ok: false, message: "Acesso apenas para administrador." }, 403);
+        }
+        const id = lerId(params.id);
+        if (!id) return jsonResponse({ ok: false, message: "ID inválido." }, 400);
+        if (!session?.userId) {
+          return jsonResponse({ ok: false, message: "Sessão inválida." }, 401);
+        }
+
+        try {
+          const result = await deleteUsuario(id, session.userId);
+          if (!result.ok) return jsonResponse({ ok: false, message: result.message }, 422);
+          return jsonResponse({ ok: true });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
         }

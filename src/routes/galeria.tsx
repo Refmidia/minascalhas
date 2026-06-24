@@ -9,11 +9,11 @@ export const Route = createFileRoute("/galeria")({
   }),
   head: () => ({
     meta: [
-      { title: "Galeria — Trabalhos realizados | Alex Calhas" },
+      { title: "Galeria — Trabalhos realizados | Minas Calhas" },
       {
         name: "description",
         content:
-          "Galeria de trabalhos realizados em calhas, rufos, pingadeiras e acabamentos pela Alex Calhas.",
+          "Galeria de trabalhos realizados em calhas, rufos, pingadeiras e acabamentos pela Minas Calhas.",
       },
     ],
     links: [
@@ -27,8 +27,7 @@ export const Route = createFileRoute("/galeria")({
         rel: "stylesheet",
         href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
       },
-      { rel: "stylesheet", href: "/css/home-landing.css" },
-      { rel: "stylesheet", href: "/css/home-landing-enhance.css" },
+      { rel: "stylesheet", href: "/css/home-landing-industrial.css" },
     ],
   }),
   component: GaleriaRoute,

@@ -2,90 +2,92 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* Fallback de tema (antes do JS) — escuro: midnight slate (azul-grafite profissional) */
+/* Fallback de tema (antes do JS) — escuro: cinza carvão (identidade Minas Calhas) */
 :root,
 html[data-bs-theme="dark"] {
-    --background-color: #0d1117;
-    --croll-color: #3b4759;
-    --primary: #16ca85;
+    --background-color: #1A1A1A;
+    --croll-color: #444444;
+    --primary: #CA8A04;
     --text-primary: #ffffff;
-    --text-secundary: #c4cedd;
-    --text-anexo: #8a96a8;
-    --text-title-table: #d6dde8;
-    --seta-dropdow: #5a6678;
-    --border-table: #2a3342;
-    --hover-table: #1e2734;
-    --bg-table: #161c26;
-    --color-icon-mode: #c4cedd;
-    --background-menu: #0f141c;
-    --background-menu-top: #0f141c;
+    --text-secundary: #C8C8C8;
+    --text-anexo: #9A9A9A;
+    --text-title-table: #D4D4D4;
+    --seta-dropdow: #7A7A7A;
+    --border-table: #222222;
+    --hover-table: #252525;
+    --bg-table: #222222;
+    --color-icon-mode: #C8C8C8;
+    --background-menu: #141414;
+    --background-menu-top: #141414;
     --boxshadow-menu: rgba(0, 0, 0, 0.45);
-    --background-containe: #0d1117;
-    --background-modal: #1b222e;
-    --background-card: #161c26;
-    --color-icon-burguer: #d6dde8;
-    --border-user: #313c4d;
-    --background-burguer: #1b222e;
-    --background-imputs: #1c2330;
-    --border-imputs: #313c4d;
-    --color-divider: #2a3342;
+    --background-containe: #1A1A1A;
+    --background-modal: #181818;
+    --background-card: #222222;
+    --color-icon-burguer: #D4D4D4;
+    --border-user: rgba(202, 138, 4, 0.75);
+    --background-burguer: #181818;
+    --background-imputs: #252525;
+    --border-imputs: #181818;
+    --color-divider: #222222;
     --dashboard-sidebar-width: 260px;
-    --dashboard-sidebar-bg: #0f141c;
-    --dashboard-sidebar-border: #232c3a;
-    --dash-sidebar-bg: #0f141c;
-    --dash-card-bg: #161c26;
-    --dash-card-border: #2a3342;
-    --dash-page-bg: #0d1117;
-    --dash-nav-text: #c4cedd;
-    --dash-nav-icon: #8a96a8;
-    --dash-nav-hover: #1e2734;
-    --dash-nav-active-bg: #16ca85;
-    --dash-nav-active-text: #ffffff;
-    --dashboard-surface: rgba(22, 28, 38, 0.92);
-    --dashboard-surface-elevated: #1c2330;
-    --primary-soft: rgba(22, 202, 133, 0.14);
-    --primary-glow: rgba(22, 202, 133, 0.22);
+    --dashboard-sidebar-bg: #141414;
+    --dashboard-sidebar-border: #191919;
+    --dash-sidebar-bg: #141414;
+    --dash-card-bg: #222222;
+    --dash-card-border: #222222;
+    --dash-page-bg: #1A1A1A;
+    --dash-nav-text: #C8C8C8;
+    --dash-nav-icon: #9A9A9A;
+    --dash-nav-hover: #252525;
+    --dash-nav-active-bg: #CA8A04;
+    --dash-nav-active-text: #111827;
+    --dashboard-surface: rgba(34, 34, 34, 0.92);
+    --dashboard-surface-elevated: #181818;
+    --primary-soft: rgba(202, 138, 4, 0.14);
+    --primary-glow: rgba(202, 138, 4, 0.22);
 }
 
 html[data-bs-theme="light"] {
-    --background-color: #f4faff;
-    --croll-color: #CBD8E4;
-    --primary: #16ca85;
-    --text-primary: white;
-    --text-secundary: rgb(111, 131, 158);
-    --text-anexo: rgb(111, 131, 158);
-    --text-title-table: rgb(111, 131, 158);
-    --seta-dropdow: #BED0E0;
-    --border-table: #D9E5F0;
-    --hover-table: #F2F6FA;
-    --bg-table: #E9F5FF;
-    --color-icon-mode: rgb(111, 131, 158);
-    --background-menu: #16ca85;
-    --background-menu-top: #FFFFFFD2;
-    --boxshadow-menu: #0055FF11;
-    --background-containe: #F4FAFFBE;
-    --background-modal: #fafcff;
-    --background-card: #FFFFFFD2;
-    --color-icon-burguer: rgb(111, 131, 158);
-    --border-user: #E8F3FA;
-    --background-burguer: #E8F3FA;
-    --background-imputs: #FBFDFF;
-    --border-imputs: #D5E0EB;
-    --color-divider: #D8E5F1;
+    --background-color: #F0F0F0;
+    --croll-color: #C4C4C4;
+    --primary: #CA8A04;
+    --text-primary: #171717;
+    --text-secundary: #404040;
+    --text-anexo: #737373;
+    --text-title-table: #525252;
+    --seta-dropdow: #A3A3A3;
+    --border-table: #E5E5E5;
+    --hover-table: #F5F5F5;
+    --bg-table: #FAFAFA;
+    --color-icon-mode: #525252;
+    --background-menu: #FAFAFA;
+    --background-menu-top: #FFFFFF;
+    --boxshadow-menu: rgba(0, 0, 0, 0.08);
+    --background-containe: #F0F0F0;
+    --background-modal: #FFFFFF;
+    --background-card: #FFFFFF;
+    --color-icon-burguer: #525252;
+    --border-user: rgba(202, 138, 4, 0.55);
+    --background-burguer: #F5F5F5;
+    --background-imputs: #FFFFFF;
+    --border-imputs: #D4D4D4;
+    --color-divider: #E5E5E5;
     --dashboard-sidebar-width: 260px;
-    --dashboard-sidebar-bg: #ffffff;
-    --dashboard-sidebar-border: #e8ecf4;
-    --dash-sidebar-bg: #ffffff;
-    --dash-card-border: #e8ecf4;
-    --dash-nav-hover: #f1f5f9;
-    --dash-nav-text: #475569;
-    --dash-nav-icon: #64748b;
-    --dash-page-bg: #e7eef0;
-    --dash-card-bg: #ffffff;
-    --dashboard-surface: rgba(255, 255, 255, 0.92);
-    --dashboard-surface-elevated: #ffffff;
-    --primary-soft: rgba(22, 202, 133, 0.12);
-    --primary-glow: rgba(22, 202, 133, 0.25);
+    --dashboard-sidebar-bg: #FAFAFA;
+    --dashboard-sidebar-border: #E5E5E5;
+    --dash-sidebar-bg: #FAFAFA;
+    --dash-card-border: #E0E0E0;
+    --dash-nav-hover: #F0F0F0;
+    --dash-nav-text: #404040;
+    --dash-nav-icon: #737373;
+    --dash-nav-active-bg: #CA8A04;
+    --dash-nav-active-text: #111827;
+    --dash-page-bg: #F0F0F0;
+    --dash-card-bg: #FFFFFF;
+    --dashboard-surface: rgba(255, 255, 255, 0.95);
+    --dashboard-surface-elevated: #FFFFFF;
+    --primary-soft: rgba(202, 138, 4, 0.1);
+    --primary-glow: rgba(202, 138, 4, 0.18);
 }
 
 *{
@@ -1352,7 +1354,7 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 }
 
 .user-list-card:hover {
-    border-color: rgba(22, 202, 133, 0.35);
+    border-color: rgba(202, 138, 4, 0.35);
     box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
 }
 
@@ -1368,7 +1370,7 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
     height: 52px;
     min-width: 52px;
     border-radius: 14px;
-    border: 2px solid #e8ecf4;
+    border: 2px solid var(--primary, #CA8A04);
     background-size: cover;
     background-position: center;
     background-color: var(--background-burguer);
@@ -1388,8 +1390,8 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 }
 
 .user-list-card__badge--admin {
-    background: rgba(22, 202, 133, 0.12);
-    color: #059669;
+    background: rgba(202, 138, 4, 0.12);
+    color: #A16207;
 }
 
 .user-list-card__badge--funcionrio,
@@ -1399,8 +1401,8 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 }
 
 .user-list-card__badge--fornecedor {
-    background: rgba(245, 158, 11, 0.14);
-    color: #b45309;
+    background: rgba(234, 179, 8, 0.14);
+    color: #A16207;
 }
 
 .user-list-card__body {
@@ -1795,7 +1797,7 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 }
 
 .dash-kpi--visitas::before { background: #3b82f6; }
-.dash-kpi--orc::before { background: #f59e0b; }
+.dash-kpi--orc::before { background: #EAB308; }
 .dash-kpi--conf::before { background: var(--primary); }
 .dash-kpi--fin::before { background: #8b5cf6; }
 
@@ -1820,7 +1822,7 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 }
 
 .dash-kpi--visitas .dash-kpi__icon { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-.dash-kpi--orc .dash-kpi__icon { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.dash-kpi--orc .dash-kpi__icon { background: rgba(234, 179, 8, 0.15); color: #EAB308; }
 .dash-kpi--conf .dash-kpi__icon { background: var(--primary-soft); color: var(--primary); }
 .dash-kpi--fin .dash-kpi__icon { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
 
@@ -1970,8 +1972,8 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 }
 
 .dash-pipeline__bar--visitas { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-.dash-pipeline__bar--orc { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.dash-pipeline__bar--conf { background: linear-gradient(90deg, #16ca85, #34d399); }
+.dash-pipeline__bar--orc { background: linear-gradient(90deg, #EAB308, #FACC15); }
+.dash-pipeline__bar--conf { background: linear-gradient(90deg, #CA8A04, #EAB308); }
 .dash-pipeline__bar--fin { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
 
 .dash-pipeline__count {
@@ -2058,7 +2060,7 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
 
 .dash-status--agendado { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
 .dash-status--orcamentado,
-.dash-status--oramentado { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.dash-status--oramentado { background: rgba(234, 179, 8, 0.15); color: #CA8A04; }
 .dash-status--confirmado { background: var(--primary-soft); color: var(--primary); }
 .dash-status--finalizado { background: rgba(139, 92, 246, 0.15); color: #7c3aed; }
 

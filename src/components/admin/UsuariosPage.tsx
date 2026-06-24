@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { InvActionBtn, InvRowActions } from "@/components/admin/admin-row-actions";
@@ -7,13 +7,18 @@ import { AdminModal } from "@/components/admin/modals/AdminModal";
 import { DashConfirmModal } from "@/components/admin/DashConfirmModal";
 import { DashPageHero } from "@/components/admin/DashPageHero";
 import { UserThumb } from "@/components/admin/UserThumb";
+import {
+  UserListCardAvatar,
+  type UserListCardAvatarHandle,
+} from "@/components/admin/UserListCardAvatar";
 import { UsuarioAvatarPicker } from "@/components/admin/UsuarioAvatarPicker";
 import { fetchFornecedoresSelect, type FornecedorSelect } from "@/lib/admin-api";
-import { dashAlert } from "@/lib/dash-ui";
+import { dashConfirm } from "@/lib/dash-ui";
 import {
   atualizarUsuario,
   criarUsuario,
   enviarThumbUsuario,
+  excluirUsuario,
   fetchUsuario,
   fetchUsuarios,
   impersonarUsuario,
@@ -237,6 +242,28 @@ export function UsuariosPage() {
       .catch(() => setFornecedores([]));
   }, [cadastroOpen, editOpen]);
 
+  async function confirmarExclusao(u: UsuarioItem) {
+    if (user && u.id === user.id) {
+      setErro("Você não pode excluir sua própria conta enquanto estiver logado.");
+      return;
+    }
+    const ok = await dashConfirm({
+      title: "Excluir usuário?",
+      message: `Remover permanentemente "${u.nome}" (@${u.usuario})? Esta ação não pode ser desfeita.`,
+      confirmText: "Excluir",
+      variant: "danger",
+    });
+    if (!ok) return;
+    setErro("");
+    try {
+      await excluirUsuario(u.id);
+      setMsg(`Usuário "${u.nome}" excluído.`);
+      await load();
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Erro ao excluir usuário.");
+    }
+  }
+
   const tituloCadastro =
     nivelCadastro === "admin"
       ? "Cadastrar administrador"
@@ -290,62 +317,16 @@ export function UsuariosPage() {
           ) : (
             <div className="user-list-grid">
               {itens.map((u) => (
-                <article key={u.id} className="user-list-card">
-                  <div className="user-list-card__head">
-                    <UserThumb nome={u.nome} thumb={u.thumb} listCard />
-                    <span
-                      className={`user-list-card__badge user-list-card__badge--${nivelClass(u.nivel)}`}
-                    >
-                      {nivelLabel(u)}
-                    </span>
-                  </div>
-                  <div className="user-list-card__body">
-                    <h2 className="user-list-card__name">{u.nome}</h2>
-                    <p className="user-list-card__email" title={u.email}>
-                      <i className="bi bi-envelope" aria-hidden="true" />
-                      {u.email}
-                    </p>
-                    <p className="user-list-card__login">
-                      <i className="bi bi-person" aria-hidden="true" />@{u.usuario}
-                    </p>
-                  </div>
-                  <div className="user-list-card__actions">
-                    <InvRowActions
-                      ariaLabel={`Mais ações #${u.id}`}
-                      primary={
-                        <InvActionBtn
-                          icon="bi-pencil-square"
-                          title="Editar usuário"
-                          variant="secondary"
-                          onClick={() => void abrirEdicao(u)}
-                        />
-                      }
-                      menu={[
-                        ...(user && u.id !== user.id
-                          ? [
-                              {
-                                label: "Entrar como este usuário",
-                                icon: "bi-box-arrow-in-right",
-                                onClick: () => setImpersonarAlvo(u),
-                              },
-                            ]
-                          : []),
-                        {
-                          label: "Excluir",
-                          icon: "bi-trash",
-                          className: "text-danger",
-                          onClick: () =>
-                            void dashAlert({
-                              title: "Em breve",
-                              message:
-                                "Exclusão pelo React em breve. Use o painel PHP se precisar agora.",
-                              variant: "info",
-                            }),
-                        },
-                      ]}
-                    />
-                  </div>
-                </article>
+                <UsuarioCard
+                  key={u.id}
+                  u={u}
+                  user={user}
+                  onEdit={() => void abrirEdicao(u)}
+                  onImpersonar={() => setImpersonarAlvo(u)}
+                  onExcluir={() => void confirmarExclusao(u)}
+                  onReload={load}
+                  onErro={setErro}
+                />
               ))}
             </div>
           )}
@@ -694,5 +675,93 @@ export function UsuariosPage() {
         }}
       />
     </div>
+  );
+}
+
+function UsuarioCard({
+  u,
+  user,
+  onEdit,
+  onImpersonar,
+  onExcluir,
+  onReload,
+  onErro,
+}: {
+  u: UsuarioItem;
+  user: ReturnType<typeof useAdminAuth>["user"];
+  onEdit: () => void;
+  onImpersonar: () => void;
+  onExcluir: () => void;
+  onReload: () => Promise<void>;
+  onErro: (msg: string) => void;
+}) {
+  const avatarRef = useRef<UserListCardAvatarHandle>(null);
+
+  return (
+    <article className="user-list-card">
+      <div className="user-list-card__head">
+        <UserListCardAvatar
+          ref={avatarRef}
+          usuarioId={u.id}
+          nome={u.nome}
+          thumb={u.thumb}
+          onUpdated={onReload}
+          onError={onErro}
+        />
+        <span className={`user-list-card__badge user-list-card__badge--${nivelClass(u.nivel)}`}>
+          {nivelLabel(u)}
+        </span>
+      </div>
+      <div className="user-list-card__body">
+        <h2 className="user-list-card__name">{u.nome}</h2>
+        <p className="user-list-card__email" title={u.email}>
+          <i className="bi bi-envelope" aria-hidden="true" />
+          {u.email || "Sem e-mail"}
+        </p>
+        <p className="user-list-card__login">
+          <i className="bi bi-person" aria-hidden="true" />@{u.usuario}
+        </p>
+      </div>
+      <div className="user-list-card__actions">
+        <InvRowActions
+          ariaLabel={`Mais ações #${u.id}`}
+          primary={
+            <InvActionBtn
+              icon="bi-pencil-square"
+              title="Editar usuário"
+              variant="secondary"
+              onClick={onEdit}
+            />
+          }
+          menu={[
+            {
+              label: "Alterar foto",
+              icon: "bi-camera",
+              onClick: () => avatarRef.current?.openPicker(),
+            },
+            {
+              label: "Editar",
+              icon: "bi-pencil-square",
+              onClick: onEdit,
+            },
+            ...(user && u.id !== user.id
+              ? [
+                  {
+                    label: "Entrar como este usuário",
+                    icon: "bi-box-arrow-in-right",
+                    onClick: onImpersonar,
+                  },
+                  {
+                    label: "Excluir",
+                    icon: "bi-trash",
+                    className: "text-danger",
+                    onClick: onExcluir,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </div>
+    </article>
   );
 }

@@ -221,7 +221,7 @@ export async function enviarCarrinhoEntrega(
 
   return {
     ok: true,
-    message: "Entrega enviada! A Alex Calhas vai conferir e dar o visto de recebido.",
+    message: "Entrega enviada! A Minas Calhas vai conferir e dar o visto de recebido.",
     entrega_id: entregaId,
     clearCookie: true,
   };
