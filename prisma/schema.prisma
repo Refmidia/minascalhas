@@ -76,7 +76,7 @@ model ProdutoFoto {
 
 model Material {
   id                Int      @id @default(autoincrement())
-  material          String?  @db.VarChar(50)
+  material          String?  @db.VarChar(120)
   valorCusto        Decimal  @default(0.00) @map("valor_custo") @db.Decimal(10, 2)
   valor             Decimal  @default(0.00) @db.Decimal(10, 2)
   fornecedorId      Int?     @map("fornecedor_id")

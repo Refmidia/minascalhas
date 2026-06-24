@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "db:test": "node scripts/test-db.mjs",
     "db:seed-produtos": "node scripts/seed-produtos-home.mjs",
+    "db:seed-materiais": "node scripts/seed-materiais.mjs",
     "db:limpar": "node scripts/limpar-banco-novo-cliente.mjs",
     "db:estrutura": "node scripts/clonar-estrutura-banco.mjs"
   },

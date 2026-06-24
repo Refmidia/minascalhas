@@ -20,7 +20,7 @@ function parseMoney(raw: unknown): number {
 }
 
 const postSchema = z.object({
-  material: z.string().trim().min(1).max(50),
+  material: z.string().trim().min(1).max(120),
   valor_custo: z.union([z.number(), z.string()]).optional(),
   valor: z.union([z.number(), z.string()]),
 });
