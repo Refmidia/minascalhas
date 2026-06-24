@@ -250,14 +250,36 @@ export const LANDING_SERVICE_LINKS = [
   { label: "Galeria de projetos", href: "/galeria" },
 ];
 
+/** Origem pública do site (WhatsApp/OG exigem URL absoluta https). */
+export function getPublicSiteOrigin(): string {
+  if (typeof process !== "undefined") {
+    const fromEnv = process.env.VITE_SITE_URL?.trim() || process.env.SITE_URL?.trim();
+    if (fromEnv) return fromEnv.replace(/\/$/, "");
+
+    const prod = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+    if (prod) {
+      return prod.startsWith("http") ? prod.replace(/\/$/, "") : `https://${prod}`;
+    }
+
+    const vercel = process.env.VERCEL_URL?.trim();
+    if (vercel) return `https://${vercel.replace(/^https?:\/\//, "")}`;
+  }
+
+  const viteSite = import.meta.env.VITE_SITE_URL?.trim();
+  if (viteSite) return viteSite.replace(/\/$/, "");
+
+  return "https://textminascalhas.vercel.app";
+}
+
 /** Título, favicon e compartilhamento (aba do navegador / WhatsApp). */
 export const SITE_META = {
   name: "Minas Calhas",
   description:
     "Calhas, rufos, pingadeiras e condutores com fabricação sob medida e instalação profissional em Florínea e região.",
   logoPreto: "/images/logo/logo-preto.png",
-  ogImagePath: "/images/logo/logo-preto.png",
+  /** Logo completo — melhor preview no WhatsApp que o ícone preto. */
+  ogImagePath: "/images/logo/logo-home.png",
   get ogImageUrl() {
-    return `${HOME_SITE.mediaBaseUrl}${this.ogImagePath}`;
+    return `${getPublicSiteOrigin()}${this.ogImagePath}`;
   },
 };

@@ -10,7 +10,7 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { SITE_META } from "@/data/home-config";
+import { getPublicSiteOrigin, SITE_META } from "@/data/home-config";
 
 function NotFoundComponent() {
   return (
@@ -80,11 +80,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: SITE_META.name },
       { property: "og:description", content: SITE_META.description },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: SITE_META.name },
+      { property: "og:url", content: getPublicSiteOrigin() },
+      { property: "og:image", content: SITE_META.ogImageUrl },
+      { property: "og:image:alt", content: `${SITE_META.name} — logo` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: SITE_META.name },
       { name: "twitter:description", content: SITE_META.description },
-      { property: "og:image", content: SITE_META.ogImageUrl },
       { name: "twitter:image", content: SITE_META.ogImageUrl },
+      { name: "twitter:image:alt", content: `${SITE_META.name} — logo` },
     ],
     links: [
       {

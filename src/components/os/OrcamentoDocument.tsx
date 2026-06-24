@@ -31,11 +31,39 @@ function SecHead({ children, title }: { children: React.ReactNode; title: string
   );
 }
 
-function Kv({ label, value }: { label: string; value: React.ReactNode }) {
+function PanelField({
+  label,
+  value,
+  className = "",
+}: {
+  label: string;
+  value: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="os-orc-kv">
-      <span className="os-orc-kv__label">{label}</span>
-      <span className="os-orc-kv__value">{value}</span>
+    <div className={`os-orc-panel-field ${className}`.trim()}>
+      <span className="os-orc-panel-field__label">{label}</span>
+      <span className="os-orc-panel-field__value">{value}</span>
+    </div>
+  );
+}
+
+function PanelPhone({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="os-orc-panel-phone">
+      <span className="os-orc-panel-phone__icon" aria-hidden="true">
+        {label === "Celular" ? (
+          <svg viewBox="0 0 24 24">
+            <path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3zm-2 18h-4v-1h4v1zm3.25-4H6.75V4h10.5v11z" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24">
+            <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.25 1.01l-2.2 2.22z" />
+          </svg>
+        )}
+      </span>
+      <span className="os-orc-panel-phone__label">{label}</span>
+      <span className="os-orc-panel-phone__value">{value}</span>
     </div>
   );
 }
@@ -193,31 +221,51 @@ export function OrcamentoDocument({ item, itens }: Props) {
       </div>
 
       <div className="os-orc-panels">
-        <section className="os-orc-panel">
+        <section className="os-orc-panel os-orc-panel--compact">
           <SecHead title="Dados do cliente">
             <svg viewBox="0 0 24 24">
               <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z" />
             </svg>
           </SecHead>
-          <Kv label="Nome / Razão social" value={item.nome} />
-          <Kv label="CPF / CNPJ" value={formatOsDocumento(item.cpfCnpj)} />
-          <Kv label="RG / IE" value="—" />
-          <Kv label="Endereço" value={formatOsEndereco(item)} />
-          <Kv label="Telefone" value={formatOsTelefone(item.telefone)} />
-          <Kv label="Celular" value={formatOsTelefone(item.telefone)} />
+          <div className="os-orc-panel__body">
+            <PanelField label="Nome / Razão social" value={item.nome} className="os-orc-panel-field--full" />
+            <div className="os-orc-panel-row os-orc-panel-row--split">
+              <PanelField label="CPF / CNPJ" value={formatOsDocumento(item.cpfCnpj)} />
+              <span className="os-orc-panel-row__divider" aria-hidden="true" />
+              <PanelField label="RG / IE" value="—" />
+            </div>
+            <PanelField
+              label="Endereço"
+              value={formatOsEndereco(item)}
+              className="os-orc-panel-field--address"
+            />
+            <div className="os-orc-panel-row os-orc-panel-row--phones">
+              <PanelPhone label="Telefone" value={formatOsTelefone(item.telefone)} />
+              <span className="os-orc-panel-row__divider" aria-hidden="true" />
+              <PanelPhone label="Celular" value={formatOsTelefone(item.telefone)} />
+            </div>
+          </div>
         </section>
 
-        <section className="os-orc-panel">
+        <section className="os-orc-panel os-orc-panel--compact">
           <SecHead title="Dados do documento">
             <svg viewBox="0 0 24 24">
               <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z" />
             </svg>
           </SecHead>
-          <Kv label="Data de emissão" value={data} />
-          <Kv label="Data de saída" value={data} />
-          <Kv label="Condição de pagamento" value={condicaoPagamentoExibicao(item)} />
-          <Kv label="Validade da proposta" value={empresa.validadeProposta} />
-          <Kv label="Vendedor" value="Minas Calhas" />
+          <div className="os-orc-panel__body">
+            <div className="os-orc-panel-row os-orc-panel-row--split">
+              <PanelField label="Data de emissão" value={data} />
+              <span className="os-orc-panel-row__divider" aria-hidden="true" />
+              <PanelField label="Data de saída" value={data} />
+            </div>
+            <div className="os-orc-panel-row os-orc-panel-row--split">
+              <PanelField label="Condição de pagamento" value={condicaoPagamentoExibicao(item)} />
+              <span className="os-orc-panel-row__divider" aria-hidden="true" />
+              <PanelField label="Validade da proposta" value={empresa.validadeProposta} />
+            </div>
+            <PanelField label="Vendedor" value="Minas Calhas" className="os-orc-panel-field--full" />
+          </div>
         </section>
       </div>
 
@@ -263,7 +311,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
         </table>
       </section>
 
-      <section className="os-orc-block">
+      <section className="os-orc-block os-orc-block--obs">
         <SecHead title="Observações">
           <svg viewBox="0 0 24 24">
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
@@ -274,7 +322,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
         </div>
       </section>
 
-      <section className="os-orc-block">
+      <section className="os-orc-block os-orc-block--finance">
         <SecHead title="Resumo financeiro">
           <svg viewBox="0 0 24 24">
             <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
@@ -282,7 +330,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
         </SecHead>
         <div className={`os-orc-finance${isCredito ? " os-orc-finance--cartao" : ""}`}>
           {!isCredito ? (
-            <div className="os-orc-finance__parcelas">
+            <div className="os-orc-finance__parcelas-card">
               <table className="os-orc-table os-orc-parcelas">
                 <thead>
                   <tr>
@@ -301,44 +349,51 @@ export function OrcamentoDocument({ item, itens }: Props) {
                   ))}
                 </tbody>
               </table>
-            </div>
-          ) : null}
-
-          <div className={`os-orc-finance__side${isCredito ? " os-orc-finance__side--wide" : ""}`}>
-            <div className="os-orc-finance__totals-panel">
-              <div className="os-orc-finance__totals">
-                <div className="os-orc-sum-row">
-                  <span>Total dos itens</span>
-                  <strong>R$ {formatOsMoney(bruto)}</strong>
-                </div>
-                {credito.comTaxa ? (
-                  <div className="os-orc-sum-row">
-                    <span>Taxa maquininha</span>
-                    <strong>R$ {formatOsMoney(credito.acrescimoMaquininha)}</strong>
-                  </div>
-                ) : null}
-                {isCredito && qtdParcelasCredito > 1 ? (
-                  <div className="os-orc-sum-row os-orc-sum-row--destaque">
-                    <span>Parcelamento no cartão</span>
-                    <strong>
-                      {qtdParcelasCredito}x de R$ {formatOsMoney(valorParcelaResumo)}
-                    </strong>
-                  </div>
-                ) : null}
-                <div className="os-orc-total-box">
-                  <div className="os-orc-total-box__info">
-                    <span className="os-orc-total-box__label">
-                      {isCredito ? "Total no cartão" : "Total à vista"}
-                    </span>
-                    {isCredito && qtdParcelasCredito > 1 ? (
-                      <span className="os-orc-total-box__parcelas">
-                        Dividido em {qtdParcelasCredito}x no cartão do cliente
-                      </span>
-                    ) : null}
-                  </div>
-                  <strong className="os-orc-total-box__value">R$ {formatOsMoney(totalExibir)}</strong>
-                </div>
+              <div className="os-orc-finance__items-footer">
+                <span>Total dos itens</span>
+                <strong>R$ {formatOsMoney(bruto)}</strong>
               </div>
+            </div>
+          ) : (
+            <div className="os-orc-finance__parcelas-card os-orc-finance__parcelas-card--cartao">
+              {credito.comTaxa ? (
+                <div className="os-orc-finance__cartao-row">
+                  <span>Taxa maquininha</span>
+                  <strong>R$ {formatOsMoney(credito.acrescimoMaquininha)}</strong>
+                </div>
+              ) : null}
+              {qtdParcelasCredito > 1 ? (
+                <div className="os-orc-finance__cartao-row os-orc-finance__cartao-row--destaque">
+                  <span>Parcelamento no cartão</span>
+                  <strong>
+                    {qtdParcelasCredito}x de R$ {formatOsMoney(valorParcelaResumo)}
+                  </strong>
+                </div>
+              ) : null}
+              <div className="os-orc-finance__items-footer">
+                <span>Total dos itens</span>
+                <strong>R$ {formatOsMoney(bruto)}</strong>
+              </div>
+            </div>
+          )}
+
+          <div className="os-orc-finance__right">
+            <div className="os-orc-total-panel">
+              <div className="os-orc-total-panel__sub">
+                <span>Total dos itens</span>
+                <strong>R$ {formatOsMoney(bruto)}</strong>
+              </div>
+              <div className="os-orc-total-panel__hero">
+                <span className="os-orc-total-panel__hero-label">
+                  {isCredito ? "Total no cartão" : "Total à vista"}
+                </span>
+                <strong className="os-orc-total-panel__hero-value">R$ {formatOsMoney(totalExibir)}</strong>
+              </div>
+              {isCredito && qtdParcelasCredito > 1 ? (
+                <p className="os-orc-total-panel__note">
+                  Dividido em {qtdParcelasCredito}x no cartão do cliente
+                </p>
+              ) : null}
             </div>
 
             <section className="os-orc-pix-box os-orc-pix-box--fin" aria-label="Pagamento via Pix">
@@ -377,7 +432,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
                 </div>
                 <ul className="os-orc-pix__checks os-orc-pix__checks--fin">
                   <li>Pagamento instantâneo</li>
-                  <li>Guarde o comprovante</li>
+                  <li>Seguro e confiável</li>
                 </ul>
               </div>
             </section>
@@ -385,42 +440,7 @@ export function OrcamentoDocument({ item, itens }: Props) {
         </div>
       </section>
 
-      <div className="os-orc-pix-page">
-        <section className="os-orc-aprovacao" aria-label="Aprovação do orçamento">
-          <h3 className="os-orc-aprovacao__title">Aprovação do orçamento</h3>
-          <p className="os-orc-aprovacao__decl">
-            Declaro que li e aprovo os itens, valores e condições deste orçamento.
-          </p>
-          <div className="os-orc-aprovacao__grid">
-            <div className="os-orc-aprovacao__col">
-              <div className="os-orc-aprovacao__sign-area">
-                <img
-                  src={empresa.assinaturaSrc}
-                  alt="Assinatura Minas Calhas"
-                  className="os-orc-aprovacao__img"
-                  width={180}
-                  height={48}
-                  decoding="async"
-                />
-              </div>
-              <span className="os-orc-aprovacao__line" aria-hidden="true" />
-              <strong>{empresa.assinaturaNome}</strong>
-              <span>{empresa.assinaturaCargo}</span>
-            </div>
-            <div className="os-orc-aprovacao__col">
-              <div className="os-orc-aprovacao__sign-area os-orc-aprovacao__sign-area--client" aria-hidden="true" />
-              <span className="os-orc-aprovacao__line" aria-hidden="true" />
-              <strong>Assinatura do cliente</strong>
-              <span>Data: ___/___/___</span>
-            </div>
-          </div>
-        </section>
-
-        <footer className="os-orc-footer">
-          <p className="os-orc-footer__thanks">Agradecemos a preferência!</p>
-          <p className="os-orc-footer__brand">Minas Calhas — Qualidade em calhas, rufos e pingadeiras.</p>
-        </footer>
-      </div>
+      <div className="os-orc-page-accent" aria-hidden="true" />
     </div>
   );
 }

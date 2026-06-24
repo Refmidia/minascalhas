@@ -49,8 +49,33 @@ export type LinhaBobinaCalculada = {
   colunasPersonalizadas: number[];
 };
 
+/**
+ * Aceita decimal com vírgula (30,52) ou ponto (30.52), e milhar BR (1.185).
+ * Antes removia todo "." — "30.52" virava 3052 e estourava o cálculo.
+ */
 export function parseNumeroBr(raw: string): number {
-  const s = raw.trim().replace(/\./g, "").replace(",", ".");
+  let s = raw.trim();
+  if (!s) return 0;
+
+  s = s.replace(/R\$\s?/gi, "").replace(/\s/g, "");
+
+  const hasComma = s.includes(",");
+  const hasDot = s.includes(".");
+
+  if (hasComma && hasDot) {
+    s = s.replace(/\./g, "").replace(",", ".");
+  } else if (hasComma) {
+    s = s.replace(",", ".");
+  } else if (hasDot) {
+    const parts = s.split(".");
+    const last = parts[parts.length - 1] ?? "";
+    const isThousands =
+      parts.length > 1 &&
+      last.length === 3 &&
+      parts.every((part, index) => (index === 0 ? /^\d{1,3}$/.test(part) : /^\d{3}$/.test(part)));
+    if (isThousands) s = s.replace(/\./g, "");
+  }
+
   const n = Number(s);
   return Number.isFinite(n) ? n : 0;
 }
