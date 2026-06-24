@@ -37,6 +37,85 @@ export function sanitizarNumeroBr(raw: string): string {
   return v;
 }
 
+function formatMilharBr(intDigits: string): string {
+  if (!intDigits) return "";
+  return intDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/**
+ * Valor monetário BR enquanto digita: milhar com ponto, decimal com vírgula.
+ * Aceita . ou , como decimal (ex.: 100.50 → 100,50) e 1.000 como milhar.
+ */
+export function sanitizarMoneyBr(raw: string): string {
+  const original = String(raw ?? "");
+  let v = original.replace(/[^\d.,]/g, "");
+  if (!v) return "";
+
+  const endsWithComma = original.endsWith(",");
+  const endsWithDot = original.endsWith(".");
+  const ci = v.lastIndexOf(",");
+  const di = v.lastIndexOf(".");
+
+  let intDigits = "";
+  let decDigits = "";
+  let decimalMode = false;
+
+  if (ci >= 0 && di >= 0) {
+    decimalMode = true;
+    if (ci > di) {
+      intDigits = v.slice(0, ci).replace(/[.,]/g, "");
+      decDigits = v.slice(ci + 1).replace(/[.,]/g, "").slice(0, 2);
+    } else {
+      intDigits = v.slice(0, di).replace(/[.,]/g, "");
+      decDigits = v.slice(di + 1).replace(/[.,]/g, "").slice(0, 2);
+    }
+  } else if (ci >= 0) {
+    decimalMode = true;
+    intDigits = v.slice(0, ci).replace(/,/g, "");
+    decDigits = v.slice(ci + 1).replace(/[.,]/g, "").slice(0, 2);
+  } else if (di >= 0) {
+    const parts = v.split(".");
+    const last = parts[parts.length - 1] ?? "";
+    const dotDecimal =
+      parts.length === 2 && (last.length <= 2 || (endsWithDot && last.length === 0));
+
+    if (dotDecimal) {
+      decimalMode = true;
+      intDigits = parts[0].replace(/\D/g, "");
+      decDigits = last.replace(/\D/g, "").slice(0, 2);
+    } else {
+      intDigits = v.replace(/\./g, "");
+    }
+  } else {
+    intDigits = v.replace(/\D/g, "");
+  }
+
+  const intFmt = formatMilharBr(intDigits);
+
+  if (decimalMode || endsWithComma || endsWithDot) {
+    if (decDigits.length > 0 || endsWithComma || endsWithDot) {
+      return `${intFmt || "0"},${decDigits}`;
+    }
+  }
+
+  return intFmt;
+}
+
+/** Formata valor monetário ao sair do campo (ex.: 1234.5 → 1.234,50). */
+export function formatMoneyBrBlur(raw: string): string {
+  const v = String(raw ?? "").trim();
+  if (!v) return "";
+  const n = parseMoneyBr(v);
+  if (n <= 0) return "";
+  return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/** Exibe valor monetário no campo (com milhar e 2 casas). */
+export function formatMoneyBrInput(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "";
+  return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 /** Bloqueia letras no teclado; permite dígitos, vírgula e teclas de edição. */
 export function bloquearTeclaNaoNumerica(e: {
   key: string;

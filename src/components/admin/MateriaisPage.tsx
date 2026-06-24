@@ -13,6 +13,7 @@ import {
   type MaterialItem,
 } from "@/lib/admin-api";
 import { dashConfirm } from "@/lib/dash-ui";
+import { formatMoneyBrBlur, formatMoneyBrInput, parseMoneyBr, sanitizarMoneyBr } from "@/lib/orcamento.server";
 
 function formatBrl(value: number): string {
   return Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -30,14 +31,16 @@ function lucroClass(lucro: number) {
   return lucro >= 0 ? "material-lucro--pos" : "material-lucro--neg";
 }
 
-function validarValorMaterial(value: string): string {
-  let v = value.replace(/[^\d,.]/g, "");
-  const sep = v.includes(",") ? "," : v.includes(".") ? "." : null;
-  if (sep) {
-    const parts = v.split(sep);
-    v = parts[0] + sep + (parts[1] ?? "").slice(0, 2);
-  }
-  return v;
+function formatValorMaterialInput(value: number): string {
+  return formatMoneyBrInput(value);
+}
+
+function formatValorMaterialBlur(raw: string): string {
+  return formatMoneyBrBlur(raw);
+}
+
+function selecionarValorMaterial(e: React.FocusEvent<HTMLInputElement>) {
+  e.target.select();
 }
 
 function fornecedorRotulo(f: FornecedorSelect): string {
@@ -119,9 +122,9 @@ export function MateriaisPage() {
     setEdit({
       id: m.id,
       material: m.material,
-      valor_custo: Number(m.valor_custo).toFixed(2).replace(".", ","),
-      valor: Number(m.valor).toFixed(2).replace(".", ","),
-      valor_fornecedor: Number(m.valor_fornecedor ?? 0).toFixed(2).replace(".", ","),
+      valor_custo: formatValorMaterialInput(Number(m.valor_custo)),
+      valor: formatValorMaterialInput(Number(m.valor)),
+      valor_fornecedor: formatValorMaterialInput(Number(m.valor_fornecedor ?? 0)),
       fornecedor_ids: m.fornecedor_ids ?? [],
     });
     setEditOpen(true);
@@ -255,7 +258,9 @@ export function MateriaisPage() {
                     inputMode="decimal"
                     autoComplete="off"
                     value={custo}
-                    onChange={(e) => setCusto(validarValorMaterial(e.target.value))}
+                    onChange={(e) => setCusto(sanitizarMoneyBr(e.target.value))}
+                    onFocus={selecionarValorMaterial}
+                    onBlur={(e) => setCusto(formatValorMaterialBlur(e.target.value))}
                   />
                 </div>
                 <div className="col-6 col-sm-4 col-lg-2">
@@ -270,7 +275,9 @@ export function MateriaisPage() {
                     inputMode="decimal"
                     autoComplete="off"
                     value={venda}
-                    onChange={(e) => setVenda(validarValorMaterial(e.target.value))}
+                    onChange={(e) => setVenda(sanitizarMoneyBr(e.target.value))}
+                    onFocus={selecionarValorMaterial}
+                    onBlur={(e) => setVenda(formatValorMaterialBlur(e.target.value))}
                     required
                   />
                 </div>
@@ -345,6 +352,7 @@ export function MateriaisPage() {
       <AdminModal
         open={editOpen}
         onClose={() => setEditOpen(false)}
+        closeOnBackdrop={false}
         dialogClass="modal-lg dash-edit-modal__dialog"
       >
         <form onSubmit={salvarEdicao} className="dash-edit-modal__form">
@@ -418,7 +426,14 @@ export function MateriaisPage() {
                             onChange={(e) =>
                               setEdit({
                                 ...edit,
-                                valor_custo: validarValorMaterial(e.target.value),
+                                valor_custo: sanitizarMoneyBr(e.target.value),
+                              })
+                            }
+                            onFocus={selecionarValorMaterial}
+                            onBlur={(e) =>
+                              setEdit({
+                                ...edit,
+                                valor_custo: formatValorMaterialBlur(e.target.value),
                               })
                             }
                           />
@@ -438,9 +453,12 @@ export function MateriaisPage() {
                             inputMode="decimal"
                             value={edit.valor}
                             onChange={(e) =>
-                              setEdit({ ...edit, valor: validarValorMaterial(e.target.value) })
+                              setEdit({ ...edit, valor: sanitizarMoneyBr(e.target.value) })
                             }
-                            required
+                            onFocus={selecionarValorMaterial}
+                            onBlur={(e) =>
+                              setEdit({ ...edit, valor: formatValorMaterialBlur(e.target.value) })
+                            }
                           />
                         </div>
                       </div>
@@ -533,7 +551,14 @@ export function MateriaisPage() {
                               onChange={(e) =>
                                 setEdit({
                                   ...edit,
-                                  valor_fornecedor: validarValorMaterial(e.target.value),
+                                  valor_fornecedor: sanitizarMoneyBr(e.target.value),
+                                })
+                              }
+                              onFocus={selecionarValorMaterial}
+                              onBlur={(e) =>
+                                setEdit({
+                                  ...edit,
+                                  valor_fornecedor: formatValorMaterialBlur(e.target.value),
                                 })
                               }
                             />
@@ -572,14 +597,8 @@ export function MateriaisPage() {
   );
 }
 
-function parseMoneyInput(raw: string): number {
-  const v = raw.replace(/[^\d,.-]/g, "").replace(",", ".");
-  const n = Number.parseFloat(v);
-  return Number.isFinite(n) ? n : 0;
-}
-
 function MaterialEditMetrics({ custo, venda }: { custo: string; venda: string }) {
-  const { lucro, margem } = calcLucro(parseMoneyInput(custo), parseMoneyInput(venda));
+  const { lucro, margem } = calcLucro(parseMoneyBr(custo), parseMoneyBr(venda));
   const margemFmt = `${margem.toFixed(1).replace(".", ",")}%`;
 
   return (
