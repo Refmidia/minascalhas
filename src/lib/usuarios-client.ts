@@ -51,6 +51,16 @@ export async function atualizarUsuario(
   return data.item;
 }
 
+export async function removerThumbUsuario(id: number): Promise<{ thumb: string; thumb_url: null }> {
+  const res = await fetch(`/api/admin/usuarios/${id}/thumb`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const data = await parseJson<{ ok?: boolean; thumb?: string; thumb_url?: null; message?: string }>(res);
+  if (!res.ok) throw new Error(data.message ?? "Erro ao remover foto.");
+  return { thumb: data.thumb ?? "nao.png", thumb_url: null };
+}
+
 export async function enviarThumbUsuario(
   id: number,
   file: File,

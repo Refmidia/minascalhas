@@ -2,6 +2,10 @@
 
 import { blobUrlParaExibicao, dbThumbImageUrl, dbThumbUserId, isBlobPrivateRef } from "@/lib/usuario-thumb-url";
 
+export function usuarioTemFoto(thumb: string | null | undefined): boolean {
+  return Boolean(thumb && thumb.trim() && thumb !== "nao.png");
+}
+
 export function usuarioThumbLocalUrl(thumb: string, cacheBust?: number | string): string | null {
   if (!thumb || thumb === "nao.png") return null;
   const dbId = dbThumbUserId(thumb);

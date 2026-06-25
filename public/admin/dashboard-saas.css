@@ -2680,6 +2680,87 @@ html[data-bs-theme="dark"] .form-control:read-only {
     font-size: 0.85rem;
     box-shadow: 0 2px 10px rgba(202, 138, 4, 0.45);
     pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dash-user-modal__avatar.has-photo:hover .dash-user-modal__avatar-badge,
+.dash-user-modal__avatar.has-photo:focus-within .dash-user-modal__avatar-badge {
+    opacity: 0;
+    transform: scale(0.85);
+}
+
+.dash-user-modal__avatar-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.82) 100%);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.dash-user-modal__avatar.has-photo:hover .dash-user-modal__avatar-overlay,
+.dash-user-modal__avatar.has-photo:focus-within .dash-user-modal__avatar-overlay {
+    opacity: 1;
+}
+
+.dash-user-modal__avatar-act {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-width: 5.5rem;
+    padding: 0.35rem 0.65rem;
+    border: none;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dash-user-modal__avatar-act:hover:not(:disabled) {
+    transform: scale(1.04);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.dash-user-modal__avatar-act:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.dash-user-modal__avatar-act--swap {
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--primary, #CA8A04);
+}
+
+.dash-user-modal__avatar-act--remove {
+    background: rgba(239, 68, 68, 0.95);
+    color: #fff;
+}
+
+.dash-user-modal__avatar-spin {
+    animation: user-avatar-spin 0.8s linear infinite;
+}
+
+@media (hover: none) {
+    .dash-user-modal__avatar.has-photo .dash-user-modal__avatar-overlay {
+        opacity: 1;
+        background: linear-gradient(180deg, transparent 35%, rgba(15, 23, 42, 0.88) 100%);
+        justify-content: flex-end;
+        padding-bottom: 0.55rem;
+    }
+
+    .dash-user-modal__avatar.has-photo .dash-user-modal__avatar-badge {
+        opacity: 0;
+    }
 }
 
 .dash-user-modal__avatar-hint {

@@ -44,6 +44,31 @@ export const Route = createFileRoute("/api/admin/usuarios/$id/thumb")({
         }
       },
 
+      DELETE: async ({ request, params }) => {
+        if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
+        const session = getAdminSessionFromRequest(request);
+        if (!podeGerenciarUsuarios(session)) {
+          return jsonResponse({ ok: false, message: "Acesso apenas para administrador." }, 403);
+        }
+        const id = lerId(params.id);
+        if (!id) return jsonResponse({ ok: false, message: "ID inválido." }, 400);
+
+        try {
+          const usuario = await getUsuarioById(id);
+          if (!usuario) return jsonResponse({ ok: false, message: "Usuário não encontrado." }, 404);
+
+          const thumbAnterior = usuario.thumb ?? "nao.png";
+          if (thumbAnterior !== "nao.png") {
+            await removerThumbArquivo(thumbAnterior);
+            await setUsuarioThumb(id, "nao.png");
+          }
+
+          return jsonResponse({ ok: true, thumb: "nao.png", thumb_url: null });
+        } catch (err) {
+          return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
+        }
+      },
+
       POST: async ({ request, params }) => {
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);

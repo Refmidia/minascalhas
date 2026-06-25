@@ -14,6 +14,7 @@ import {
 import { UsuarioAvatarPicker } from "@/components/admin/UsuarioAvatarPicker";
 import { fetchFornecedoresSelect, type FornecedorSelect } from "@/lib/admin-api";
 import { dashConfirm } from "@/lib/dash-ui";
+import { usuarioTemFoto } from "@/lib/usuario-thumb";
 import {
   atualizarUsuario,
   criarUsuario,
@@ -22,6 +23,7 @@ import {
   fetchUsuario,
   fetchUsuarios,
   impersonarUsuario,
+  removerThumbUsuario,
   type UsuarioItem,
 } from "@/lib/usuarios-client";
 
@@ -532,6 +534,15 @@ export function UsuariosPage() {
                     thumb={editThumb}
                     file={editAvatar}
                     onFileChange={setEditAvatar}
+                    onRemovePhoto={
+                      editId && usuarioTemFoto(editThumb) && !editAvatar
+                        ? async () => {
+                            await removerThumbUsuario(editId);
+                            setEditThumb("nao.png");
+                            await load();
+                          }
+                        : undefined
+                    }
                   />
                   <section className="dash-edit-modal__panel">
                     <div className="row g-2">
@@ -740,6 +751,16 @@ function UsuarioCard({
               icon: "bi-camera",
               onClick: () => avatarRef.current?.openPicker(),
             },
+            ...(usuarioTemFoto(u.thumb) || u.thumb_url
+              ? [
+                  {
+                    label: "Remover foto",
+                    icon: "bi-trash3",
+                    className: "text-danger",
+                    onClick: () => avatarRef.current?.requestRemove(),
+                  },
+                ]
+              : []),
             {
               label: "Editar",
               icon: "bi-pencil-square",

@@ -1244,6 +1244,81 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--usuarios .
   font-size: 0.62rem;
   box-shadow: 0 2px 8px rgba(202, 138, 4, 0.35);
   pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.user-list-card__avatar-btn.has-photo:hover .user-list-card__avatar-camera,
+.user-list-card__avatar-btn.has-photo:focus-within .user-list-card__avatar-camera {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.user-list-card__avatar-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.82) 100%);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.user-list-card__avatar-btn.has-photo:hover .user-list-card__avatar-overlay,
+.user-list-card__avatar-btn.has-photo:focus-within .user-list-card__avatar-overlay {
+  opacity: 1;
+}
+
+.user-list-card__avatar-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.user-list-card__avatar-act:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+.user-list-card__avatar-act:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.user-list-card__avatar-act--swap {
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--primary, #CA8A04);
+}
+
+.user-list-card__avatar-act--remove {
+  background: rgba(239, 68, 68, 0.95);
+  color: #fff;
+}
+
+@media (hover: none) {
+  .user-list-card__avatar-btn.has-photo .user-list-card__avatar-overlay {
+    opacity: 1;
+    background: linear-gradient(180deg, transparent 45%, rgba(15, 23, 42, 0.88) 100%);
+    align-items: flex-end;
+    padding-bottom: 0.28rem;
+  }
+
+  .user-list-card__avatar-btn.has-photo .user-list-card__avatar-camera {
+    opacity: 0;
+  }
 }
 
 .user-list-card__avatar-spin {
