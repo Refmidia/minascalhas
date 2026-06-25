@@ -12,6 +12,8 @@ import {
   montarCardsSemana,
   montarDadosSemana,
   pagamentoInicioSemana,
+  pagamentoPeriodoAnterior,
+  pagamentoPeriodoProximo,
   pagamentoParseValor,
   buscarMapaEmpreitaDiasPorSemana,
   buscarMapaPagamentosSemanas,
@@ -24,13 +26,7 @@ import {
 } from "@/lib/funcionario-pagamento.server";
 import { jsonResponse } from "@/lib/http.server";
 
-const diasSchema = z.object({
-  seg: z.boolean(),
-  ter: z.boolean(),
-  qua: z.boolean(),
-  qui: z.boolean(),
-  sex: z.boolean(),
-});
+const diasSchema = z.record(z.string(), z.boolean());
 
 const postSchema = z.discriminatedUnion("action", [
   z.object({
@@ -57,22 +53,17 @@ const postSchema = z.discriminatedUnion("action", [
     action: z.literal("empreita_dia"),
     usuario_id: z.number().int().positive(),
     semana_inicio: z.string(),
-    dia_chave: z.enum(["seg", "ter", "qua", "qui", "sex"]),
+    dia_chave: z.string().regex(/^\d{4}-\d{2}-\d{2}$|^(seg|ter|qua|qui|sex)$/),
     valor: z.union([z.number(), z.string()]),
     observacao: z.string().optional(),
   }),
 ]);
 
 function semanaNav(semana: string) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(semana)!;
-  const base = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  const anterior = new Date(base);
-  anterior.setDate(anterior.getDate() - 7);
-  const proxima = new Date(base);
-  proxima.setDate(proxima.getDate() + 7);
+  const ini = pagamentoInicioSemana(semana);
   return {
-    semana_anterior: ymdLocal(anterior),
-    semana_proxima: ymdLocal(proxima),
+    semana_anterior: pagamentoPeriodoAnterior(ini),
+    semana_proxima: pagamentoPeriodoProximo(ini),
     hoje_semana: pagamentoInicioSemana(ymdLocal(new Date())),
   };
 }
@@ -157,7 +148,7 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
             listarFuncionarios(),
           ]);
 
-          const semanasMapa = gerarSemanasAnteriores(semana, 8);
+          const semanasMapa = gerarSemanasAnteriores(semana, 6);
           const idsMapa = cards.map((c) => c.usuario_id);
           const [mapaPagamentos, empreitaDiasMapa, resumoFuncionarios] = await Promise.all([
             buscarMapaPagamentosSemanas(semanasMapa),

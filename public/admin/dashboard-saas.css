@@ -8655,6 +8655,55 @@ html[data-bs-theme="light"] .dash-func-pag-card {
     border-radius: 999px;
 }
 
+.dash-func-pag-semana__meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.65rem;
+    height: 1.35rem;
+    padding: 0 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    border-radius: 999px;
+    line-height: 1;
+}
+
+.dash-func-pag-semana__meta.is-primeira {
+    color: #1d4ed8;
+    background: rgba(59, 130, 246, 0.14);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.dash-func-pag-semana__meta.is-segunda {
+    color: #7c3aed;
+    background: rgba(139, 92, 246, 0.14);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.dash-func-pag-semana__atual {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #047857;
+    background: rgba(16, 185, 129, 0.14);
+    border-radius: 999px;
+}
+
+.dash-func-pag-semana__progress {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #64748b;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 999px;
+}
+
 .dash-func-pag-semana__actions {
     display: flex;
     align-items: center;
@@ -8719,6 +8768,22 @@ html[data-bs-theme="light"] .dash-func-pag-card {
 
 html[data-bs-theme="dark"] .dash-func-pag-semana__periodo {
     color: #e2e8f0;
+}
+
+html[data-bs-theme="dark"] .dash-func-pag-semana__progress {
+    color: #94a3b8;
+    background: rgba(51, 65, 85, 0.45);
+}
+
+html[data-bs-theme="dark"] .dash-func-pag-dias__atalho {
+    color: #cbd5e1;
+    background: #1e293b;
+    border-color: #334155;
+}
+
+html[data-bs-theme="dark"] .dash-func-pag-dias__count {
+    color: #94a3b8;
+    background: rgba(51, 65, 85, 0.45);
 }
 
 html[data-bs-theme="dark"] .dash-func-pag-semana__toggle {
@@ -9051,8 +9116,8 @@ html[data-bs-theme="dark"] .dash-func-pag-mapa__cel.is-pago .dash-func-pag-mapa_
 }
 
 /* Modal pagamento funcionário — scroll + layout */
-.dash-func-pag-modal__dialog {
-    max-width: 720px;
+.dash-func-pag-modal .modal-lg {
+    max-width: 780px;
 }
 
 .dash-func-pag-modal__content {
@@ -9294,10 +9359,74 @@ html[data-bs-theme="dark"] .dash-func-pag-mapa__cel.is-pago .dash-func-pag-mapa_
     width: auto;
 }
 
+.dash-func-pag-dias__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.5rem;
+    margin-bottom: 0.45rem;
+}
+
+.dash-func-pag-dias__count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 999px;
+    padding: 0.12rem 0.5rem;
+}
+
+.dash-func-pag-dias__atalhos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.55rem;
+}
+
+.dash-func-pag-dias__atalho {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.28rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #475569;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dash-func-pag-dias__atalho:hover:not(:disabled) {
+    border-color: #CA8A04;
+    background: rgba(234, 179, 8, 0.08);
+    color: #854D0E;
+}
+
+.dash-func-pag-dias__atalho:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.dash-func-pag-dias__atalho--limpar:hover:not(:disabled) {
+    border-color: #fca5a5;
+    background: rgba(239, 68, 68, 0.06);
+    color: #b91c1c;
+}
+
 .dash-func-pag-dias__grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0.5rem;
+    gap: 0.45rem;
+}
+
+.dash-func-pag-dias__week-sep {
+    grid-column: 1 / -1;
+    height: 1px;
+    margin: 0.1rem 0;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.45), transparent);
 }
 
 @media (max-width: 520px) {
@@ -9324,9 +9453,9 @@ html[data-bs-theme="dark"] .dash-func-pag-mapa__cel.is-pago .dash-func-pag-mapa_
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.15rem;
-    min-height: 4.25rem;
-    padding: 0.55rem 0.35rem 0.5rem;
+    gap: 0.12rem;
+    min-height: 3.85rem;
+    padding: 0.45rem 0.3rem 0.4rem;
     margin: 0;
     text-align: center;
     cursor: pointer;

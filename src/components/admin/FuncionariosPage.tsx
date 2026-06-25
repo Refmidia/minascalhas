@@ -8,11 +8,14 @@ import { DashPageHero } from "@/components/admin/DashPageHero";
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import {
   formatMoeda,
+  pagamentoFormatarQuinzenaMapa,
   pagamentoFormatarSemana,
   pagamentoFormatarSemanaCompacta,
+  pagamentoNumeroQuinzena,
+  pagamentoTituloQuinzena,
   primeiroNome,
 } from "@/lib/funcionario-pagamento-display";
-import { pagamentoFimSemana, ymdLocal } from "@/lib/funcionario-pagamento-dates";
+import { pagamentoInicioSemana, pagamentoPeriodoAnterior, ymdLocal } from "@/lib/funcionario-pagamento-dates";
 import { dashConfirm } from "@/lib/dash-ui";
 import { Route as FuncionariosRoute } from "@/routes/painel/funcionarios";
 
@@ -44,12 +47,6 @@ type HistoricoRow = {
   observacao: string;
 };
 
-function formatDm(ymd: string) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
-  if (!m) return ymd;
-  return `${m[3]}/${m[2]}`;
-}
-
 function calMinMax() {
   const min = new Date();
   min.setMonth(min.getMonth() - 24);
@@ -73,15 +70,14 @@ function defaultDe() {
   return ymdLocal(d);
 }
 
-function chipsSemanas(hojeSemana: string) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(hojeSemana);
-  if (!m) return [];
-  const base = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  return Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(base);
-    d.setDate(d.getDate() - i * 7);
-    return ymdLocal(d);
-  });
+function chipsQuinzenas(quinzenaAtual: string) {
+  let cur = pagamentoInicioSemana(quinzenaAtual);
+  const out: string[] = [];
+  for (let i = 0; i < 6; i++) {
+    out.push(cur);
+    cur = pagamentoPeriodoAnterior(cur);
+  }
+  return out;
 }
 
 function contarDiasMapa(
@@ -89,6 +85,15 @@ function contarDiasMapa(
   empDias: number,
 ): number {
   if (!pag) return 0;
+  if (pag.dias_json) {
+    try {
+      const parsed = JSON.parse(String(pag.dias_json)) as Record<string, unknown>;
+      const diaria = Object.values(parsed).filter(Boolean).length;
+      return diaria + empDias;
+    } catch {
+      /* legado abaixo */
+    }
+  }
   const keys = ["seg", "ter", "qua", "qui", "sex"] as const;
   const diaria = keys.filter((k) => Number(pag[`dias_${k}`]) === 1).length;
   return diaria + empDias;
@@ -99,7 +104,7 @@ export function FuncionariosPage() {
   const search = FuncionariosRoute.useSearch();
   const { user } = useAdminAuth();
   const isAdminVisao = user?.visao === "admin";
-  const semana = search.semana ?? ymdLocal(new Date());
+  const semana = search.semana ?? pagamentoInicioSemana(ymdLocal(new Date()));
   const de = search.de ?? defaultDe();
   const ate = search.ate ?? ymdLocal(new Date());
   const usuarioFiltro = search.usuario ?? 0;
@@ -193,7 +198,11 @@ export function FuncionariosPage() {
   }, []);
 
   const semanaLabel = pagamentoFormatarSemana(semana);
-  const chipList = useMemo(() => chipsSemanas(semanaNav.hoje || semana), [semanaNav.hoje, semana]);
+  const tituloQuinzena = pagamentoTituloQuinzena(semana);
+  const numQuinzena = pagamentoNumeroQuinzena(semana);
+  const isQuinzenaAtual = semana === semanaNav.hoje;
+  const fechados = cards.filter((c) => c.pago).length;
+  const chipList = useMemo(() => chipsQuinzenas(semanaNav.hoje || semana), [semanaNav.hoje, semana]);
 
   function abrirModal(uid: number) {
     if (!isAdminVisao) return;
@@ -213,8 +222,8 @@ export function FuncionariosPage() {
         title={isAdminVisao ? "Pagamentos — Funcionários" : "Meus pagamentos"}
         subtitle={
           isAdminVisao
-            ? "Clique no funcionário para lançar o pagamento da semana"
-            : "Acompanhe os pagamentos fechados (semanas anteriores) e o status da semana atual."
+            ? "Clique no funcionário para lançar o pagamento da quinzena"
+            : "Acompanhe os pagamentos fechados (quinzenas anteriores) e o status da quinzena atual."
         }
         iconClass="bi-wallet2"
         accent="funcionarios-pag"
@@ -232,8 +241,26 @@ export function FuncionariosPage() {
               <div className="dash-func-pag-semana inv-list-toolbar mb-3">
                 <div className="dash-func-pag-semana__row">
                   <div className="dash-func-pag-semana__info">
-                    <span className="dash-func-pag-semana__label">Semana</span>
-                    <strong className="dash-func-pag-semana__periodo">{semanaLabel}</strong>
+                    <span className="dash-func-pag-semana__label">Quinzena</span>
+                    {numQuinzena ? (
+                      <span
+                        className={`dash-func-pag-semana__meta${numQuinzena === 1 ? " is-primeira" : " is-segunda"}`}
+                        title={tituloQuinzena}
+                      >
+                        {numQuinzena}ª
+                      </span>
+                    ) : null}
+                    <strong className="dash-func-pag-semana__periodo" title={tituloQuinzena}>
+                      {semanaLabel}
+                    </strong>
+                    {isQuinzenaAtual ? (
+                      <span className="dash-func-pag-semana__atual">Atual</span>
+                    ) : null}
+                    {isAdminVisao && cards.length > 0 ? (
+                      <span className="dash-func-pag-semana__progress">
+                        {fechados}/{cards.length} fechado{fechados === 1 ? "" : "s"}
+                      </span>
+                    ) : null}
                     {pendentes > 0 ? (
                       <span className="dash-func-pag-semana__pendente">
                         {pendentes} pendente{pendentes > 1 ? "s" : ""}
@@ -294,7 +321,7 @@ export function FuncionariosPage() {
                       }}
                     >
                       <label className="dash-func-pag-cal__label" htmlFor="input-semana-data">
-                        <i className="bi bi-calendar3" aria-hidden="true" /> Ir para semana
+                        <i className="bi bi-calendar3" aria-hidden="true" /> Ir para quinzena
                       </label>
                       <input
                         type="date"
@@ -304,7 +331,7 @@ export function FuncionariosPage() {
                         defaultValue={semana}
                         min={calMin}
                         max={calMax}
-                        title="Escolha qualquer dia — usamos a segunda-feira dessa semana"
+                        title="Escolha qualquer dia — usamos a quinzena (1–15 ou 16–fim) desse mês"
                       />
                     </form>
                     <div className="dash-func-pag-chips">
@@ -312,8 +339,8 @@ export function FuncionariosPage() {
                         const ativa = chipSem === semana;
                         const chipLabel =
                           chipSem === semanaNav.hoje
-                            ? "Esta semana"
-                            : `${formatDm(chipSem)}–${formatDm(pagamentoFimSemana(chipSem))}`;
+                            ? "Esta quinzena"
+                            : pagamentoFormatarQuinzenaMapa(chipSem);
                         return (
                           <Link
                             key={chipSem}
@@ -328,7 +355,7 @@ export function FuncionariosPage() {
                     </div>
                     <p className="dash-func-pag-semana__hint">
                       <i className="bi bi-info-circle" aria-hidden="true" /> Use o calendário ou os atalhos para
-                      pagar <strong>semanas passadas</strong> em aberto.
+                      pagar <strong>quinzenas passadas</strong> em aberto.
                     </p>
                   </div>
                 ) : null}
@@ -337,7 +364,7 @@ export function FuncionariosPage() {
               <section className="dash-edit-modal__panel mb-3">
                 <h2 className="dash-edit-modal__panel-title">
                   <i className="bi bi-people-fill" aria-hidden="true" />{" "}
-                  {isAdminVisao ? "Funcionários — pagamento semanal" : "Semana atual"}
+                  {isAdminVisao ? "Funcionários — pagamento quinzenal" : "Quinzena atual"}
                 </h2>
                 {isAdminVisao ? (
                   <p className="small text-secondary mb-3">
@@ -421,7 +448,7 @@ export function FuncionariosPage() {
                               ) : (
                                 <>
                                   <i className="bi bi-lock-fill" aria-hidden="true" />{" "}
-                                  {isAdminVisao ? "Fechar semana" : "Em aberto"}
+                                  {isAdminVisao ? "Fechar quinzena" : "Em aberto"}
                                 </>
                               )}
                             </span>
@@ -439,8 +466,8 @@ export function FuncionariosPage() {
                   <i className="bi bi-grid-3x3-gap-fill" aria-hidden="true" /> Painel de controle — o que já foi pago
                 </h2>
                 <p className="small text-secondary mb-3">
-                  Visão das últimas <strong>8 semanas</strong> (a coluna destacada é a semana selecionada acima).
-                  Verde = semana fechada · cinza = ainda não pagou · clique na célula para abrir ou lançar.
+                  Visão das últimas <strong>6 quinzenas</strong> (a coluna destacada é a quinzena selecionada acima).
+                  Verde = quinzena fechada · cinza = ainda não pagou · clique na célula para abrir ou lançar.
                 </p>
                 {cards.length === 0 ? (
                   <p className="text-secondary mb-0">Cadastre funcionários para ver o mapa.</p>
@@ -455,7 +482,7 @@ export function FuncionariosPage() {
                       </div>
                       <div className="col-6 col-md-3">
                         <div className="dash-func-pag-controle__stat">
-                          <span className="dash-func-pag-controle__stat-label">Semanas no histórico</span>
+                          <span className="dash-func-pag-controle__stat-label">Quinzenas no histórico</span>
                           <strong>{historico.length}</strong>
                         </div>
                       </div>
@@ -467,7 +494,7 @@ export function FuncionariosPage() {
                       </div>
                       <div className="col-6 col-md-3">
                         <div className="dash-func-pag-controle__stat dash-func-pag-controle__stat--alert">
-                          <span className="dash-func-pag-controle__stat-label">Pendentes esta semana</span>
+                          <span className="dash-func-pag-controle__stat-label">Pendentes nesta quinzena</span>
                           <strong>{pendentes}</strong>
                         </div>
                       </div>
@@ -487,7 +514,7 @@ export function FuncionariosPage() {
                                   title={pagamentoFormatarSemana(semCol)}
                                 >
                                   <span className="dash-func-pag-mapa__sem-compact">
-                                    {pagamentoFormatarSemanaCompacta(semCol)}
+                                    {pagamentoFormatarQuinzenaMapa(semCol)}
                                   </span>
                                 </th>
                               );
@@ -584,7 +611,7 @@ export function FuncionariosPage() {
                                 <div className="dash-func-pag-resumo-card__nome">{res.nome}</div>
                                 <div className="dash-func-pag-resumo-card__grid">
                                   <div>
-                                    <span>Semanas pagas</span>
+                                    <span>Quinzenas pagas</span>
                                     <strong>{res.qtd_semanas}</strong>
                                   </div>
                                   <div>
@@ -683,7 +710,7 @@ export function FuncionariosPage() {
                     <thead>
                       <tr>
                         <th>Funcionário</th>
-                        <th>Semana</th>
+                        <th>Quinzena</th>
                         <th>Dias pagos</th>
                         <th className="text-end">Qtd</th>
                         <th className="text-end">Bruto</th>

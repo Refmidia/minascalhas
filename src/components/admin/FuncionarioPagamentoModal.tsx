@@ -17,6 +17,19 @@ type Props = {
   onSaved: () => void;
 };
 
+function semanaDaData(ymd: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
+  if (!m) return ymd;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const dow = d.getDay();
+  const diff = dow === 0 ? 6 : dow - 1;
+  d.setDate(d.getDate() - diff);
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${mo}-${day}`;
+}
+
 function recalcLocal(d: PagamentoModalData, valorPagoManual: boolean): PagamentoModalData {
   const diasDiaria = d.dias.filter((x) => x.tipo === "diaria" && x.marcado).length;
   const empDias = d.dias.filter((x) => x.tipo === "empreita").length;
@@ -111,6 +124,34 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
     setDados(recalcLocal({ ...dados, dias }, valorPagoManual));
   }
 
+  function marcarSugeridos() {
+    if (!dados) return;
+    const dias = dados.dias.map((d) =>
+      d.tipo === "nenhum" && d.sugerido ? { ...d, tipo: "diaria" as const, marcado: true } : d,
+    );
+    setDados(recalcLocal({ ...dados, dias }, valorPagoManual));
+  }
+
+  function marcarTodosDiaria() {
+    if (!dados) return;
+    const dias = dados.dias.map((d) =>
+      d.tipo !== "empreita" ? { ...d, tipo: "diaria" as const, marcado: true } : d,
+    );
+    setDados(recalcLocal({ ...dados, dias }, valorPagoManual));
+  }
+
+  function limparDiarias() {
+    if (!dados) return;
+    const dias = dados.dias.map((d) =>
+      d.tipo === "diaria" ? { ...d, tipo: "nenhum" as const, marcado: false } : d,
+    );
+    setDados(recalcLocal({ ...dados, dias }, valorPagoManual));
+  }
+
+  const diasMarcadosDiaria = dados?.dias.filter((d) => d.tipo === "diaria" && d.marcado).length ?? 0;
+  const diasSugeridos = dados?.dias.filter((d) => d.tipo === "nenhum" && d.sugerido).length ?? 0;
+  const totalDiasUteis = dados?.dias.length ?? 0;
+
   async function registrarVale() {
     if (!dados) return;
     const valor = parseValorInput(valeValor);
@@ -174,13 +215,10 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
     if (!dados) return;
     setSaving(true);
     try {
-      const dias: Record<DiaChave, boolean> = {
-        seg: dados.dias.find((d) => d.chave === "seg")?.marcado ?? false,
-        ter: dados.dias.find((d) => d.chave === "ter")?.marcado ?? false,
-        qua: dados.dias.find((d) => d.chave === "qua")?.marcado ?? false,
-        qui: dados.dias.find((d) => d.chave === "qui")?.marcado ?? false,
-        sex: dados.dias.find((d) => d.chave === "sex")?.marcado ?? false,
-      };
+      const dias: Record<string, boolean> = {};
+      for (const d of dados.dias) {
+        if (d.tipo === "diaria" && d.marcado) dias[d.chave] = true;
+      }
       const res = await fetch("/api/admin/funcionarios-pagamento", {
         method: "POST",
         credentials: "include",
@@ -225,7 +263,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
                   <span className="dash-func-pag-modal__badge">{dados.semana_label}</span>
                   <h4 className="modal-title dash-edit-modal__title mb-0">{dados.nome}</h4>
                 </div>
-                <p className="dash-edit-modal__subtitle mb-0">Pagamento semanal</p>
+                <p className="dash-edit-modal__subtitle mb-0">Pagamento quinzenal</p>
               </div>
             </div>
             <button type="button" className="btn-close" aria-label="Fechar" onClick={onClose} />
@@ -263,7 +301,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
               <div className="dash-func-pag-modal__grid">
                 <section className="dash-edit-modal__panel dash-func-pag-modal__panel">
                   <h6 className="dash-edit-modal__panel-title">
-                    <i className="bi bi-calendar-week" aria-hidden="true" /> Semana
+                    <i className="bi bi-calendar3" aria-hidden="true" /> Quinzena
                   </h6>
                   <div className="dash-func-pag-modal__diaria">
                     <label className="dash-edit-modal__label" htmlFor="modal-pag-valor-diario">
@@ -287,7 +325,40 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
                   </div>
 
                   <fieldset className="dash-func-pag-dias">
-                    <legend className="dash-edit-modal__label">Dias trabalhados</legend>
+                    <div className="dash-func-pag-dias__head">
+                      <legend className="dash-edit-modal__label mb-0">Dias trabalhados</legend>
+                      <span className="dash-func-pag-dias__count">
+                        {diasMarcadosDiaria + (dados.dias.filter((d) => d.tipo === "empreita").length)} de{" "}
+                        {totalDiasUteis} úteis
+                      </span>
+                    </div>
+                    <div className="dash-func-pag-dias__atalhos" role="toolbar" aria-label="Atalhos de marcação">
+                      <button
+                        type="button"
+                        className="dash-func-pag-dias__atalho"
+                        disabled={saving || diasSugeridos === 0}
+                        onClick={marcarSugeridos}
+                        title="Marca os dias sugeridos pelo bate-ponto"
+                      >
+                        <i className="bi bi-lightning-charge" aria-hidden="true" /> Ponto ({diasSugeridos})
+                      </button>
+                      <button
+                        type="button"
+                        className="dash-func-pag-dias__atalho"
+                        disabled={saving}
+                        onClick={marcarTodosDiaria}
+                      >
+                        <i className="bi bi-check-all" aria-hidden="true" /> Todos
+                      </button>
+                      <button
+                        type="button"
+                        className="dash-func-pag-dias__atalho dash-func-pag-dias__atalho--limpar"
+                        disabled={saving || diasMarcadosDiaria === 0}
+                        onClick={limparDiarias}
+                      >
+                        <i className="bi bi-x-lg" aria-hidden="true" /> Limpar
+                      </button>
+                    </div>
                     <div className="dash-func-pag-modo" role="group" aria-label="Modo de marcação">
                       <button
                         type="button"
@@ -328,36 +399,52 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
                     ) : null}
 
                     <div className="dash-func-pag-dias__grid">
-                      {dados.dias.map((dia) => {
-                        const labelParts = dia.label.trim().split(/\s+/);
-                        const weekday = labelParts[0] ?? dia.chave;
-                        const datePart = labelParts.slice(1).join(" ");
-                        const cls = [
-                          "dash-func-pag-dias__item",
-                          dia.tipo === "empreita" ? " is-empreita" : "",
-                          dia.marcado ? " is-checked" : "",
-                          dia.sugerido ? " is-sugerido" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ");
-                        return (
-                          <button
-                            key={dia.chave}
-                            type="button"
-                            className={cls}
-                            disabled={saving}
-                            onClick={() => void onDiaClick(dia)}
-                          >
-                            <span className="dash-func-pag-dias__check" aria-hidden="true">
-                              <i className="bi bi-check-lg" />
-                            </span>
-                            <span className="dash-func-pag-dias__weekday">{weekday}</span>
-                            {datePart ? (
-                              <span className="dash-func-pag-dias__date">{datePart}</span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
+                      {(() => {
+                        const nodes: React.ReactNode[] = [];
+                        let lastWeek = "";
+                        for (const dia of dados.dias) {
+                          const week = semanaDaData(dia.chave);
+                          if (lastWeek && week !== lastWeek) {
+                            nodes.push(
+                              <div
+                                key={`sep-${week}`}
+                                className="dash-func-pag-dias__week-sep"
+                                aria-hidden="true"
+                              />,
+                            );
+                          }
+                          lastWeek = week;
+                          const labelParts = dia.label.trim().split(/\s+/);
+                          const weekday = labelParts[0] ?? dia.chave;
+                          const datePart = labelParts.slice(1).join(" ");
+                          const cls = [
+                            "dash-func-pag-dias__item",
+                            dia.tipo === "empreita" ? " is-empreita" : "",
+                            dia.marcado ? " is-checked" : "",
+                            dia.sugerido ? " is-sugerido" : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ");
+                          nodes.push(
+                            <button
+                              key={dia.chave}
+                              type="button"
+                              className={cls}
+                              disabled={saving}
+                              onClick={() => void onDiaClick(dia)}
+                            >
+                              <span className="dash-func-pag-dias__check" aria-hidden="true">
+                                <i className="bi bi-check-lg" />
+                              </span>
+                              <span className="dash-func-pag-dias__weekday">{weekday}</span>
+                              {datePart ? (
+                                <span className="dash-func-pag-dias__date">{datePart}</span>
+                              ) : null}
+                            </button>,
+                          );
+                        }
+                        return nodes;
+                      })()}
                     </div>
                     <p className="dash-func-pag-modal__hint dash-func-pag-dias__legend">
                       Verde = diária · Roxo = empreita · Clique no dia conforme o modo selecionado.
@@ -385,7 +472,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
                       <tbody>
                         {dados.vales.length === 0 ? (
                           <tr className="dash-func-pag-vales__empty">
-                            <td colSpan={4}>Nenhum vale nesta semana.</td>
+                            <td colSpan={4}>Nenhum vale nesta quinzena.</td>
                           </tr>
                         ) : (
                           dados.vales.map((v) => (
@@ -503,7 +590,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
               </button>
               <button type="submit" className="btn dash-edit-modal__btn-save visitas-orc-add-btn" disabled={saving}>
                 <i className="bi bi-check-lg" aria-hidden="true" />{" "}
-                {saving ? "Salvando…" : dados.pago ? "Salvar pagamento" : "Fechar semana"}
+                {saving ? "Salvando…" : dados.pago ? "Salvar pagamento" : "Fechar quinzena"}
               </button>
             </div>
           </form>
