@@ -705,6 +705,7 @@ function UsuarioCard({
           usuarioId={u.id}
           nome={u.nome}
           thumb={u.thumb}
+          thumbUrl={u.thumb_url}
           onUpdated={onReload}
           onError={onErro}
         />

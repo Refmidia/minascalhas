@@ -56,9 +56,39 @@ async function clearUsuarioThumbData(id: number): Promise<void> {
   const prisma = await getPrisma();
   await ensureThumbDataColumns(prisma);
   await prisma.$executeRawUnsafe(
-    `UPDATE usuarios SET thumb_mime = NULL, thumb_data = NULL WHERE id = ?`,
-    id,
+    `UPDATE usuarios SET thumb_mime = NULL, thumb_data = NULL WHERE id = ${int(id)}`,
   );
+}
+
+/** data:image/...;base64,... — funciona direto no <img>, sem segunda requisição. */
+export async function thumbDataUrlDoUsuario(id: number): Promise<string | null> {
+  const prisma = await getPrisma();
+  await ensureThumbDataColumns(prisma);
+  const rows = await prisma.$queryRawUnsafe<{ thumb_mime: string | null; thumb_data: string | null }[]>(
+    `SELECT thumb_mime, thumb_data FROM usuarios WHERE id = ${int(id)} LIMIT 1`,
+  );
+  const row = rows[0];
+  if (!row?.thumb_data || !row.thumb_mime) return null;
+  return `data:${row.thumb_mime};base64,${row.thumb_data}`;
+}
+
+export async function resolverThumbUrlExibicao(thumb: string): Promise<string | null> {
+  if (!thumb || thumb === "nao.png") return null;
+  const dbId = dbThumbUserId(thumb);
+  if (dbId) return thumbDataUrlDoUsuario(dbId);
+  return thumbPublicUrl(thumb);
+}
+
+/** Corrige thumb=db:ID sem imagem no banco (estado quebrado de upload antigo). */
+export async function repararThumbOrfao(usuarioId: number, thumb: string): Promise<string> {
+  const dbId = dbThumbUserId(thumb);
+  if (!dbId || dbId !== usuarioId) return thumb;
+  const dataUrl = await thumbDataUrlDoUsuario(usuarioId);
+  if (dataUrl) return thumb;
+  const prisma = await getPrisma();
+  await prisma.$executeRawUnsafe(`UPDATE usuarios SET thumb = 'nao.png' WHERE id = ${int(usuarioId)}`);
+  await clearUsuarioThumbData(usuarioId);
+  return "nao.png";
 }
 
 export async function getUsuarioThumbData(

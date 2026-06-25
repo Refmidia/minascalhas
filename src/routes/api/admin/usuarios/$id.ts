@@ -5,7 +5,7 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarUsuarios } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import { hashPasswordPhp } from "@/lib/password.server";
-import { thumbPublicUrl } from "@/lib/usuario-thumb.server";
+import { repararThumbOrfao, resolverThumbUrlExibicao } from "@/lib/usuario-thumb.server";
 import { getUsuarioById, updateUsuario, deleteUsuario } from "@/lib/usuarios.server";
 
 const NIVEIS = ["admin", "funcionário", "funcionario", "fornecedor"] as const;
@@ -41,11 +41,13 @@ export const Route = createFileRoute("/api/admin/usuarios/$id")({
         try {
           const item = await getUsuarioById(id);
           if (!item) return jsonResponse({ ok: false, message: "Usuário não encontrado." }, 404);
+          const thumb = await repararThumbOrfao(item.id, item.thumb);
           return jsonResponse({
             ok: true,
             item: {
               ...item,
-              thumb_url: item.thumb !== "nao.png" ? thumbPublicUrl(item.thumb) : null,
+              thumb,
+              thumb_url: thumb !== "nao.png" ? await resolverThumbUrlExibicao(thumb) : null,
             },
           });
         } catch (err) {
@@ -91,14 +93,15 @@ export const Route = createFileRoute("/api/admin/usuarios/$id")({
           });
 
           const item = await getUsuarioById(id);
+          if (!item) return jsonResponse({ ok: true, item: null });
+          const thumb = await repararThumbOrfao(item.id, item.thumb);
           return jsonResponse({
             ok: true,
-            item: item
-              ? {
-                  ...item,
-                  thumb_url: item.thumb !== "nao.png" ? thumbPublicUrl(item.thumb) : null,
-                }
-              : null,
+            item: {
+              ...item,
+              thumb,
+              thumb_url: thumb !== "nao.png" ? await resolverThumbUrlExibicao(thumb) : null,
+            },
           });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);

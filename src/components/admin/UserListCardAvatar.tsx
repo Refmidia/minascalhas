@@ -21,26 +21,28 @@ type Props = {
   usuarioId: number;
   nome: string;
   thumb?: string;
+  thumbUrl?: string | null;
   onUpdated: () => void | Promise<void>;
   onError: (message: string) => void;
 };
 
 export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(function UserListCardAvatar(
-  { usuarioId, nome, thumb = "", onUpdated, onError },
+  { usuarioId, nome, thumb = "", thumbUrl = null, onUpdated, onError },
   ref,
 ) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadedThumbUrl, setUploadedThumbUrl] = useState<string | null>(null);
   const [cacheBust, setCacheBust] = useState(0);
   const [imgOk, setImgOk] = useState(true);
 
   const local = useMemo(
-    () => usuarioThumbLocalUrl(thumb, cacheBust || undefined),
-    [thumb, cacheBust],
+    () => (thumbUrl ? null : usuarioThumbLocalUrl(thumb, cacheBust || undefined)),
+    [thumb, thumbUrl, cacheBust],
   );
-  const remote = useMemo(() => usuarioThumbRemoteUrl(thumb), [thumb]);
-  const displayUrl = previewUrl ?? local ?? remote;
+  const remote = useMemo(() => (thumbUrl ? null : usuarioThumbRemoteUrl(thumb)), [thumb, thumbUrl]);
+  const displayUrl = previewUrl ?? thumbUrl ?? uploadedThumbUrl ?? local ?? remote;
   const showPhoto = Boolean(displayUrl) && imgOk;
   const ini = iniciais(nome);
 
@@ -53,6 +55,10 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
   useEffect(() => {
     setImgOk(true);
   }, [displayUrl]);
+
+  useEffect(() => {
+    setUploadedThumbUrl(null);
+  }, [thumbUrl, thumb]);
 
   useEffect(() => {
     return () => {
@@ -69,11 +75,14 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
     });
     setUploading(true);
     try {
-      await enviarThumbUsuario(usuarioId, file);
+      const saved = await enviarThumbUsuario(usuarioId, file);
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
       });
+      if (saved.thumb_url) {
+        setUploadedThumbUrl(saved.thumb_url);
+      }
       setCacheBust(Date.now());
       setImgOk(true);
       await onUpdated();

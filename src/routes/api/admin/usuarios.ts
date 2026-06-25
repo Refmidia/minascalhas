@@ -5,6 +5,7 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarUsuarios } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import { hashPasswordPhp } from "@/lib/password.server";
+import { repararThumbOrfao, resolverThumbUrlExibicao } from "@/lib/usuario-thumb.server";
 import { createUsuario, listUsuarios, usuarioLoginExists } from "@/lib/usuarios.server";
 
 const NIVEIS = ["admin", "funcionário", "funcionario", "fornecedor"] as const;
@@ -27,7 +28,17 @@ export const Route = createFileRoute("/api/admin/usuarios")({
           return jsonResponse({ ok: false, message: "Acesso apenas para administrador." }, 403);
         }
         try {
-          const itens = await listUsuarios();
+          const rows = await listUsuarios();
+          const itens = await Promise.all(
+            rows.map(async (u) => {
+              const thumb = await repararThumbOrfao(u.id, u.thumb);
+              return {
+                ...u,
+                thumb,
+                thumb_url: thumb !== "nao.png" ? await resolverThumbUrlExibicao(thumb) : null,
+              };
+            }),
+          );
           return jsonResponse({ ok: true, itens });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);

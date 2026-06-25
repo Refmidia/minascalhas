@@ -6,6 +6,7 @@ import { jsonResponse } from "@/lib/http.server";
 import {
   getUsuarioThumbData,
   removerThumbArquivo,
+  resolverThumbUrlExibicao,
   salvarThumbUpload,
   thumbPublicUrl,
 } from "@/lib/usuario-thumb.server";
@@ -82,10 +83,12 @@ export const Route = createFileRoute("/api/admin/usuarios/$id/thumb")({
             await removerThumbArquivo(thumbAnterior);
           }
 
+          const thumb_url = (await resolverThumbUrlExibicao(saved.arquivo)) ?? thumbPublicUrl(saved.arquivo);
+
           return jsonResponse({
             ok: true,
             thumb: saved.arquivo,
-            thumb_url: thumbPublicUrl(saved.arquivo),
+            thumb_url,
           });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
