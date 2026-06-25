@@ -10,9 +10,10 @@ import {
   resolveBlobStoredUrl,
 } from "@/lib/usuario-thumb-url";
 import {
+  extensaoFromNomeArquivo,
   extensaoSegura,
   FOTOS_MAX_BYTES,
-  FOTOS_TIPOS,
+  resolverMimeImagem,
 } from "@/lib/produtos-upload.server";
 import {
   canPersistUploadsOnDisk,
@@ -103,18 +104,19 @@ export async function salvarThumbUpload(
   userId: number,
   file: File,
 ): Promise<{ arquivo: string } | { erro: string }> {
-  if (!FOTOS_TIPOS.has(file.type)) {
-    return { erro: "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF." };
+  const mime = resolverMimeImagem(file);
+  if (!mime) {
+    return {
+      erro: "Tipo de arquivo não permitido. Use JPG, JPEG, PNG, WebP, GIF ou outra imagem comum.",
+    };
   }
   if (file.size > FOTOS_MAX_BYTES) {
     return { erro: "Arquivo maior que 8 MB." };
   }
-  const ext = extensaoSegura(file.type);
-  if (!ext) return { erro: "Extensão inválida." };
+  const ext = extensaoSegura(mime) ?? extensaoFromNomeArquivo(file.name) ?? "jpg";
 
   const buf = Buffer.from(await file.arrayBuffer());
   const base64 = buf.toString("base64");
-  const mime = file.type || "image/jpeg";
 
   try {
     await setUsuarioThumbData(userId, mime, base64);
@@ -129,14 +131,16 @@ export async function salvarThumbUpload(
 export async function salvarThumbUploadDisco(
   file: File,
 ): Promise<{ arquivo: string } | { erro: string }> {
-  if (!FOTOS_TIPOS.has(file.type)) {
-    return { erro: "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF." };
+  const mime = resolverMimeImagem(file);
+  if (!mime) {
+    return {
+      erro: "Tipo de arquivo não permitido. Use JPG, JPEG, PNG, WebP, GIF ou outra imagem comum.",
+    };
   }
   if (file.size > FOTOS_MAX_BYTES) {
     return { erro: "Arquivo maior que 8 MB." };
   }
-  const ext = extensaoSegura(file.type);
-  if (!ext) return { erro: "Extensão inválida." };
+  const ext = extensaoSegura(mime) ?? extensaoFromNomeArquivo(file.name) ?? "jpg";
   if (!canPersistUploadsOnDisk("USER_THUMB_DIR")) {
     return { erro: "Upload em disco indisponível neste ambiente." };
   }

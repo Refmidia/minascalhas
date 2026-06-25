@@ -40,7 +40,7 @@ export function UsuarioAvatarPicker({
         id={inputId}
         type="file"
         className="visually-hidden"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/*,.jpg,.jpeg,.jpe,.jfif,.png,.webp,.gif,.bmp,.avif,.heic,.heif"
         onChange={(e) => {
           const picked = e.target.files?.[0] ?? null;
           onFileChange(picked);

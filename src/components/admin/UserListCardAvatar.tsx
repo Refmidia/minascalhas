@@ -80,7 +80,7 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
         ref={inputRef}
         type="file"
         className="visually-hidden"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/*,.jpg,.jpeg,.jpe,.jfif,.png,.webp,.gif,.bmp,.avif,.heic,.heif"
         disabled={uploading}
         onChange={(e) => {
           const picked = e.target.files?.[0] ?? null;
