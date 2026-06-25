@@ -23,6 +23,7 @@ type Card = {
   usuario_id: number;
   nome: string;
   thumb: string;
+  thumb_url?: string | null;
   dias_trabalhados: number;
   semana_inicio: string;
   valor_diario: number;
@@ -388,9 +389,13 @@ export function FuncionariosPage() {
                           disabled={!isAdminVisao}
                         >
                           <span className="dash-func-pag-card__head">
-                            <span className="dash-func-pag-card__avatar" aria-hidden="true">
-                              {card.nome.charAt(0).toUpperCase()}
-                            </span>
+                            <UserThumb
+                              nome={card.nome}
+                              thumb={card.thumb}
+                              thumbUrl={card.thumb_url}
+                              size="md"
+                              className="dash-func-pag-card__avatar"
+                            />
                             <span className="dash-func-pag-card__id">
                               <span className="dash-func-pag-card__nome">{card.nome}</span>
                               <span className="dash-func-pag-card__dias">
@@ -538,6 +543,7 @@ export function FuncionariosPage() {
                                     <UserThumb
                                       nome={cardMap.nome}
                                       thumb={cardMap.thumb}
+                                      thumbUrl={cardMap.thumb_url}
                                       size="sm"
                                       className="dash-func-pag-mapa__avatar"
                                     />

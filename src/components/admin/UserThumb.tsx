@@ -15,6 +15,7 @@ function iniciais(nome: string): string {
 type UserThumbProps = {
   nome: string;
   thumb?: string;
+  thumbUrl?: string | null;
   size?: "sm" | "md";
   className?: string;
   listCard?: boolean;
@@ -23,17 +24,24 @@ type UserThumbProps = {
 export function UserThumb({
   nome,
   thumb = "",
+  thumbUrl = null,
   size = "md",
   className = "",
   listCard = false,
 }: UserThumbProps) {
-  const local = useMemo(() => usuarioThumbLocalUrl(thumb), [thumb]);
-  const remote = useMemo(() => usuarioThumbRemoteUrl(thumb), [thumb]);
-  const [src, setSrc] = useState<string | null>(() => local ?? remote);
+  const local = useMemo(
+    () => (thumbUrl ? null : usuarioThumbLocalUrl(thumb)),
+    [thumb, thumbUrl],
+  );
+  const remote = useMemo(
+    () => (thumbUrl ? null : usuarioThumbRemoteUrl(thumb)),
+    [thumb, thumbUrl],
+  );
+  const [src, setSrc] = useState<string | null>(() => thumbUrl ?? local ?? remote);
 
   useEffect(() => {
-    setSrc(local ?? remote);
-  }, [local, remote]);
+    setSrc(thumbUrl ?? local ?? remote);
+  }, [thumbUrl, local, remote]);
 
   const ini = iniciais(nome);
 
@@ -49,6 +57,10 @@ export function UserThumb({
           alt=""
           className={imgCls}
           onError={() => {
+            if (thumbUrl) {
+              setSrc(local ?? remote);
+              return;
+            }
             if (src === local && remote) setSrc(remote);
             else setSrc(null);
           }}

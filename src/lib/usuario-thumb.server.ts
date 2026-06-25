@@ -91,6 +91,29 @@ export async function repararThumbOrfao(usuarioId: number, thumb: string): Promi
   return "nao.png";
 }
 
+export type ThumbEnriquecido = { thumb: string; thumb_url: string | null };
+
+export async function enriquecerThumbUsuario(
+  usuarioId: number,
+  thumb: string,
+): Promise<ThumbEnriquecido> {
+  const repaired = await repararThumbOrfao(usuarioId, thumb?.trim() || "nao.png");
+  return {
+    thumb: repaired,
+    thumb_url: repaired !== "nao.png" ? await resolverThumbUrlExibicao(repaired) : null,
+  };
+}
+
+export async function mapaThumbsEnriquecidos(
+  items: Array<{ id: number; thumb: string }>,
+): Promise<Map<number, ThumbEnriquecido>> {
+  const uniq = [...new Map(items.map((item) => [item.id, item])).values()];
+  const entries = await Promise.all(
+    uniq.map(async (item) => [item.id, await enriquecerThumbUsuario(item.id, item.thumb)] as const),
+  );
+  return new Map(entries);
+}
+
 export async function getUsuarioThumbData(
   id: number,
 ): Promise<{ mime: string; data: Buffer } | null> {

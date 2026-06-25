@@ -19,6 +19,7 @@ type PontoJornada = {
   usuario_id: number;
   usuario_nome: string;
   thumb: string;
+  thumb_url?: string | null;
   data: string;
   data_fmt: string;
   entrada_fmt: string;
@@ -45,11 +46,12 @@ type PontoRegistroAdmin = {
   usuario_id: number;
   usuario_nome: string;
   thumb: string;
+  thumb_url?: string | null;
   tipo: string;
   registrado_em: string;
 };
 
-type FuncionarioOpt = { id: number; nome: string; thumb: string };
+type FuncionarioOpt = { id: number; nome: string; thumb: string; thumb_url?: string | null };
 
 const PONTO_DETALHE_POR_PAGINA = 20;
 
@@ -380,7 +382,7 @@ export function PontoControlePage() {
                         jornadas.map((j) => (
                           <tr key={`${j.usuario_id}-${j.data}-${j.entrada_id ?? j.entrada_fmt}`}>
                             <td className="dash-ponto-table__col-func">
-                              <PontoFuncCell nome={j.usuario_nome} thumb={j.thumb} />
+                              <PontoFuncCell nome={j.usuario_nome} thumb={j.thumb} thumbUrl={j.thumb_url} />
                             </td>
                             <td className="text-center dash-ponto-cel--data">{j.data_fmt}</td>
                             <PontoJornadaHoras
@@ -492,7 +494,7 @@ export function PontoControlePage() {
                                 <tr key={r.id} data-ponto-id={r.id}>
                                   <td className="text-center dash-ponto-table__id">{r.id}</td>
                                   <td className="dash-ponto-table__col-func">
-                                    <PontoFuncCell nome={r.usuario_nome} thumb={r.thumb} />
+                                    <PontoFuncCell nome={r.usuario_nome} thumb={r.thumb} thumbUrl={r.thumb_url} />
                                   </td>
                                   <td className="text-center">
                                     <span className={`dash-ponto-tipo ${pontoClasseBadge(r.tipo)}`}>

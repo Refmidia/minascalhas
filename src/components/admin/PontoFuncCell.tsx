@@ -1,13 +1,27 @@
 import { primeiroNome } from "@/lib/funcionario-pagamento-display";
 import { UserThumb } from "@/components/admin/UserThumb";
 
-export function PontoFuncCell({ nome, thumb = "" }: { nome: string; thumb?: string }) {
+export function PontoFuncCell({
+  nome,
+  thumb = "",
+  thumbUrl = null,
+}: {
+  nome: string;
+  thumb?: string;
+  thumbUrl?: string | null;
+}) {
   return (
     <div className="dash-ponto-func">
       <span className="dash-ponto-func__nome" title={nome}>
         {primeiroNome(nome)}
       </span>
-      <UserThumb nome={nome} thumb={thumb} size="sm" className="dash-ponto-func__avatar" />
+      <UserThumb
+        nome={nome}
+        thumb={thumb}
+        thumbUrl={thumbUrl}
+        size="sm"
+        className="dash-ponto-func__avatar"
+      />
     </div>
   );
 }

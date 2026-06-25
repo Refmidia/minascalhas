@@ -14,6 +14,7 @@ import {
   mapaValorDiarioFuncionarios,
   montarJornadasAdmin,
 } from "@/lib/ponto.server";
+import { mapaThumbsEnriquecidos } from "@/lib/usuario-thumb.server";
 import {
   formatAgoraPontoControle,
   montarDatetimePonto,
@@ -44,7 +45,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
         if (!session || !podeGerenciarPonto(session)) {
-          return jsonResponse({ ok: false, message: "Sem permissão para controle de ponto." }, 403);
+          return jsonResponse({ ok: false, message: "Sem permiss?o para controle de ponto." }, 403);
         }
 
         const url = new URL(request.url);
@@ -57,15 +58,48 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         if (!/^\d{4}-\d{2}-\d{2}$/.test(ate)) ate = hoje;
 
         try {
-          const funcionarios = await listarFuncionariosPonto();
-          const registros = await buscarRegistrosAdmin(
+          const funcionariosRaw = await listarFuncionariosPonto();
+          const registrosRaw = await buscarRegistrosAdmin(
             usuario > 0 ? usuario : null,
             de,
             ate,
           );
-          const ids = [...new Set(registros.map((r) => r.usuario_id))];
+          const ids = [...new Set(registrosRaw.map((r) => r.usuario_id))];
           const valorDiarioMap = await mapaValorDiarioFuncionarios(ids);
-          const jornadas = montarJornadasAdmin(registros, valorDiarioMap);
+          const jornadasRaw = montarJornadasAdmin(registrosRaw, valorDiarioMap);
+
+          const thumbItems = [
+            ...funcionariosRaw.map((f) => ({ id: f.id, thumb: f.thumb })),
+            ...jornadasRaw.map((j) => ({ id: j.usuario_id, thumb: j.thumb })),
+            ...registrosRaw.map((r) => ({ id: r.usuario_id, thumb: r.thumb })),
+          ];
+          const thumbMap = await mapaThumbsEnriquecidos(thumbItems);
+
+          const funcionarios = funcionariosRaw.map((f) => {
+            const t = thumbMap.get(f.id);
+            return {
+              ...f,
+              thumb: t?.thumb ?? f.thumb,
+              thumb_url: t?.thumb_url ?? null,
+            };
+          });
+          const jornadas = jornadasRaw.map((j) => {
+            const t = thumbMap.get(j.usuario_id);
+            return {
+              ...j,
+              thumb: t?.thumb ?? j.thumb,
+              thumb_url: t?.thumb_url ?? null,
+            };
+          });
+          const registros = registrosRaw.map((r) => {
+            const t = thumbMap.get(r.usuario_id);
+            return {
+              ...r,
+              thumb: t?.thumb ?? r.thumb,
+              thumb_url: t?.thumb_url ?? null,
+            };
+          });
+
           return jsonResponse({
             ok: true,
             updated_at: formatAgoraPontoControle(),
@@ -83,7 +117,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         const session = getAdminSessionFromRequest(request);
         if (!session || !podeGerenciarPonto(session)) {
           return jsonResponse(
-            { ok: false, message: "Somente administradores podem corrigir horários de ponto." },
+            { ok: false, message: "Somente administradores podem corrigir hor?rios de ponto." },
             403,
           );
         }
@@ -92,26 +126,26 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         try {
           body = await request.json();
         } catch {
-          return jsonResponse({ ok: false, message: "JSON inválido." }, 400);
+          return jsonResponse({ ok: false, message: "JSON inv?lido." }, 400);
         }
 
         const parsed = patchSchema.safeParse(body);
         if (!parsed.success) {
-          return jsonResponse({ ok: false, message: "Dados inválidos." }, 422);
+          return jsonResponse({ ok: false, message: "Dados inv?lidos." }, 422);
         }
 
         let registradoEm = parsed.data.registrado_em?.trim() ?? "";
         if (!registradoEm && parsed.data.data && parsed.data.hora) {
           const montado = montarDatetimePonto(parsed.data.data, parsed.data.hora);
           if (!montado) {
-            return jsonResponse({ ok: false, message: "Data ou hora inválida." }, 422);
+            return jsonResponse({ ok: false, message: "Data ou hora inv?lida." }, 422);
           }
           registradoEm = montado;
         }
 
         registradoEm = pontoSerializarDatetime(registradoEm);
         if (!PONTO_SQL_DT_RE.test(registradoEm)) {
-          return jsonResponse({ ok: false, message: "Informe data e hora válidas." }, 422);
+          return jsonResponse({ ok: false, message: "Informe data e hora v?lidas." }, 422);
         }
 
         try {
@@ -127,7 +161,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         const session = getAdminSessionFromRequest(request);
         if (!session || !podeGerenciarPonto(session)) {
           return jsonResponse(
-            { ok: false, message: "Somente administradores podem corrigir horários de ponto." },
+            { ok: false, message: "Somente administradores podem corrigir hor?rios de ponto." },
             403,
           );
         }
@@ -136,25 +170,25 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         try {
           body = await request.json();
         } catch {
-          return jsonResponse({ ok: false, message: "JSON inválido." }, 400);
+          return jsonResponse({ ok: false, message: "JSON inv?lido." }, 400);
         }
 
         const parsed = postSchema.safeParse(body);
         if (!parsed.success) {
-          return jsonResponse({ ok: false, message: "Dados inválidos." }, 422);
+          return jsonResponse({ ok: false, message: "Dados inv?lidos." }, 422);
         }
 
         let registradoEm = parsed.data.registrado_em?.trim() ?? "";
         if (!registradoEm && parsed.data.data && parsed.data.hora) {
           const montado = montarDatetimePonto(parsed.data.data, parsed.data.hora);
           if (!montado) {
-            return jsonResponse({ ok: false, message: "Data ou hora inválida." }, 422);
+            return jsonResponse({ ok: false, message: "Data ou hora inv?lida." }, 422);
           }
           registradoEm = montado;
         }
 
         if (!registradoEm) {
-          return jsonResponse({ ok: false, message: "Informe data e hora válidas." }, 422);
+          return jsonResponse({ ok: false, message: "Informe data e hora v?lidas." }, 422);
         }
 
         try {
@@ -176,7 +210,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
         if (!session || !podeGerenciarPonto(session)) {
-          return jsonResponse({ ok: false, message: "Sem permissão para excluir registros." }, 403);
+          return jsonResponse({ ok: false, message: "Sem permiss?o para excluir registros." }, 403);
         }
 
         const url = new URL(request.url);
@@ -198,7 +232,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
             );
           }
 
-          return jsonResponse({ ok: false, message: "Informe o ID do registro ou usuário + data." }, 400);
+          return jsonResponse({ ok: false, message: "Informe o ID do registro ou usu?rio + data." }, 400);
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);
         }

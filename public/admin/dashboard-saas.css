@@ -8648,6 +8648,15 @@ html[data-bs-theme="light"] .dash-func-pag-card {
     justify-content: center;
 }
 
+.dash-func-pag-card__avatar.user-thumb {
+    border-radius: 12px;
+    border-width: 2px;
+}
+
+.dash-func-pag-card__avatar.user-thumb--fallback {
+    font-size: 1rem;
+}
+
 .dash-func-pag-card__nome {
     font-weight: 700;
     font-size: 1rem;

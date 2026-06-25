@@ -25,6 +25,21 @@ import {
   type DiaChave,
 } from "@/lib/funcionario-pagamento.server";
 import { jsonResponse } from "@/lib/http.server";
+import { mapaThumbsEnriquecidos } from "@/lib/usuario-thumb.server";
+
+async function enriquecerCardsComThumb<T extends { usuario_id: number; thumb: string }>(
+  cards: T[],
+): Promise<Array<T & { thumb_url: string | null }>> {
+  const map = await mapaThumbsEnriquecidos(cards.map((c) => ({ id: c.usuario_id, thumb: c.thumb })));
+  return cards.map((c) => {
+    const t = map.get(c.usuario_id);
+    return {
+      ...c,
+      thumb: t?.thumb ?? c.thumb,
+      thumb_url: t?.thumb_url ?? null,
+    };
+  });
+}
 
 const diasSchema = z.record(z.string(), z.boolean());
 
@@ -103,7 +118,7 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
               listarPagamentosHistorico(de, ate, uid),
             ]);
 
-            const cards = cardsAll.filter((c) => c.usuario_id === uid);
+            const cards = (await enriquecerCardsComThumb(cardsAll)).filter((c) => c.usuario_id === uid);
             const totalHistorico = historico.reduce((s, h) => s + h.valor, 0);
 
             return jsonResponse({
@@ -142,10 +157,26 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
           const ate = url.searchParams.get("ate")?.trim() || ymdLocal(new Date());
           const filtroUser = Number(url.searchParams.get("usuario_filtro") ?? 0);
 
-          const [cards, historico, funcionarios] = await Promise.all([
+          const [cardsRaw, historico, funcionariosRaw] = await Promise.all([
             montarCardsSemana(semana),
             listarPagamentosHistorico(de, ate, filtroUser > 0 ? filtroUser : undefined),
             listarFuncionarios(),
+          ]);
+          const [cards, funcionarios] = await Promise.all([
+            enriquecerCardsComThumb(cardsRaw),
+            (async () => {
+              const map = await mapaThumbsEnriquecidos(
+                funcionariosRaw.map((f) => ({ id: f.id, thumb: f.thumb })),
+              );
+              return funcionariosRaw.map((f) => {
+                const t = map.get(f.id);
+                return {
+                  ...f,
+                  thumb: t?.thumb ?? f.thumb,
+                  thumb_url: t?.thumb_url ?? null,
+                };
+              });
+            })(),
           ]);
 
           const semanasMapa = gerarSemanasAnteriores(semana, 6);
