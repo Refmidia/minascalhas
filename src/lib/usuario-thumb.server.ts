@@ -2,9 +2,10 @@ import { mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 
-import { uploadBlob } from "@/lib/blob-upload.server";
 import {
   blobUrlParaExibicao,
+  dbThumbImageUrl,
+  dbThumbUserId,
   isBlobPrivateRef,
   resolveBlobStoredUrl,
 } from "@/lib/usuario-thumb-url";
@@ -15,10 +16,63 @@ import {
 } from "@/lib/produtos-upload.server";
 import {
   canPersistUploadsOnDisk,
-  isReadOnlyServerless,
-  mensagemUploadIndisponivel,
   resolveUploadDir,
 } from "@/lib/upload-dir.server";
+import { getPrisma } from "@/lib/db.server";
+
+let thumbDataColsOk = false;
+
+async function ensureThumbDataColumns(prisma: Awaited<ReturnType<typeof getPrisma>>) {
+  if (thumbDataColsOk) return;
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE usuarios ADD COLUMN thumb_mime VARCHAR(64) NULL`);
+  } catch {
+    /* coluna já existe */
+  }
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE usuarios ADD COLUMN thumb_data MEDIUMTEXT NULL`);
+  } catch {
+    /* coluna já existe */
+  }
+  thumbDataColsOk = true;
+}
+
+async function setUsuarioThumbData(id: number, mime: string, base64: string): Promise<void> {
+  const prisma = await getPrisma();
+  await ensureThumbDataColumns(prisma);
+  await prisma.$executeRawUnsafe(
+    `UPDATE usuarios SET thumb_mime = ?, thumb_data = ? WHERE id = ?`,
+    mime,
+    base64,
+    id,
+  );
+}
+
+async function clearUsuarioThumbData(id: number): Promise<void> {
+  const prisma = await getPrisma();
+  await ensureThumbDataColumns(prisma);
+  await prisma.$executeRawUnsafe(
+    `UPDATE usuarios SET thumb_mime = NULL, thumb_data = NULL WHERE id = ?`,
+    id,
+  );
+}
+
+export async function getUsuarioThumbData(
+  id: number,
+): Promise<{ mime: string; data: Buffer } | null> {
+  const prisma = await getPrisma();
+  await ensureThumbDataColumns(prisma);
+  const rows = await prisma.$queryRawUnsafe<{ thumb_mime: string | null; thumb_data: string | null }[]>(
+    `SELECT thumb_mime, thumb_data FROM usuarios WHERE id = ? LIMIT 1`,
+    id,
+  );
+  const row = rows[0];
+  if (!row?.thumb_data || !row.thumb_mime) return null;
+  return {
+    mime: row.thumb_mime,
+    data: Buffer.from(row.thumb_data, "base64"),
+  };
+}
 
 export function usuarioThumbUploadDir(): string {
   return resolveUploadDir("USER_THUMB_DIR", ["images", "thumb"]);
@@ -29,6 +83,8 @@ export function isThumbStoredUrl(thumb: string): boolean {
 }
 
 export function thumbPublicUrl(arquivo: string): string {
+  const dbId = dbThumbUserId(arquivo);
+  if (dbId) return dbThumbImageUrl(dbId);
   if (isBlobPrivateRef(arquivo) || isThumbStoredUrl(arquivo)) {
     return blobUrlParaExibicao(arquivo);
   }
@@ -42,7 +98,9 @@ export function thumbNomeSeguro(nome: string): string | null {
   return base;
 }
 
+/** Salva a foto no MySQL (thumb_data) — funciona na Vercel sem Blob. */
 export async function salvarThumbUpload(
+  userId: number,
   file: File,
 ): Promise<{ arquivo: string } | { erro: string }> {
   if (!FOTOS_TIPOS.has(file.type)) {
@@ -54,16 +112,33 @@ export async function salvarThumbUpload(
   const ext = extensaoSegura(file.type);
   if (!ext) return { erro: "Extensão inválida." };
 
-  const key = `thumbs/${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
+  const buf = Buffer.from(await file.arrayBuffer());
+  const base64 = buf.toString("base64");
+  const mime = file.type || "image/jpeg";
 
-  if (isReadOnlyServerless()) {
-    const blob = await uploadBlob(key, file);
-    if ("erro" in blob) return { erro: blob.erro };
-    return { arquivo: blob.stored };
+  try {
+    await setUsuarioThumbData(userId, mime, base64);
+    return { arquivo: `db:${userId}` };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { erro: `Não foi possível salvar a foto no banco: ${msg}` };
   }
+}
 
+/** Legado: grava em public/images/thumb (só ambiente local com disco). */
+export async function salvarThumbUploadDisco(
+  file: File,
+): Promise<{ arquivo: string } | { erro: string }> {
+  if (!FOTOS_TIPOS.has(file.type)) {
+    return { erro: "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF." };
+  }
+  if (file.size > FOTOS_MAX_BYTES) {
+    return { erro: "Arquivo maior que 8 MB." };
+  }
+  const ext = extensaoSegura(file.type);
+  if (!ext) return { erro: "Extensão inválida." };
   if (!canPersistUploadsOnDisk("USER_THUMB_DIR")) {
-    return { erro: mensagemUploadIndisponivel("foto de perfil") };
+    return { erro: "Upload em disco indisponível neste ambiente." };
   }
 
   const dir = usuarioThumbUploadDir();
@@ -76,6 +151,13 @@ export async function salvarThumbUpload(
 
 export async function removerThumbArquivo(thumb: string): Promise<void> {
   if (!thumb || thumb === "nao.png") return;
+
+  const dbId = dbThumbUserId(thumb);
+  if (dbId) {
+    await clearUsuarioThumbData(dbId);
+    return;
+  }
+
   if (isThumbStoredUrl(thumb) || isBlobPrivateRef(thumb)) {
     try {
       const { del } = await import("@vercel/blob");
@@ -85,6 +167,7 @@ export async function removerThumbArquivo(thumb: string): Promise<void> {
     }
     return;
   }
+
   const nome = thumbNomeSeguro(thumb);
   if (!nome) return;
   const filePath = path.join(usuarioThumbUploadDir(), nome);

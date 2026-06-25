@@ -4,6 +4,7 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarUsuarios } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import {
+  getUsuarioThumbData,
   removerThumbArquivo,
   salvarThumbUpload,
   thumbPublicUrl,
@@ -18,6 +19,30 @@ function lerId(valor: string): number | null {
 export const Route = createFileRoute("/api/admin/usuarios/$id/thumb")({
   server: {
     handlers: {
+      GET: async ({ request, params }) => {
+        if (!isAdminRequest(request)) return new Response("Unauthorized", { status: 401 });
+        const session = getAdminSessionFromRequest(request);
+        if (!session) return new Response("Unauthorized", { status: 401 });
+
+        const id = lerId(params.id);
+        if (!id) return new Response("Not found", { status: 404 });
+
+        try {
+          const payload = await getUsuarioThumbData(id);
+          if (!payload) return new Response("Not found", { status: 404 });
+
+          return new Response(new Uint8Array(payload.data), {
+            status: 200,
+            headers: {
+              "Content-Type": payload.mime,
+              "Cache-Control": "private, max-age=3600",
+            },
+          });
+        } catch {
+          return new Response("Error", { status: 503 });
+        }
+      },
+
       POST: async ({ request, params }) => {
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
@@ -43,7 +68,7 @@ export const Route = createFileRoute("/api/admin/usuarios/$id/thumb")({
           const usuario = await getUsuarioById(id);
           if (!usuario) return jsonResponse({ ok: false, message: "Usuário não encontrado." }, 404);
 
-          const saved = await salvarThumbUpload(file);
+          const saved = await salvarThumbUpload(id, file);
           if ("erro" in saved) {
             return jsonResponse({ ok: false, message: saved.erro }, 422);
           }
