@@ -17,6 +17,7 @@ import {
   valorUnitarioCalculadora,
   type LinhaOrcamentoCalculadaInfo,
 } from "@/lib/calculadora-bobina";
+import type { OrcamentoLinha } from "@/lib/orcamento.server";
 import {
   fetchMateriais,
   fetchOrcamentoInventario,
@@ -255,25 +256,44 @@ export function ModalOrcamento({
     setEditValor(formatEditNum(valorUnitarioCalculadora(editCalcInfo.corteCm, mult)));
   }
 
-  function salvarEdicaoLinha() {
-    if (editingLinhaIdx === null) return;
+  function montarPatchEdicaoLinha(idx: number): Partial<OrcamentoLinha> | null {
     const metros = Number.parseFloat(editMetros.replace(",", ".")) || 0;
     const valor = parseMoneyBr(editValor);
-    if (metros <= 0 || valor <= 0) return;
+    if (metros <= 0 || valor <= 0) return null;
 
     if (editCalcInfo) {
       const mults = multsParaEdicaoCalculadora(editCalcInfo.tipo);
       const mult = mults[editMultIdx] ?? editCalcInfo.mult;
-      form.updateLinha(editingLinhaIdx, {
+      return {
         material: montarDescricaoCalculadora(editCalcInfo.tipo, editCalcInfo.corteCm, mult),
         metros,
         valor: valorUnitarioCalculadora(editCalcInfo.corteCm, mult),
-      });
-    } else {
-      form.updateLinha(editingLinhaIdx, { metros, valor });
+      };
     }
 
+    return { metros, valor };
+  }
+
+  function aplicarEdicaoLinha(idx: number): Partial<OrcamentoLinha> | null {
+    const patch = montarPatchEdicaoLinha(idx);
+    if (!patch) return null;
+    form.updateLinha(idx, patch);
+    return patch;
+  }
+
+  function salvarEdicaoLinha() {
+    if (editingLinhaIdx === null) return;
+    if (!aplicarEdicaoLinha(editingLinhaIdx)) return;
     cancelarEdicaoLinha();
+  }
+
+  function partDataComEdicaoPendente(): OrcamentoLinha[] | null {
+    if (editingLinhaIdx === null) return form.partData;
+    const patch = montarPatchEdicaoLinha(editingLinhaIdx);
+    if (!patch) return null;
+    return form.partData.map((linha, i) =>
+      i === editingLinhaIdx ? { ...linha, ...patch } : linha,
+    );
   }
 
   function abrirPopupParcelas() {
@@ -348,7 +368,18 @@ export function ModalOrcamento({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!inventarioId) return;
-    if (form.partData.length === 0) {
+
+    const linhasSalvar = partDataComEdicaoPendente();
+    if (!linhasSalvar) {
+      setError("Informe metros e valor válidos na linha em edição, ou cancele (✕) antes de salvar.");
+      return;
+    }
+    if (editingLinhaIdx !== null) {
+      void aplicarEdicaoLinha(editingLinhaIdx);
+      cancelarEdicaoLinha();
+    }
+
+    if (linhasSalvar.length === 0) {
       setError("Adicione pelo menos um material.");
       return;
     }
@@ -360,7 +391,7 @@ export function ModalOrcamento({
     setSaving(true);
     setError("");
     try {
-      const payload = form.buildPayload();
+      const payload = form.buildPayload(linhasSalvar);
       if (mode === "novo") {
         const res = await salvarOrcamentoNovo(inventarioId, payload);
         onSaved(res.item, { nome: res.nome, telefone: res.telefone, valor: res.valor });

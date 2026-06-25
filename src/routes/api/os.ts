@@ -26,11 +26,15 @@ export const Route = createFileRoute("/api/os")({
           if (!row) return jsonResponse({ ok: false, message: "Não encontrado." }, 404);
 
           const itens = parseOrcamentoJson(row.orcamento);
-          return jsonResponse({
-            ok: true,
-            item: serializeInventario(row),
-            itens,
-          });
+          return jsonResponse(
+            {
+              ok: true,
+              item: serializeInventario(row),
+              itens,
+            },
+            200,
+            { "Cache-Control": "no-store" },
+          );
         } catch (err) {
           console.error("[GET /api/os]", err);
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);

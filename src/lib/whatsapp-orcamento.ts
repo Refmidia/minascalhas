@@ -34,5 +34,5 @@ export function abrirWhatsappOrcamento(item: {
 }
 
 export function gerarOS(id: number): void {
-  window.open(`/os?id=${id}`, "_blank", "noopener,noreferrer");
+  window.open(`/os?id=${id}&v=${Date.now()}`, "_blank", "noopener,noreferrer");
 }

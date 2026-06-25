@@ -55,7 +55,7 @@ function OsPage() {
       setError("ID do orçamento não informado.");
       return;
     }
-    fetch(`/api/os?id=${id}`)
+    fetch(`/api/os?id=${id}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((d: { ok?: boolean; item?: AgendamentoItem; itens?: OrcamentoLinha[]; message?: string }) => {
         if (!d.ok || !d.item) throw new Error(d.message ?? "Erro");

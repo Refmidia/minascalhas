@@ -301,48 +301,52 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     [],
   );
 
-  const buildPayload = useCallback(() => {
-    let modo = descontoSourceRef.current;
-    const desc = calcComCampos();
+  const buildPayload = useCallback(
+    (partDataOverride?: OrcamentoLinha[]) => {
+      const linhasSalvar = mesclarLinhasOrcamento(partDataOverride ?? partData);
+      const sub = inventarioSubtotalOrcamento(linhasSalvar);
+      let modo = descontoSourceRef.current;
+      const desc = calcComCampos();
 
-    if (modo === "total" && parseMoneyBr(valorMostrar) <= 0) {
-      if (parseMoneyBr(descontoValor) > 0) modo = "valor";
-      else if (parseMoneyBr(descontoPct) > 0) modo = "percent";
-      else modo = "percent";
-    }
+      if (modo === "total" && parseMoneyBr(valorMostrar) <= 0) {
+        if (parseMoneyBr(descontoValor) > 0) modo = "valor";
+        else if (parseMoneyBr(descontoPct) > 0) modo = "percent";
+        else modo = "percent";
+      }
 
-    const resolved = garantirTotalOrcamentoConsistente(
-      subtotal,
-      modo,
-      modo === "percent" ? descontoPct : desc.descontoPct,
-      modo === "valor" ? descontoValor : desc.descontoValor,
-      modo === "total" ? valorMostrar : desc.total,
-    );
-    return {
-      partData: mesclarLinhasOrcamento(partData),
+      const resolved = garantirTotalOrcamentoConsistente(
+        sub,
+        modo,
+        modo === "percent" ? descontoPct : desc.descontoPct,
+        modo === "valor" ? descontoValor : desc.descontoValor,
+        modo === "total" ? valorMostrar : desc.total,
+      );
+      return {
+        partData: linhasSalvar,
+        formaPagamento,
+        qtdParcelas: formaPagamento === "credito" ? qtdParcelas : undefined,
+        taxaMaquininhaPct: formaPagamento === "credito" ? taxaMaquininha : undefined,
+        descontoModo: modo,
+        descontoPercent: resolved.percent,
+        descontoValor: resolved.valor,
+        valor: resolved.total,
+        cpfCnpj,
+        observacao,
+      };
+    },
+    [
+      partData,
       formaPagamento,
-      qtdParcelas: formaPagamento === "credito" ? qtdParcelas : undefined,
-      taxaMaquininhaPct: formaPagamento === "credito" ? taxaMaquininha : undefined,
-      descontoModo: modo,
-      descontoPercent: resolved.percent,
-      descontoValor: resolved.valor,
-      valor: resolved.total,
+      qtdParcelas,
+      taxaMaquininha,
+      calcComCampos,
       cpfCnpj,
       observacao,
-    };
-  }, [
-    partData,
-    formaPagamento,
-    qtdParcelas,
-    taxaMaquininha,
-    calcComCampos,
-    subtotal,
-    cpfCnpj,
-    observacao,
-    descontoPct,
-    descontoValor,
-    valorMostrar,
-  ]);
+      descontoPct,
+      descontoValor,
+      valorMostrar,
+    ],
+  );
 
   const onMetrosInput = useCallback((raw: string) => {
     let v = raw.replace(/[^\d,.]/g, "");
