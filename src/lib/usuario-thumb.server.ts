@@ -41,12 +41,15 @@ async function ensureThumbDataColumns(prisma: Awaited<ReturnType<typeof getPrism
 async function setUsuarioThumbData(id: number, mime: string, base64: string): Promise<void> {
   const prisma = await getPrisma();
   await ensureThumbDataColumns(prisma);
+  const mimeEsc = mime.replace(/\\/g, "\\\\").replace(/'/g, "''");
+  const dataEsc = base64.replace(/\\/g, "\\\\").replace(/'/g, "''");
   await prisma.$executeRawUnsafe(
-    `UPDATE usuarios SET thumb_mime = ?, thumb_data = ? WHERE id = ?`,
-    mime,
-    base64,
-    id,
+    `UPDATE usuarios SET thumb_mime = '${mimeEsc}', thumb_data = '${dataEsc}' WHERE id = ${int(id)}`,
   );
+}
+
+function int(v: number): number {
+  return Number.isFinite(v) ? Math.trunc(v) : 0;
 }
 
 async function clearUsuarioThumbData(id: number): Promise<void> {
@@ -64,8 +67,7 @@ export async function getUsuarioThumbData(
   const prisma = await getPrisma();
   await ensureThumbDataColumns(prisma);
   const rows = await prisma.$queryRawUnsafe<{ thumb_mime: string | null; thumb_data: string | null }[]>(
-    `SELECT thumb_mime, thumb_data FROM usuarios WHERE id = ? LIMIT 1`,
-    id,
+    `SELECT thumb_mime, thumb_data FROM usuarios WHERE id = ${int(id)} LIMIT 1`,
   );
   const row = rows[0];
   if (!row?.thumb_data || !row.thumb_mime) return null;

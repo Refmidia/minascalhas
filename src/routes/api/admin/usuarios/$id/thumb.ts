@@ -68,13 +68,19 @@ export const Route = createFileRoute("/api/admin/usuarios/$id/thumb")({
           const usuario = await getUsuarioById(id);
           if (!usuario) return jsonResponse({ ok: false, message: "Usuário não encontrado." }, 404);
 
+          const thumbAnterior = usuario.thumb ?? "nao.png";
           const saved = await salvarThumbUpload(id, file);
           if ("erro" in saved) {
             return jsonResponse({ ok: false, message: saved.erro }, 422);
           }
 
-          const thumbAnterior = await setUsuarioThumb(id, saved.arquivo);
-          if (thumbAnterior) await removerThumbArquivo(thumbAnterior);
+          await setUsuarioThumb(id, saved.arquivo);
+          if (
+            thumbAnterior !== "nao.png" &&
+            thumbAnterior !== saved.arquivo
+          ) {
+            await removerThumbArquivo(thumbAnterior);
+          }
 
           return jsonResponse({
             ok: true,

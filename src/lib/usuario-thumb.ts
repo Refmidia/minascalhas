@@ -2,10 +2,10 @@
 
 import { blobUrlParaExibicao, dbThumbImageUrl, dbThumbUserId, isBlobPrivateRef } from "@/lib/usuario-thumb-url";
 
-export function usuarioThumbLocalUrl(thumb: string): string | null {
+export function usuarioThumbLocalUrl(thumb: string, cacheBust?: number | string): string | null {
   if (!thumb || thumb === "nao.png") return null;
   const dbId = dbThumbUserId(thumb);
-  if (dbId) return dbThumbImageUrl(dbId);
+  if (dbId) return dbThumbImageUrl(dbId, cacheBust);
   if (isBlobPrivateRef(thumb)) return blobUrlParaExibicao(thumb);
   if (/^https?:\/\//i.test(thumb.trim())) return thumb.trim();
   const name = thumb.replace(/^\/+/, "").split(/[/\\]/).pop() ?? thumb;

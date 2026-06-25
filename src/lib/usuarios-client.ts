@@ -51,7 +51,10 @@ export async function atualizarUsuario(
   return data.item;
 }
 
-export async function enviarThumbUsuario(id: number, file: File): Promise<{ thumb: string }> {
+export async function enviarThumbUsuario(
+  id: number,
+  file: File,
+): Promise<{ thumb: string; thumb_url: string }> {
   const form = new FormData();
   form.append("arquivo", file);
   const res = await fetch(`/api/admin/usuarios/${id}/thumb`, {
@@ -59,9 +62,12 @@ export async function enviarThumbUsuario(id: number, file: File): Promise<{ thum
     credentials: "include",
     body: form,
   });
-  const data = await parseJson<{ ok?: boolean; thumb?: string; message?: string }>(res);
+  const data = await parseJson<{ ok?: boolean; thumb?: string; thumb_url?: string; message?: string }>(res);
   if (!res.ok || !data.thumb) throw new Error(data.message ?? "Erro ao enviar foto.");
-  return { thumb: data.thumb };
+  return {
+    thumb: data.thumb,
+    thumb_url: data.thumb_url ?? `/api/admin/usuarios/${id}/thumb`,
+  };
 }
 
 export async function excluirUsuario(id: number): Promise<void> {

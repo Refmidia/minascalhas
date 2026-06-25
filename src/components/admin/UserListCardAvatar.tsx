@@ -33,10 +33,15 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [cacheBust, setCacheBust] = useState(0);
+  const [imgOk, setImgOk] = useState(true);
 
-  const local = useMemo(() => usuarioThumbLocalUrl(thumb), [thumb, cacheBust]);
-  const remote = useMemo(() => usuarioThumbRemoteUrl(thumb), [thumb, cacheBust]);
+  const local = useMemo(
+    () => usuarioThumbLocalUrl(thumb, cacheBust || undefined),
+    [thumb, cacheBust],
+  );
+  const remote = useMemo(() => usuarioThumbRemoteUrl(thumb), [thumb]);
   const displayUrl = previewUrl ?? local ?? remote;
+  const showPhoto = Boolean(displayUrl) && imgOk;
   const ini = iniciais(nome);
 
   useImperativeHandle(ref, () => ({
@@ -44,6 +49,10 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
       if (!uploading) inputRef.current?.click();
     },
   }));
+
+  useEffect(() => {
+    setImgOk(true);
+  }, [displayUrl]);
 
   useEffect(() => {
     return () => {
@@ -61,13 +70,19 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
     setUploading(true);
     try {
       await enviarThumbUsuario(usuarioId, file);
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
       setCacheBust(Date.now());
+      setImgOk(true);
       await onUpdated();
     } catch (e) {
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
       });
+      setImgOk(false);
       onError(e instanceof Error ? e.message : "Erro ao enviar foto.");
     } finally {
       setUploading(false);
@@ -90,18 +105,24 @@ export const UserListCardAvatar = forwardRef<UserListCardAvatarHandle, Props>(fu
       />
       <button
         type="button"
-        className={`user-list-card__avatar-btn${displayUrl ? " has-photo" : ""}${uploading ? " is-uploading" : ""}`}
-        style={displayUrl ? { backgroundImage: `url("${displayUrl}")` } : undefined}
-        aria-label={displayUrl ? `Alterar foto de ${nome}` : `Adicionar foto de ${nome}`}
-        title={displayUrl ? "Alterar foto" : "Adicionar foto"}
+        className={`user-list-card__avatar-btn${showPhoto ? " has-photo" : ""}${uploading ? " is-uploading" : ""}`}
+        aria-label={showPhoto ? `Alterar foto de ${nome}` : `Adicionar foto de ${nome}`}
+        title={showPhoto ? "Alterar foto" : "Adicionar foto"}
         disabled={uploading}
         onClick={() => inputRef.current?.click()}
       >
-        {!displayUrl ? (
+        {showPhoto && displayUrl ? (
+          <img
+            src={displayUrl}
+            alt=""
+            className="user-list-card__avatar-img"
+            onError={() => setImgOk(false)}
+          />
+        ) : (
           <span className="user-list-card__avatar-fallback" aria-hidden="true">
             {ini ? <span>{ini}</span> : <i className="bi bi-person" />}
           </span>
-        ) : null}
+        )}
         <span className="user-list-card__avatar-camera" aria-hidden="true">
           {uploading ? (
             <i className="bi bi-arrow-repeat user-list-card__avatar-spin" />

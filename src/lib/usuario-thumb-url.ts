@@ -15,8 +15,10 @@ export function dbThumbUserId(stored: string): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-export function dbThumbImageUrl(userId: number): string {
-  return `/api/admin/usuarios/${userId}/thumb`;
+export function dbThumbImageUrl(userId: number, cacheBust?: number | string): string {
+  const base = `/api/admin/usuarios/${userId}/thumb`;
+  if (cacheBust == null) return base;
+  return `${base}?v=${encodeURIComponent(String(cacheBust))}`;
 }
 
 export function isBlobPrivateRef(stored: string): boolean {

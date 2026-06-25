@@ -1218,6 +1218,16 @@ html[data-bs-theme="dark"] body.dashboard-app--react .dashboard-page--usuarios .
   background: linear-gradient(145deg, #334155, #0f172a);
 }
 
+.user-list-card__avatar-btn .user-list-card__avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
 .user-list-card__avatar-camera {
   position: absolute;
   right: -2px;
