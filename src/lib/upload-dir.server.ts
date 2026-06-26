@@ -30,7 +30,7 @@ export function canPersistUploadsOnDisk(envVar: string): boolean {
 export function mensagemUploadIndisponivel(tipo: "foto de produto" | "foto de perfil"): string {
   const blob = hasBlobStorage()
     ? "O Blob está configurado — faça um novo deploy do site na Vercel com o código mais recente."
-    : "Na Vercel: Storage → Blob → Connect Project (BLOB_READ_WRITE_TOKEN) e Redeploy.";
+    : "Na Vercel: Storage → Blob → Connect Project ao site e Redeploy.";
   return (
     `Não foi possível salvar ${tipo}. ${blob} ` +
     `No PC (npm run dev) o upload usa public/images/. Fotos antigas: VITE_USER_THUMB_BASE.`

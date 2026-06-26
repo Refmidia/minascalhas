@@ -17,8 +17,19 @@ export function resolveBlobReadWriteToken(): string | undefined {
   return undefined;
 }
 
+/** Blob ligado via OIDC (padrão Vercel: BLOB_STORE_ID + token OIDC no deploy). */
+export function hasBlobOidcOnVercel(): boolean {
+  const storeId = process.env.BLOB_STORE_ID?.trim();
+  if (!storeId) return false;
+  return Boolean(
+    process.env.VERCEL === "1" ||
+      process.env.VERCEL === "true" ||
+      process.env.VERCEL_OIDC_TOKEN?.trim(),
+  );
+}
+
 export function hasBlobStorage(): boolean {
-  return Boolean(resolveBlobReadWriteToken());
+  return Boolean(resolveBlobReadWriteToken()) || hasBlobOidcOnVercel();
 }
 
 function blobAccessPreferido(): "public" | "private" {
@@ -33,10 +44,11 @@ export async function uploadBlob(
   file: File,
 ): Promise<{ stored: string } | { erro: string }> {
   const token = resolveBlobReadWriteToken();
-  if (!token) {
+  const oidc = hasBlobOidcOnVercel();
+  if (!token && !oidc) {
     return {
       erro:
-        "Blob não configurado: na Vercel, Storage → Blob → Connect Project com read-write token e Redeploy.",
+        "Blob não configurado: na Vercel, Storage → Blob → Connect Project ao site e Redeploy.",
     };
   }
 
@@ -44,7 +56,9 @@ export async function uploadBlob(
   let access = blobAccessPreferido();
 
   async function doPut(mode: "public" | "private") {
-    return put(key, file, { access: mode, token });
+    // OIDC (BLOB_STORE_ID): SDK autentica no deploy sem BLOB_READ_WRITE_TOKEN.
+    if (token) return put(key, file, { access: mode, token });
+    return put(key, file, { access: mode });
   }
 
   try {
