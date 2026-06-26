@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as OsRouteImport } from './routes/os'
 import { Route as NotaEntregaRouteImport } from './routes/nota-entrega'
 import { Route as GaleriaRouteImport } from './routes/galeria'
@@ -72,6 +74,16 @@ import { Route as ApiAdminProdutosIdFotosRouteImport } from './routes/api/admin/
 import { Route as ApiAdminProdutosIdFotosPadraoRouteImport } from './routes/api/admin/produtos/$id/fotos/padrao'
 import { Route as ApiAdminProdutosIdFotosFotoIdRouteImport } from './routes/api/admin/produtos/$id/fotos/$fotoId'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OsRoute = OsRouteImport.update({
   id: '/os',
   path: '/os',
@@ -399,6 +411,8 @@ export interface FileRoutesByFullPath {
   '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
@@ -462,6 +476,8 @@ export interface FileRoutesByTo {
   '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
@@ -527,6 +543,8 @@ export interface FileRoutesById {
   '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
@@ -593,6 +611,8 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/nota-entrega'
     | '/os'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/api/agendamentos'
     | '/api/consulta-documento'
     | '/api/health'
@@ -656,6 +676,8 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/nota-entrega'
     | '/os'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/api/agendamentos'
     | '/api/consulta-documento'
     | '/api/health'
@@ -720,6 +742,8 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/nota-entrega'
     | '/os'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/api/agendamentos'
     | '/api/consulta-documento'
     | '/api/health'
@@ -785,6 +809,8 @@ export interface RootRouteChildren {
   GaleriaRoute: typeof GaleriaRouteWithChildren
   NotaEntregaRoute: typeof NotaEntregaRoute
   OsRoute: typeof OsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAgendamentosRoute: typeof ApiAgendamentosRouteWithChildren
   ApiConsultaDocumentoRoute: typeof ApiConsultaDocumentoRoute
   ApiHealthRoute: typeof ApiHealthRoute
@@ -815,6 +841,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/os': {
       id: '/os'
       path: '/os'
@@ -1407,6 +1447,8 @@ const rootRouteChildren: RootRouteChildren = {
   GaleriaRoute: GaleriaRouteWithChildren,
   NotaEntregaRoute: NotaEntregaRoute,
   OsRoute: OsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAgendamentosRoute: ApiAgendamentosRouteWithChildren,
   ApiConsultaDocumentoRoute: ApiConsultaDocumentoRoute,
   ApiHealthRoute: ApiHealthRoute,

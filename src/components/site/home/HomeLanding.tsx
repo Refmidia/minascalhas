@@ -158,17 +158,10 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
             <div className="mc-services__grid">
               {servicos.map((s) => (
                 <article key={s.slug} className="mc-service-card">
-                  <div className="mc-service-card__head">
-                    <span className="mc-service-card__icon">
-                      <i className={`bi ${serviceIconForSlug(s.slug)}`} aria-hidden="true" />
-                    </span>
-                    <h3>{s.titulo}</h3>
-                  </div>
-                  <p>{s.texto}</p>
                   <div className="mc-service-card__img">
-                    <Link to="/galeria/$slug" params={{ slug: s.slug }}>
+                    <Link to="/galeria/$slug" params={{ slug: s.slug }} aria-label={`Ver galeria de ${s.titulo}`}>
                       {s.img ? (
-                        <img src={s.img} alt={`${s.titulo} — Minas Calhas`} loading="lazy" width={280} height={120} />
+                        <img src={s.img} alt={`${s.titulo} — Minas Calhas`} loading="lazy" width={320} height={200} />
                       ) : (
                         <span className="mc-service-card__img-placeholder" aria-hidden="true">
                           <i className="bi bi-image" />
@@ -176,9 +169,18 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
                       )}
                     </Link>
                   </div>
-                  <Link to="/galeria/$slug" params={{ slug: s.slug }} className="mc-service-card__link">
-                    Ver galeria <span aria-hidden="true">→</span>
-                  </Link>
+                  <div className="mc-service-card__body">
+                    <div className="mc-service-card__head">
+                      <span className="mc-service-card__icon">
+                        <i className={`bi ${serviceIconForSlug(s.slug)}`} aria-hidden="true" />
+                      </span>
+                      <h3>{s.titulo}</h3>
+                    </div>
+                    <p>{s.texto}</p>
+                    <Link to="/galeria/$slug" params={{ slug: s.slug }} className="mc-service-card__link">
+                      Ver galeria <span aria-hidden="true">→</span>
+                    </Link>
+                  </div>
                 </article>
               ))}
             </div>

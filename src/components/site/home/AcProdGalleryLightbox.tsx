@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import type { HomeGaleriaItem } from "@/data/home-config";
 
@@ -52,7 +53,7 @@ export function AcProdGalleryLightbox({ items, openIndex, onClose }: Props) {
   const item = items[index];
   const multi = items.length > 1;
 
-  return (
+  return createPortal(
     <div
       className="ac-prod-lightbox"
       role="dialog"
@@ -94,9 +95,10 @@ export function AcProdGalleryLightbox({ items, openIndex, onClose }: Props) {
         ) : null}
         <figure className="ac-prod-lightbox__figure">
           <img src={item.src} alt={item.legenda || "Trabalho Minas Calhas"} />
-          <figcaption>{item.legenda}</figcaption>
+          {item.legenda ? <figcaption>{item.legenda}</figcaption> : null}
         </figure>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

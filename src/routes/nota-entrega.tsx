@@ -5,6 +5,7 @@ import { z } from "zod";
 import { FornecedorNotaImpressao } from "@/components/admin/FornecedorNotaImpressao";
 import { fetchEntregaDetalhe } from "@/lib/fornecedores-client";
 import type { EntregaDetalhe } from "@/lib/fornecedores.server";
+import { buildPageHead } from "@/lib/seo";
 
 const searchSchema = z.object({
   nota: z.coerce.number().optional().catch(undefined),
@@ -13,10 +14,18 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/nota-entrega")({
   validateSearch: searchSchema,
   component: NotaEntregaPage,
-  head: () => ({
-    meta: [{ title: "Nota de entrega — Minas Calhas" }],
-    links: [{ rel: "stylesheet", href: "/admin/fornecedor-nota-print.css" }],
-  }),
+  head: () => {
+    const seo = buildPageHead({
+      title: "Nota de entrega — Minas Calhas",
+      description: "Nota de entrega interna Minas Calhas.",
+      path: "/nota-entrega",
+      noindex: true,
+    });
+    return {
+      ...seo,
+      links: [...seo.links, { rel: "stylesheet", href: "/admin/fornecedor-nota-print.css" }],
+    };
+  },
 });
 
 function NotaEntregaPage() {

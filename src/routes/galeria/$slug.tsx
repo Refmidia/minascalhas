@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 
 import { McProdutoGaleriaPage } from "@/components/site/home/McProdutoGaleriaPage";
 import { getProdutoGaleriaPublica } from "@/lib/produtos-site.functions";
+import { buildPageHead } from "@/lib/seo";
 
 const SITE_HEAD_LINKS = [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,20 +24,24 @@ export const Route = createFileRoute("/galeria/$slug")({
     if (!produto) throw notFound();
     return { produto };
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: `${loaderData?.produto.nome ?? "Galeria"} — Minas Calhas`,
-      },
-      {
-        name: "description",
-        content:
-          loaderData?.produto.descricao ||
-          `Galeria de fotos de ${loaderData?.produto.nome ?? "produtos"} — Minas Calhas.`,
-      },
-    ],
-    links: [...SITE_HEAD_LINKS],
-  }),
+  head: ({ loaderData, params }) => {
+    const produto = loaderData?.produto;
+    const slug = params.slug;
+    const capa = produto?.fotos?.[0]?.src;
+    const seo = buildPageHead({
+      title: `${produto?.nome ?? "Galeria"} — Minas Calhas`,
+      description:
+        produto?.descricao ||
+        `Galeria de fotos de ${produto?.nome ?? "produtos"} — Minas Calhas em Florínea e região.`,
+      path: `/galeria/${slug}`,
+      image: capa,
+      imageAlt: produto?.fotos?.[0]?.legenda || `${produto?.nome ?? "Galeria"} — Minas Calhas`,
+    });
+    return {
+      ...seo,
+      links: [...seo.links, ...SITE_HEAD_LINKS],
+    };
+  },
   component: ProdutoGaleriaRoute,
 });
 

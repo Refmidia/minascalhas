@@ -6,10 +6,12 @@ import { AcProdGalleryGrid } from "@/components/site/home/AcProdGalleryGrid";
 import { AcSiteChat } from "@/components/site/home/AcSiteChat";
 import { McSiteFooter } from "@/components/site/home/McSiteFooter";
 import { McSiteHeader } from "@/components/site/home/McSiteHeader";
+import { SeoJsonLd } from "@/components/site/SeoJsonLd";
 import { HOME_SITE } from "@/data/home-config";
 import type { HomeGaleriaItem } from "@/data/home-config";
 import { useAcSiteHeader } from "@/hooks/use-ac-site-header";
 import { fetchAdminSession } from "@/lib/admin-api";
+import { breadcrumbJsonLd } from "@/lib/seo";
 
 type Props = {
   galeria: HomeGaleriaItem[];
@@ -55,6 +57,12 @@ export function SiteGaleriaPage({ galeria }: Props) {
 
   return (
     <>
+      <SeoJsonLd
+        data={breadcrumbJsonLd([
+          { name: "Início", path: "/" },
+          { name: "Galeria", path: "/galeria" },
+        ])}
+      />
       <McSiteHeader loggedIn={loggedIn} checkingPainel={checkingPainel} onOpenPainel={() => void abrirPainel()} />
 
       <main>

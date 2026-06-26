@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { OrcamentoDocument } from "@/components/os/OrcamentoDocument";
 import type { AgendamentoItem } from "@/lib/admin-api";
+import { buildPageHead } from "@/lib/seo";
 import {
   gerarPdfDoElemento,
   gerarPngDoElemento,
@@ -25,16 +26,25 @@ export const Route = createFileRoute("/os")({
     nome: typeof s.nome === "string" ? s.nome : "",
   }),
   component: OsPage,
-  head: () => ({
-    meta: [{ title: "Orçamento — Minas Calhas" }],
-    links: [
-      { rel: "stylesheet", href: "/css/os-orcamento.css" },
-      {
-        rel: "stylesheet",
-        href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
-      },
-    ],
-  }),
+  head: () => {
+    const seo = buildPageHead({
+      title: "Orçamento — Minas Calhas",
+      description: "Documento de orçamento Minas Calhas.",
+      path: "/os",
+      noindex: true,
+    });
+    return {
+      ...seo,
+      links: [
+        ...seo.links,
+        { rel: "stylesheet", href: "/css/os-orcamento.css" },
+        {
+          rel: "stylesheet",
+          href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+        },
+      ],
+    };
+  },
 });
 
 function OsPage() {

@@ -37,8 +37,8 @@ export function AcProdGalleryGrid({ items }: Props) {
                   src={item.src}
                   alt={alt}
                   loading={i < 8 ? "eager" : "lazy"}
-                  width={320}
-                  height={240}
+                  width={148}
+                  height={185}
                 />
                 <span className="ac-prod-gallery__zoom" aria-hidden="true">
                   <i className="bi bi-zoom-in" />
