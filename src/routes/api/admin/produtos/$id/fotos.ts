@@ -5,6 +5,7 @@ import { isAdminRequest } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/db.server";
 import { jsonResponse } from "@/lib/http.server";
 import { fotoPublicUrl, salvarFotoUpload } from "@/lib/produtos-upload.server";
+import { resolveImagemPadraoAdmin } from "@/lib/produtos-site.server";
 
 function lerId(valor: string): number | null {
   const id = Number(valor);
@@ -20,10 +21,14 @@ export const Route = createFileRoute("/api/admin/produtos/$id/fotos")({
         if (!produtoId) return jsonResponse({ ok: false, message: "ID inválido." }, 400);
         try {
           const prisma = await getPrisma();
+          const produto = await prisma.produtoSite.findUnique({ where: { id: produtoId } });
+          if (!produto) return jsonResponse({ ok: false, message: "Produto não encontrado." }, 404);
+
           const fotos = await prisma.produtoFoto.findMany({
             where: { produtoId },
             orderBy: [{ ehCapa: "desc" }, { ordem: "asc" }, { id: "asc" }],
           });
+          const imagemPadrao = await resolveImagemPadraoAdmin(prisma, produtoId, produto.slug);
           return jsonResponse({
             ok: true,
             itens: fotos.map((f) => ({
@@ -35,6 +40,7 @@ export const Route = createFileRoute("/api/admin/produtos/$id/fotos")({
               ordem: f.ordem,
               url: fotoPublicUrl(f.arquivo),
             })),
+            imagem_padrao: imagemPadrao,
           });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);

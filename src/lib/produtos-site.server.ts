@@ -5,6 +5,11 @@ import type { PrismaClient } from "@prisma/client";
 
 import type { HomeGaleriaItem } from "@/data/home-config";
 import { getPrisma } from "@/lib/db.server";
+import {
+  ocultarImagemPadraoProduto,
+  ocultarImagemPadraoTodos,
+  produtoSemImagemPadrao,
+} from "@/lib/produto-imagem-padrao.server";
 import { fotoPublicUrl, produtosUploadDir } from "@/lib/produtos-upload.server";
 import type { ProdutoGaleriaPublica, ProdutoSiteHome } from "@/types/site";
 
@@ -68,7 +73,29 @@ export async function resolveProdutoImagemUrl(
     return fotoPublicUrl(capa.arquivo);
   }
 
+  if (await produtoSemImagemPadrao(prisma, produtoId)) return "";
+
   return staticFallback(slug);
+}
+
+/** Imagem padrão do catálogo ainda visível no painel (sem fotos enviadas). */
+export async function resolveImagemPadraoAdmin(
+  prisma: PrismaClient,
+  produtoId: number,
+  slug: string,
+): Promise<{ url: string; legenda: string } | null> {
+  const temFoto = await prisma.produtoFoto.findFirst({
+    where: { produtoId, arquivo: { not: "" } },
+    select: { id: true },
+  });
+  if (temFoto) return null;
+
+  if (await produtoSemImagemPadrao(prisma, produtoId)) return null;
+
+  const url = staticFallback(slug);
+  if (!url) return null;
+
+  return { url, legenda: "Imagem padrão do catálogo" };
 }
 
 function slugBuscaCandidatos(slug: string): string[] {
@@ -109,6 +136,14 @@ export async function loadProdutoGaleriaPublica(slug: string): Promise<ProdutoGa
   }
 
   if (fotos.length === 0) {
+    if (await produtoSemImagemPadrao(prisma, row.id)) {
+      return {
+        slug: row.slug,
+        nome: row.nome,
+        descricao: row.descricao?.trim() || "",
+        fotos: [],
+      };
+    }
     const capa = await resolveProdutoImagemUrl(prisma, row.id, row.slug);
     if (capa) fotos.push({ src: capa, legenda: row.nome });
   }

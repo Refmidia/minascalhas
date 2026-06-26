@@ -11133,6 +11133,42 @@ html[data-bs-theme="dark"] .dash-produto-card__media-placeholder {
     box-shadow: 0 2px 8px rgba(202, 138, 4, 0.35);
 }
 
+.dash-prod-galeria__padrao-tag {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(15, 23, 42, 0.72);
+}
+
+.dash-prod-galeria__card--padrao.is-capa {
+    border-color: rgba(148, 163, 184, 0.55);
+    box-shadow: none;
+}
+
+.dash-prod-galeria__check-todos {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.dash-prod-galeria__check-todos input {
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
 .dash-prod-galeria__card-overlay {
     position: absolute;
     inset: 0;

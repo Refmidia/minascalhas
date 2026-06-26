@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { HOME_SITE, landingServicesFallback, siteAsset, type HomeGaleriaItem, type HomeLandingData, type HomeServico, type HomeSlide } from "@/data/home-config";
 import { getPrisma } from "@/lib/db.server";
-import { resolveProdutoImagemUrl, staticProdutoImageUrl } from "@/lib/produtos-site.server";
+import { resolveProdutoImagemUrl } from "@/lib/produtos-site.server";
 import { fotoPublicUrl } from "@/lib/produtos-upload.server";
 
 function staticLanding(): HomeLandingData {
@@ -48,7 +48,7 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
       slug: p.slug,
       titulo: p.nome,
       texto: p.descricao?.trim() || "",
-      img: img || staticProdutoImageUrl(p.slug),
+      img,
     });
 
     const fotos = await prisma.produtoFoto.findMany({
@@ -57,8 +57,7 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
     });
 
     if (fotos.length === 0) {
-      const fallback = { src: img || staticProdutoImageUrl(p.slug), legenda: p.nome };
-      galeria.push(fallback);
+      if (img) galeria.push({ src: img, legenda: p.nome });
       continue;
     }
 
@@ -72,9 +71,8 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
       galeria.push(item);
       heroSlides.push({ src: item.src, alt: item.legenda || p.nome });
     }
-    if (fotos.length > 0 && galeria.length === antes) {
-      const fallback = { src: img || staticProdutoImageUrl(p.slug), legenda: p.nome };
-      galeria.push(fallback);
+    if (fotos.length > 0 && galeria.length === antes && img) {
+      galeria.push({ src: img, legenda: p.nome });
     }
   }
 

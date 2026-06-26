@@ -69,6 +69,7 @@ import { Route as ApiAdminUsuariosIdRouteImport } from './routes/api/admin/usuar
 import { Route as ApiAdminProdutosIdRouteImport } from './routes/api/admin/produtos/$id'
 import { Route as ApiAdminUsuariosIdThumbRouteImport } from './routes/api/admin/usuarios/$id/thumb'
 import { Route as ApiAdminProdutosIdFotosRouteImport } from './routes/api/admin/produtos/$id/fotos'
+import { Route as ApiAdminProdutosIdFotosPadraoRouteImport } from './routes/api/admin/produtos/$id/fotos/padrao'
 import { Route as ApiAdminProdutosIdFotosFotoIdRouteImport } from './routes/api/admin/produtos/$id/fotos/$fotoId'
 
 const OsRoute = OsRouteImport.update({
@@ -379,6 +380,12 @@ const ApiAdminProdutosIdFotosRoute = ApiAdminProdutosIdFotosRouteImport.update({
   path: '/fotos',
   getParentRoute: () => ApiAdminProdutosIdRoute,
 } as any)
+const ApiAdminProdutosIdFotosPadraoRoute =
+  ApiAdminProdutosIdFotosPadraoRouteImport.update({
+    id: '/padrao',
+    path: '/padrao',
+    getParentRoute: () => ApiAdminProdutosIdFotosRoute,
+  } as any)
 const ApiAdminProdutosIdFotosFotoIdRoute =
   ApiAdminProdutosIdFotosFotoIdRouteImport.update({
     id: '/$fotoId',
@@ -448,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
+  '/api/admin/produtos/$id/fotos/padrao': typeof ApiAdminProdutosIdFotosPadraoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -510,6 +518,7 @@ export interface FileRoutesByTo {
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
+  '/api/admin/produtos/$id/fotos/padrao': typeof ApiAdminProdutosIdFotosPadraoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -574,6 +583,7 @@ export interface FileRoutesById {
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
+  '/api/admin/produtos/$id/fotos/padrao': typeof ApiAdminProdutosIdFotosPadraoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -639,6 +649,7 @@ export interface FileRouteTypes {
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
+    | '/api/admin/produtos/$id/fotos/padrao'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -701,6 +712,7 @@ export interface FileRouteTypes {
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
+    | '/api/admin/produtos/$id/fotos/padrao'
   id:
     | '__root__'
     | '/'
@@ -764,6 +776,7 @@ export interface FileRouteTypes {
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
+    | '/api/admin/produtos/$id/fotos/padrao'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1222,6 +1235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminProdutosIdFotosRouteImport
       parentRoute: typeof ApiAdminProdutosIdRoute
     }
+    '/api/admin/produtos/$id/fotos/padrao': {
+      id: '/api/admin/produtos/$id/fotos/padrao'
+      path: '/padrao'
+      fullPath: '/api/admin/produtos/$id/fotos/padrao'
+      preLoaderRoute: typeof ApiAdminProdutosIdFotosPadraoRouteImport
+      parentRoute: typeof ApiAdminProdutosIdFotosRoute
+    }
     '/api/admin/produtos/$id/fotos/$fotoId': {
       id: '/api/admin/produtos/$id/fotos/$fotoId'
       path: '/$fotoId'
@@ -1323,11 +1343,13 @@ const ApiAgendamentosRouteWithChildren = ApiAgendamentosRoute._addFileChildren(
 
 interface ApiAdminProdutosIdFotosRouteChildren {
   ApiAdminProdutosIdFotosFotoIdRoute: typeof ApiAdminProdutosIdFotosFotoIdRoute
+  ApiAdminProdutosIdFotosPadraoRoute: typeof ApiAdminProdutosIdFotosPadraoRoute
 }
 
 const ApiAdminProdutosIdFotosRouteChildren: ApiAdminProdutosIdFotosRouteChildren =
   {
     ApiAdminProdutosIdFotosFotoIdRoute: ApiAdminProdutosIdFotosFotoIdRoute,
+    ApiAdminProdutosIdFotosPadraoRoute: ApiAdminProdutosIdFotosPadraoRoute,
   }
 
 const ApiAdminProdutosIdFotosRouteWithChildren =

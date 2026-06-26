@@ -48,12 +48,13 @@ model Usuario {
 }
 
 model ProdutoSite {
-  id        Int      @id @default(autoincrement())
-  nome      String   @db.VarChar(120)
-  slug      String   @unique @db.VarChar(120)
-  descricao String?  @db.VarChar(500)
-  ativo     Int      @default(1) @db.TinyInt
-  ordem     Int      @default(0)
+  id               Int      @id @default(autoincrement())
+  nome             String   @db.VarChar(120)
+  slug             String   @unique @db.VarChar(120)
+  descricao        String?  @db.VarChar(500)
+  ativo            Int      @default(1) @db.TinyInt
+  ordem            Int      @default(0)
+  semImagemPadrao  Int      @default(0) @map("sem_imagem_padrao") @db.TinyInt
   criadoEm  DateTime @default(now()) @map("criado_em")
   atualizadoEm DateTime @default(now()) @updatedAt @map("atualizado_em")
   fotos     ProdutoFoto[]

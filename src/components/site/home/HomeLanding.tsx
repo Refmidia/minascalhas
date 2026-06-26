@@ -167,7 +167,13 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
                   <p>{s.texto}</p>
                   <div className="mc-service-card__img">
                     <Link to="/galeria/$slug" params={{ slug: s.slug }}>
-                      <img src={s.img} alt={`${s.titulo} — Minas Calhas`} loading="lazy" width={280} height={120} />
+                      {s.img ? (
+                        <img src={s.img} alt={`${s.titulo} — Minas Calhas`} loading="lazy" width={280} height={120} />
+                      ) : (
+                        <span className="mc-service-card__img-placeholder" aria-hidden="true">
+                          <i className="bi bi-image" />
+                        </span>
+                      )}
                     </Link>
                   </div>
                   <Link to="/galeria/$slug" params={{ slug: s.slug }} className="mc-service-card__link">

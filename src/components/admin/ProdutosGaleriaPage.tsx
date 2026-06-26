@@ -7,10 +7,12 @@ import { AdminModal } from "@/components/admin/modals/AdminModal";
 import {
   definirCapaFoto,
   excluirFotoProduto,
+  excluirImagemPadraoProduto,
   fetchFotosProduto,
   fetchProdutoDetalhe,
   salvarLegendaFoto,
   uploadFotosProduto,
+  type ImagemPadraoProduto,
   type ProdutoDetalhe,
   type ProdutoFoto,
 } from "@/lib/produtos-client";
@@ -22,6 +24,7 @@ export function ProdutosGaleriaPage() {
 
   const [produto, setProduto] = useState<ProdutoDetalhe | null>(null);
   const [fotos, setFotos] = useState<ProdutoFoto[]>([]);
+  const [imagemPadrao, setImagemPadrao] = useState<ImagemPadraoProduto | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [msg, setMsg] = useState("");
@@ -42,6 +45,8 @@ export function ProdutosGaleriaPage() {
   const [salvandoLegenda, setSalvandoLegenda] = useState(false);
 
   const [excluirFoto, setExcluirFoto] = useState<ProdutoFoto | null>(null);
+  const [excluirPadrao, setExcluirPadrao] = useState(false);
+  const [removerPadraoDeTodos, setRemoverPadraoDeTodos] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
 
   const load = useCallback(async () => {
@@ -49,16 +54,18 @@ export function ProdutosGaleriaPage() {
     setLoading(true);
     setErro("");
     try {
-      const [p, f] = await Promise.all([
+      const [p, payload] = await Promise.all([
         fetchProdutoDetalhe(produtoId),
         fetchFotosProduto(produtoId),
       ]);
       setProduto(p);
-      setFotos(f);
+      setFotos(payload.fotos);
+      setImagemPadrao(payload.imagemPadrao);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao carregar.");
       setProduto(null);
       setFotos([]);
+      setImagemPadrao(null);
     } finally {
       setLoading(false);
     }
@@ -172,9 +179,31 @@ export function ProdutosGaleriaPage() {
     }
   }
 
+  async function confirmarExcluirPadrao() {
+    if (!produtoId) return;
+    setExcluindo(true);
+    setErro("");
+    try {
+      await excluirImagemPadraoProduto(produtoId, removerPadraoDeTodos);
+      setMsg(
+        removerPadraoDeTodos
+          ? "Imagens padrão removidas de todos os produtos."
+          : "Imagem padrão removida.",
+      );
+      setExcluirPadrao(false);
+      setRemoverPadraoDeTodos(false);
+      await load();
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Erro ao excluir.");
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
   const capaAtual = fotos.find((f) => f.eh_capa) ?? null;
-  const imgCapa = capaAtual?.url ?? produto?.imagem_url ?? "";
-  const totalFotos = fotos.length;
+  const imgCapa = capaAtual?.url ?? imagemPadrao?.url ?? produto?.imagem_url ?? "";
+  const totalFotos = fotos.length + (imagemPadrao ? 1 : 0);
+  const temItensGaleria = totalFotos > 0;
 
   if (!produtoId || produtoId <= 0) return null;
 
@@ -372,14 +401,14 @@ export function ProdutosGaleriaPage() {
                 <i className="bi bi-grid-3x3-gap" aria-hidden="true" /> Galeria do produto{" "}
                 <span className="text-secondary fw-normal fs-6">({totalFotos})</span>
               </h2>
-              {totalFotos > 0 ? (
+              {temItensGaleria ? (
                 <p className="dash-prod-galeria__lista-hint mb-0">
                   Clique na estrela para definir a capa do site · lápis para editar legenda
                 </p>
               ) : null}
             </div>
 
-            {totalFotos === 0 ? (
+            {!temItensGaleria ? (
               <div className="dash-prod-galeria__empty">
                 <div className="dash-prod-galeria__empty-icon" aria-hidden="true">
                   <i className="bi bi-images" />
@@ -389,6 +418,50 @@ export function ProdutosGaleriaPage() {
               </div>
             ) : (
               <div className="dash-prod-galeria__grid">
+                {imagemPadrao ? (
+                  <article className="dash-prod-galeria__card dash-prod-galeria__card--padrao is-capa">
+                    <div className="dash-prod-galeria__card-media">
+                      <img
+                        src={imagemPadrao.url}
+                        alt={imagemPadrao.legenda}
+                        loading="lazy"
+                      />
+                      <span className="dash-prod-galeria__padrao-tag">
+                        <i className="bi bi-image" aria-hidden="true" /> Imagem padrão
+                      </span>
+                      <div className="dash-prod-galeria__card-overlay">
+                        <button
+                          type="button"
+                          className="dash-prod-galeria__overlay-btn prod-btn-ver"
+                          title="Ver em tamanho grande"
+                          aria-label="Ver foto"
+                          onClick={() => {
+                            setVerUrl(imagemPadrao.url);
+                            setVerAlt(imagemPadrao.legenda);
+                          }}
+                        >
+                          <i className="bi bi-zoom-in" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className="dash-prod-galeria__overlay-btn dash-prod-galeria__overlay-btn--danger"
+                          title="Remover imagem padrão"
+                          aria-label="Remover imagem padrão"
+                          onClick={() => setExcluirPadrao(true)}
+                        >
+                          <i className="bi bi-trash" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="dash-prod-galeria__card-footer">
+                      <p className="dash-prod-galeria__card-legenda">{imagemPadrao.legenda}</p>
+                      <span className="dash-prod-galeria__capa-ativa">
+                        <i className="bi bi-info-circle" aria-hidden="true" /> Exibida no site até você
+                        enviar fotos
+                      </span>
+                    </div>
+                  </article>
+                ) : null}
                 {fotos.map((foto) => {
                   const legenda = foto.legenda?.trim() ?? "";
                   return (
@@ -572,6 +645,76 @@ export function ProdutosGaleriaPage() {
           if (!excluindo) setExcluirFoto(null);
         }}
       />
+
+      <AdminModal
+        open={excluirPadrao}
+        onClose={() => {
+          if (!excluindo) {
+            setExcluirPadrao(false);
+            setRemoverPadraoDeTodos(false);
+          }
+        }}
+      >
+        <div className="modal-content dash-edit-modal__content">
+          <div className="modal-header dash-edit-modal__header">
+            <div>
+              <h4 className="modal-title dash-edit-modal__title mb-0">Remover imagem padrão?</h4>
+              <p className="dash-edit-modal__subtitle mb-0">
+                Ela some do hero, da galeria do site e do card na home.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn-close"
+              aria-label="Fechar"
+              disabled={excluindo}
+              onClick={() => {
+                if (!excluindo) {
+                  setExcluirPadrao(false);
+                  setRemoverPadraoDeTodos(false);
+                }
+              }}
+            />
+          </div>
+          <div className="modal-body dash-edit-modal__body">
+            {imagemPadrao ? (
+              <div className="dash-prod-galeria__edit-preview mb-3">
+                <img src={imagemPadrao.url} alt="" />
+              </div>
+            ) : null}
+            <label className="dash-prod-galeria__check-todos">
+              <input
+                type="checkbox"
+                checked={removerPadraoDeTodos}
+                onChange={(e) => setRemoverPadraoDeTodos(e.target.checked)}
+                disabled={excluindo}
+              />
+              <span>Remover imagem padrão de <strong>todos</strong> os produtos</span>
+            </label>
+          </div>
+          <div className="modal-footer dash-edit-modal__footer">
+            <button
+              type="button"
+              className="btn dash-edit-modal__btn-cancel"
+              disabled={excluindo}
+              onClick={() => {
+                setExcluirPadrao(false);
+                setRemoverPadraoDeTodos(false);
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              disabled={excluindo}
+              onClick={() => void confirmarExcluirPadrao()}
+            >
+              {excluindo ? "Removendo…" : "Remover"}
+            </button>
+          </div>
+        </div>
+      </AdminModal>
     </div>
   );
 }

@@ -70,6 +70,16 @@ export type ProdutoFoto = {
   url: string;
 };
 
+export type ImagemPadraoProduto = {
+  url: string;
+  legenda: string;
+};
+
+export type ProdutoFotosPayload = {
+  fotos: ProdutoFoto[];
+  imagemPadrao: ImagemPadraoProduto | null;
+};
+
 export async function fetchProdutoDetalhe(id: number): Promise<ProdutoDetalhe> {
   const res = await fetch(`/api/admin/produtos/${id}`, { credentials: "include" });
   const data = await parseJson<{ ok?: boolean; item?: ProdutoDetalhe; message?: string }>(res);
@@ -77,11 +87,19 @@ export async function fetchProdutoDetalhe(id: number): Promise<ProdutoDetalhe> {
   return data.item;
 }
 
-export async function fetchFotosProduto(produtoId: number): Promise<ProdutoFoto[]> {
+export async function fetchFotosProduto(produtoId: number): Promise<ProdutoFotosPayload> {
   const res = await fetch(`/api/admin/produtos/${produtoId}/fotos`, { credentials: "include" });
-  const data = await parseJson<{ ok?: boolean; itens?: ProdutoFoto[]; message?: string }>(res);
+  const data = await parseJson<{
+    ok?: boolean;
+    itens?: ProdutoFoto[];
+    imagem_padrao?: ImagemPadraoProduto | null;
+    message?: string;
+  }>(res);
   if (!res.ok) throw new Error(data.message ?? "Não foi possível carregar fotos.");
-  return data.itens ?? [];
+  return {
+    fotos: data.itens ?? [],
+    imagemPadrao: data.imagem_padrao ?? null,
+  };
 }
 
 export async function uploadFotosProduto(
@@ -134,4 +152,17 @@ export async function excluirFotoProduto(produtoId: number, fotoId: number): Pro
   });
   const data = await parseJson<{ ok?: boolean; message?: string }>(res);
   if (!res.ok) throw new Error(data.message ?? "Não foi possível excluir foto.");
+}
+
+export async function excluirImagemPadraoProduto(
+  produtoId: number,
+  removerDeTodos = false,
+): Promise<void> {
+  const qs = removerDeTodos ? "?todos=1" : "";
+  const res = await fetch(`/api/admin/produtos/${produtoId}/fotos/padrao${qs}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const data = await parseJson<{ ok?: boolean; message?: string }>(res);
+  if (!res.ok) throw new Error(data.message ?? "Não foi possível remover imagem padrão.");
 }
