@@ -13,10 +13,10 @@ export const HOME_SITE = {
   instagram: "https://www.instagram.com/minas_callha/",
   telefone1: "(18) 99732-6783",
   telefone2: "(18) 99636-6042",
-  endereco: "Rua Benedito Cardoso Coelho, Florínea/SP — CEP 19870-210",
+  endereco: "Rua José Alves de Lima, nº 10 — Florínea/SP — CEP 19870-015",
   regiaoAtendimento: "Florínea, Venda Nova do Imigrante, Álvares Machado e região.",
   mapsEmbed:
-    "https://www.google.com/maps?q=Rua+Benedito+Cardoso+Coelho,+Flor%C3%ADnea,+SP,+19870-210&hl=pt&z=16&output=embed",
+    "https://www.google.com/maps?q=Rua+Jos%C3%A9+Alves+de+Lima,+10,+Flor%C3%ADnea,+SP,+19870-015&hl=pt&z=16&output=embed",
   chat: {
     nome: "Atendimento",
     cargo: "Minas Calhas",
@@ -277,8 +277,8 @@ export const SITE_META = {
   description:
     "Calhas, rufos, pingadeiras e condutores com fabricação sob medida e instalação profissional em Florínea e região.",
   logoPreto: "/images/logo/logo-preto.png",
-  /** Logo completo — melhor preview no WhatsApp que o ícone preto. */
-  ogImagePath: "/images/logo/logo-home.png",
+  /** Imagem ao compartilhar link (WhatsApp, redes sociais). */
+  ogImagePath: "/images/logo/icon.png",
   get ogImageUrl() {
     return `${getPublicSiteOrigin()}${this.ogImagePath}`;
   },

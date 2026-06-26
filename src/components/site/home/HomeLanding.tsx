@@ -250,7 +250,7 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
             <div className="mc-contact-band__map">
               <iframe
                 src={HOME_SITE.mapsEmbed}
-                title="Localização Minas Calhas, Rua Benedito Cardoso Coelho, Florínea SP"
+                title="Localização Minas Calhas, Rua José Alves de Lima nº 10, Florínea SP"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 allowFullScreen

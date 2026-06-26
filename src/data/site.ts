@@ -66,7 +66,7 @@ export const CONTACT: ContactInfo = {
   whatsappLink: "https://wa.me/5518997326783",
   phone: "(18) 99636-6042",
   email: "contato@minascalhas.com",
-  address: "Rua Benedito Cardoso Coelho, Florínea/SP — CEP 19870-210",
+  address: "Rua José Alves de Lima, nº 10 — Florínea/SP — CEP 19870-015",
 };
 
 export const COMPANY = {

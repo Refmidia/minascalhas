@@ -135,8 +135,6 @@ export function OrcamentoDocument({ item, itens }: Props) {
             {empresa.enderecoLinha1}
             <br />
             {empresa.enderecoLinha2}
-            <br />
-            {empresa.cidade}
           </TopLine>
           <TopLine
             icon={
@@ -146,14 +144,10 @@ export function OrcamentoDocument({ item, itens }: Props) {
             }
           >
             {empresa.telefone1}
-          </TopLine>
-          <TopLine
-            icon={
-              <svg viewBox="0 0 24 24">
-                <path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3zm-2 18h-4v-1h4v1zm3.25-4H6.75V4h10.5v11z" />
-              </svg>
-            }
-          >
+            <span className="os-orc-top__sep" aria-hidden="true">
+              {" "}
+              ·{" "}
+            </span>
             {empresa.telefone2}
           </TopLine>
         </div>
@@ -167,17 +161,11 @@ export function OrcamentoDocument({ item, itens }: Props) {
             }
           >
             CNPJ: {empresa.cnpj}
-            <br />
+            <span className="os-orc-top__sep" aria-hidden="true">
+              {" "}
+              ·{" "}
+            </span>
             IE: {empresa.ie}
-          </TopLine>
-          <TopLine
-            icon={
-              <svg viewBox="0 0 24 24">
-                <path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm0 14H5.17L4 17.17V4h16v12z" />
-              </svg>
-            }
-          >
-            {empresa.whatsapp}
           </TopLine>
         </div>
       </header>
