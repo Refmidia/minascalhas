@@ -15,7 +15,7 @@ export const OS_ORCAMENTO_EMPRESA = {
   cidade: "Florínea - SP",
   logoSrc: "/images/logo/logo-preto.png",
   pixQrSrc: "/images/Pix%20Qrcod/qrcod.png",
-  chavePix: "contato@minascalhas.com",
+  chavePix: "44.384.599/0001-80",
   assinaturaSrc: "/images/Pix%20Qrcod/Assinatura.png",
   assinaturaNome: "Minas Calhas",
   assinaturaCargo: "Responsável pela empresa",
