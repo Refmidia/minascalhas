@@ -40,6 +40,7 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
 
   const servicos: HomeServico[] = [];
   const galeria: HomeGaleriaItem[] = [];
+  const heroSlides: HomeSlide[] = [];
 
   for (const p of produtos) {
     const img = await resolveProdutoImagemUrl(prisma, p.id, p.slug);
@@ -56,29 +57,31 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
     });
 
     if (fotos.length === 0) {
-      galeria.push({ src: img, legenda: p.nome });
+      const fallback = { src: img || staticProdutoImageUrl(p.slug), legenda: p.nome };
+      galeria.push(fallback);
       continue;
     }
 
     const antes = galeria.length;
     for (const f of fotos) {
       if (!f.arquivo) continue;
-      galeria.push({
+      const item = {
         src: fotoPublicUrl(f.arquivo),
         legenda: f.legenda?.trim() || p.nome,
-      });
+      };
+      galeria.push(item);
+      heroSlides.push({ src: item.src, alt: item.legenda || p.nome });
     }
     if (fotos.length > 0 && galeria.length === antes) {
-      galeria.push({ src: img, legenda: p.nome });
+      const fallback = { src: img || staticProdutoImageUrl(p.slug), legenda: p.nome };
+      galeria.push(fallback);
     }
   }
 
-  const heroSlides: HomeSlide[] =
-    galeria.length > 0
-      ? galeria.map((g) => ({ src: g.src, alt: g.legenda || "Minas Calhas" }))
-      : staticLanding().heroSlides;
+  const heroSlidesFinal: HomeSlide[] =
+    heroSlides.length > 0 ? heroSlides : staticLanding().heroSlides;
 
-  return { servicos, galeria, heroSlides };
+  return { servicos, galeria, heroSlides: heroSlidesFinal };
 }
 
 export async function loadHomeLandingData(): Promise<HomeLandingData> {

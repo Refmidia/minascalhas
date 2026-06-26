@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AcAgendarForm } from "@/components/site/home/AcAgendarForm";
 import { AcLoginModal } from "@/components/site/home/AcLoginModal";
 import { AcSiteChat } from "@/components/site/home/AcSiteChat";
-import { McHeroVisual } from "@/components/site/home/McHeroVisual";
+import { McHeroSlider } from "@/components/site/home/McHeroSlider";
 import { McTechnicalDiagram } from "@/components/site/home/McTechnicalDiagram";
 import { McSiteFooter } from "@/components/site/home/McSiteFooter";
 import { McSiteHeader } from "@/components/site/home/McSiteHeader";
@@ -102,7 +102,7 @@ export function HomeLanding({ data, painelLoginOpen, onPainelLoginOpenChange }: 
               </div>
 
               <div className="mc-hero__media">
-                <McHeroVisual />
+                <McHeroSlider slides={data.heroSlides} />
               </div>
             </div>
 

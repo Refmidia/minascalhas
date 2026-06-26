@@ -10794,7 +10794,7 @@ html[data-bs-theme="dark"] .dash-produto-card__media-placeholder {
 
 .dash-prod-galeria__mock-media {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 3 / 4;
     background: #f1f5f9;
     overflow: hidden;
 }
@@ -11098,7 +11098,7 @@ html[data-bs-theme="dark"] .dash-produto-card__media-placeholder {
 
 .dash-prod-galeria__card-media {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 3 / 4;
     background: #f1f5f9;
     overflow: hidden;
 }

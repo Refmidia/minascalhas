@@ -583,8 +583,194 @@ a {
 .mc-hero-visual img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
+  object-position: center;
+}
+
+/* Hero — carrossel com fotos do painel (capa + galeria) */
+.mc-hero__media {
+  position: relative;
+  min-width: 0;
+}
+
+.mc-hero-slider {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  isolation: isolate;
+}
+
+.mc-hero-slider::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.12) 0%,
+    transparent 38%,
+    transparent 62%,
+    rgba(0, 0, 0, 0.22) 100%
+  );
+  z-index: 2;
+}
+
+.mc-hero-slider__viewport {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  max-height: min(540px, 78vh);
+  width: 100%;
+}
+
+.mc-hero-slider__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  z-index: 0;
+}
+
+.mc-hero-slider__slide.is-active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.mc-hero-slider__slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.mc-hero-slider__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1a1a1a;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.mc-hero-slider__arrow--prev {
+  left: 0.65rem;
+}
+
+.mc-hero-slider__arrow--next {
+  right: 0.65rem;
+}
+
+.mc-hero-slider__arrow:hover,
+.mc-hero-slider__arrow:focus-visible {
+  background: var(--mc-yellow);
+  color: #1a1a1a;
+}
+
+.mc-hero-slider__arrow:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.mc-hero-slider__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.mc-hero-slider__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.mc-hero-slider__dot.is-active {
+  background: var(--mc-yellow);
+  transform: scale(1.15);
+}
+
+/* Callouts técnicos sobre o carrossel (mesmo visual do layout original) */
+.mc-hero-slider .mc-hero-visual__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.mc-hero-slider .mc-hero-visual__line {
+  stroke: #f5b400;
+  stroke-width: 0.18;
+  vector-effect: non-scaling-stroke;
+}
+
+.mc-hero-slider .mc-hero-visual__dot {
+  fill: #f5b400;
+}
+
+.mc-hero-slider .mc-hero-visual__label {
+  position: absolute;
+  z-index: 4;
+  max-width: 118px;
+  transform: translateY(-15%);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+.mc-hero-slider .mc-hero-visual__label--right {
+  transform: translate(-100%, -15%);
+  text-align: right;
+}
+
+.mc-hero-slider .mc-hero-visual__label strong {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.mc-hero-slider .mc-hero-visual__label span {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.64rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.mc-hero-slider__arrow {
+  z-index: 5;
+}
+
+.mc-hero-slider__dots {
+  z-index: 5;
 }
 
 .mc-hero-visual__svg {
@@ -812,9 +998,9 @@ a {
   border-radius: 10px;
   overflow: hidden;
   border: none;
-  background: transparent;
-  aspect-ratio: 4 / 3;
-  min-height: 118px;
+  background: #1a1a1a;
+  aspect-ratio: 3 / 4;
+  min-height: 140px;
 }
 
 .mc-service-card__img a {
@@ -829,7 +1015,7 @@ a {
 .mc-service-card__img img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   display: block;
   padding: 0;
@@ -2310,8 +2496,9 @@ body.mc-landing .mc-prod-gallery-page .ac-prod-gallery__open {
 
 body.mc-landing .mc-prod-gallery-page .ac-prod-gallery__open img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
+  object-position: center;
   display: block;
   transition: transform 0.35s ease;
 }

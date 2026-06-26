@@ -244,7 +244,8 @@ export function ProdutosGaleriaPage() {
               <div className="dash-prod-galeria__preview-info">
                 <p className="dash-prod-galeria__preview-lead">
                   A foto <strong>capa</strong> aparece no card deste produto na home (Nossos
-                  serviços).
+                  serviços). Todas as fotos enviadas aqui entram na <strong>galeria do site</strong> e
+                  no <strong>carrossel do hero</strong> da página inicial.
                 </p>
                 <div className="dash-prod-galeria__preview-chips">
                   <span className="dash-prod-galeria__chip">

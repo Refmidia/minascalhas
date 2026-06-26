@@ -17,15 +17,13 @@ export function resolveBlobReadWriteToken(): string | undefined {
   return undefined;
 }
 
-/** Blob ligado via OIDC (padrão Vercel: BLOB_STORE_ID + token OIDC no deploy). */
+function isOnVercelRuntime(): boolean {
+  return process.env.VERCEL === "1" || process.env.VERCEL === "true";
+}
+
+/** Blob ligado via OIDC (BLOB_STORE_ID no projeto Vercel). */
 export function hasBlobOidcOnVercel(): boolean {
-  const storeId = process.env.BLOB_STORE_ID?.trim();
-  if (!storeId) return false;
-  return Boolean(
-    process.env.VERCEL === "1" ||
-      process.env.VERCEL === "true" ||
-      process.env.VERCEL_OIDC_TOKEN?.trim(),
-  );
+  return Boolean(isOnVercelRuntime() && process.env.BLOB_STORE_ID?.trim());
 }
 
 export function hasBlobStorage(): boolean {
