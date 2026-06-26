@@ -581,29 +581,22 @@ export function ModalOrcamento({
                     Lance manualmente pelo material cadastrado ou use a calculadora de bobina para gerar os itens.
                   </p>
                   <div className="visitas-orc-toolbar row g-2 align-items-end mb-2">
-                    <div className="col-12 col-md-4">
-                      <label className="visitas-orc-label">Buscar</label>
-                      <input
-                        type="text"
-                        className="form-control visitas-orc-input"
-                        placeholder="Filtrar materiais…"
-                        value={form.pesquisa}
-                        onChange={(e) => form.setPesquisa(e.target.value)}
-                      />
-                    </div>
-                    <div className="col-12 col-md-4">
-                      <label className="visitas-orc-label">Material</label>
+                    <div className="col-12 col-md-5">
+                      <label className="visitas-orc-label">Buscar material</label>
                       <OrcMaterialSelect
                         value={form.materialId}
                         onChange={form.setMaterialId}
+                        search={form.pesquisa}
+                        onSearchChange={form.setPesquisa}
                         options={form.materiaisFiltrados}
+                        allOptions={materiais}
                         disabled={materiaisLoading || materiais.length === 0}
                         placeholder={
                           materiaisLoading
                             ? "Carregando…"
                             : materiais.length === 0
-                              ? "Sem materiais"
-                              : "Selecione…"
+                              ? "Sem materiais cadastrados"
+                              : "Digite para buscar o material…"
                         }
                       />
                     </div>

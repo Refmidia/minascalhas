@@ -14,7 +14,7 @@ export const OS_ORCAMENTO_EMPRESA = {
   enderecoLinha2: "Florínea — CEP 19870-210",
   cidade: "Florínea - SP",
   logoSrc: "/images/logo/logo-preto.png",
-  pixQrSrc: "/images/Pix%20Qrcod/qrcod.jpeg",
+  pixQrSrc: "/images/Pix%20Qrcod/qrcod.png",
   chavePix: "contato@minascalhas.com",
   assinaturaSrc: "/images/Pix%20Qrcod/Assinatura.png",
   assinaturaNome: "Minas Calhas",

@@ -198,13 +198,36 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
   }, []);
 
   const materiaisFiltrados = useMemo(() => {
-    const q = pesquisa.trim().toLowerCase();
+    const norm = (s: string) =>
+      s
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    const q = norm(pesquisa.trim());
     if (!q) return materiais;
-    return materiais.filter((m) => m.material.toLowerCase().includes(q));
+    const terms = q.split(/\s+/).filter(Boolean);
+    return materiais.filter((m) => {
+      const hay = norm(m.material);
+      return terms.every((t) => hay.includes(t));
+    });
   }, [materiais, pesquisa]);
 
   const addMaterial = useCallback(() => {
-    const m = materiais.find((x) => String(x.id) === materialId);
+    let id = materialId;
+    if (!id && pesquisa.trim()) {
+      const norm = (s: string) =>
+        s
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      const terms = norm(pesquisa.trim()).split(/\s+/).filter(Boolean);
+      const matches = materiais.filter((m) => {
+        const hay = norm(m.material);
+        return terms.every((t) => hay.includes(t));
+      });
+      if (matches.length === 1) id = String(matches[0].id);
+    }
+    const m = materiais.find((x) => String(x.id) === id);
     if (!m) return;
     const mt = Number.parseFloat(metros.replace(",", ".")) || 1;
     setPartData((prev) =>
@@ -220,8 +243,9 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
       ]),
     );
     setMaterialId("");
+    setPesquisa("");
     setMetros("1");
-  }, [materiais, materialId, metros]);
+  }, [materiais, materialId, metros, pesquisa]);
 
   const addLinhas = useCallback((linhas: OrcamentoLinha[]) => {
     if (linhas.length === 0) return;
