@@ -4254,6 +4254,68 @@ html[data-bs-theme="dark"] .visitas-orc-calc-btn:hover {
     overflow: auto;
 }
 
+.visitas-orc-table__hint {
+    font-size: 0.68rem;
+    color: var(--dash-text-muted, #64748b);
+    line-height: 1.35;
+}
+
+.visitas-orc-table__col-ordem {
+    width: 2.75rem;
+    white-space: nowrap;
+}
+
+.visitas-orc-table__ordem {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding-left: 0.35rem !important;
+    vertical-align: middle;
+}
+
+.visitas-orc-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--dash-text-muted, #94a3b8);
+    cursor: grab;
+    flex-shrink: 0;
+}
+
+.visitas-orc-drag-handle:active {
+    cursor: grabbing;
+}
+
+.visitas-orc-drag-handle:hover:not(.visitas-orc-drag-handle--disabled) {
+    color: var(--dash-accent, #ca8a04);
+    background: rgba(202, 138, 4, 0.12);
+}
+
+.visitas-orc-drag-handle--disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.visitas-orc-table__ordem-num {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 0.85rem;
+}
+
+.visitas-orc-table__row--drag-over td {
+    box-shadow: inset 0 2px 0 0 var(--dash-accent, #ca8a04);
+}
+
+.visitas-orc-table__row--dragging {
+    opacity: 0.45;
+}
+
 .visitas-orc-table-wrap:has(.visitas-orc-table__row--editing) {
     max-height: none;
     overflow-x: auto;

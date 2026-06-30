@@ -213,8 +213,54 @@ export function ModalOrcamento({
   const [editValor, setEditValor] = useState("");
   const [editCalcInfo, setEditCalcInfo] = useState<LinhaOrcamentoCalculadaInfo | null>(null);
   const [editMultIdx, setEditMultIdx] = useState(0);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   const form = useOrcamentoForm(materiais);
+
+  function ajustarIndiceEdicao(editingIdx: number, from: number, to: number): number {
+    if (editingIdx === from) return to;
+    if (from < editingIdx && to >= editingIdx) return editingIdx - 1;
+    if (from > editingIdx && to <= editingIdx) return editingIdx + 1;
+    return editingIdx;
+  }
+
+  function iniciarArrasteLinha(e: React.DragEvent, idx: number) {
+    if (editingLinhaIdx !== null) {
+      e.preventDefault();
+      return;
+    }
+    setDragIdx(idx);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(idx));
+  }
+
+  function arrastarSobreLinha(e: React.DragEvent, idx: number) {
+    if (dragIdx === null || editingLinhaIdx !== null) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIdx !== idx) setDragOverIdx(idx);
+  }
+
+  function soltarLinha(e: React.DragEvent, toIdx: number) {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === toIdx) {
+      setDragIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+    form.reorderLinha(dragIdx, toIdx);
+    if (editingLinhaIdx !== null) {
+      setEditingLinhaIdx(ajustarIndiceEdicao(editingLinhaIdx, dragIdx, toIdx));
+    }
+    setDragIdx(null);
+    setDragOverIdx(null);
+  }
+
+  function encerrarArraste() {
+    setDragIdx(null);
+    setDragOverIdx(null);
+  }
 
   function formatEditNum(n: number): string {
     return n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
@@ -285,6 +331,7 @@ export function ModalOrcamento({
     if (editingLinhaIdx === null) return;
     if (!aplicarEdicaoLinha(editingLinhaIdx)) return;
     cancelarEdicaoLinha();
+    form.sortAlphabetically();
   }
 
   function partDataComEdicaoPendente(): OrcamentoLinha[] | null {
@@ -635,10 +682,16 @@ export function ModalOrcamento({
                     </div>
                   </div>
                   <div className="visitas-orc-table-wrap table-responsive">
+                    <p className="visitas-orc-table__hint mb-2">
+                      <i className="bi bi-grip-vertical" aria-hidden="true" /> Arraste pela coluna{" "}
+                      <strong>#</strong> para mudar a ordem · ao salvar uma edição, a lista ordena de A a Z
+                    </p>
                     <table className="table table-sm visitas-orc-table mb-0">
                       <thead>
                         <tr>
-                          <th>#</th>
+                          <th className="visitas-orc-table__col-ordem" title="Arraste para reordenar">
+                            #
+                          </th>
                           <th>Material</th>
                           <th className="text-end" title="Valor por metro (corte × multiplicador)">
                             R$/m
@@ -650,8 +703,41 @@ export function ModalOrcamento({
                       </thead>
                       <tbody>
                         {form.partData.map((linha, i) => (
-                          <tr key={i} className={editingLinhaIdx === i ? "visitas-orc-table__row--editing" : undefined}>
-                            <td>{i + 1}</td>
+                          <tr
+                            key={`${linha.material}-${linha.valor}-${i}`}
+                            className={[
+                              editingLinhaIdx === i ? "visitas-orc-table__row--editing" : "",
+                              dragOverIdx === i && dragIdx !== i ? "visitas-orc-table__row--drag-over" : "",
+                              dragIdx === i ? "visitas-orc-table__row--dragging" : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            onDragOver={(e) => arrastarSobreLinha(e, i)}
+                            onDragLeave={() => {
+                              if (dragOverIdx === i) setDragOverIdx(null);
+                            }}
+                            onDrop={(e) => soltarLinha(e, i)}
+                          >
+                            <td className="visitas-orc-table__ordem">
+                              {editingLinhaIdx === null ? (
+                                <button
+                                  type="button"
+                                  className="visitas-orc-drag-handle"
+                                  draggable
+                                  aria-label={`Arrastar item ${i + 1}`}
+                                  title="Arrastar para reordenar"
+                                  onDragStart={(e) => iniciarArrasteLinha(e, i)}
+                                  onDragEnd={encerrarArraste}
+                                >
+                                  <i className="bi bi-grip-vertical" aria-hidden="true" />
+                                </button>
+                              ) : (
+                                <span className="visitas-orc-drag-handle visitas-orc-drag-handle--disabled" aria-hidden="true">
+                                  <i className="bi bi-grip-vertical" />
+                                </span>
+                              )}
+                              <span className="visitas-orc-table__ordem-num">{i + 1}</span>
+                            </td>
                             <td>{linha.material}</td>
                             {editingLinhaIdx === i ? (
                               editCalcInfo ? (

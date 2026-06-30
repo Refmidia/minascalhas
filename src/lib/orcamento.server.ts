@@ -281,6 +281,21 @@ export function mesclarLinhasOrcamento(linhas: OrcamentoLinha[]): OrcamentoLinha
   return ordem.map((k) => map.get(k)!);
 }
 
+function normalizarMaterialOrdem(material: string): string {
+  return material
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Ordena linhas do orçamento por nome do material (A–Z). */
+export function ordenarLinhasOrcamentoAlfabetico(linhas: OrcamentoLinha[]): OrcamentoLinha[] {
+  return [...linhas].sort((a, b) =>
+    normalizarMaterialOrdem(a.material).localeCompare(normalizarMaterialOrdem(b.material), "pt-BR"),
+  );
+}
+
 function normalizarDescontoPercent(raw: unknown): number {
   const n = parseMoneyBr(raw);
   return Math.min(100, Math.max(0, n));

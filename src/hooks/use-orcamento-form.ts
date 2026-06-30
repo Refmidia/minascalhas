@@ -8,6 +8,7 @@ import {
   garantirTotalOrcamentoConsistente,
   inventarioSubtotalOrcamento,
   mesclarLinhasOrcamento,
+  ordenarLinhasOrcamentoAlfabetico,
   parseMoneyBr,
   sanitizarDescontoPct,
   parseFormaPagamento,
@@ -262,6 +263,22 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     );
   }, []);
 
+  const reorderLinha = useCallback((from: number, to: number) => {
+    setPartData((prev) => {
+      if (from === to || from < 0 || to < 0 || from >= prev.length || to >= prev.length) {
+        return prev;
+      }
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+  }, []);
+
+  const sortAlphabetically = useCallback(() => {
+    setPartData((prev) => ordenarLinhasOrcamentoAlfabetico(prev));
+  }, []);
+
   const resetForm = useCallback(() => {
     setPartData([]);
     setDescontoPct("");
@@ -408,6 +425,8 @@ export function useOrcamentoForm(materiais: MaterialItem[]) {
     addLinhas,
     removeLinha,
     updateLinha,
+    reorderLinha,
+    sortAlphabetically,
     resetForm,
     loadExisting,
     buildPayload,
