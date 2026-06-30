@@ -4260,17 +4260,43 @@ html[data-bs-theme="dark"] .visitas-orc-calc-btn:hover {
     line-height: 1.35;
 }
 
+.visitas-orc-table {
+    margin-bottom: 0;
+    --bs-table-bg: transparent;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.visitas-orc-table thead th:nth-child(2) {
+    width: auto;
+}
+
 .visitas-orc-table__col-ordem {
-    width: 2.75rem;
+    width: 3rem;
     white-space: nowrap;
 }
 
 .visitas-orc-table__ordem {
-    display: flex;
+    width: 3rem;
+    min-width: 3rem;
+    max-width: 3rem;
+    padding: 0.4rem 0.35rem !important;
+    vertical-align: middle !important;
+    text-align: left;
+}
+
+.visitas-orc-table__ordem-inner {
+    display: inline-flex;
     align-items: center;
     gap: 0.15rem;
-    padding-left: 0.35rem !important;
     vertical-align: middle;
+}
+
+.visitas-orc-table tbody td.visitas-orc-table__material {
+    text-align: left !important;
+    vertical-align: middle !important;
+    line-height: 1.35;
+    word-break: break-word;
 }
 
 .visitas-orc-drag-handle {
@@ -4320,11 +4346,6 @@ html[data-bs-theme="dark"] .visitas-orc-calc-btn:hover {
     max-height: none;
     overflow-x: auto;
     overflow-y: visible;
-}
-
-.visitas-orc-table {
-    margin-bottom: 0;
-    --bs-table-bg: transparent;
 }
 
 .visitas-orc-table thead {

@@ -719,26 +719,28 @@ export function ModalOrcamento({
                             onDrop={(e) => soltarLinha(e, i)}
                           >
                             <td className="visitas-orc-table__ordem">
-                              {editingLinhaIdx === null ? (
-                                <button
-                                  type="button"
-                                  className="visitas-orc-drag-handle"
-                                  draggable
-                                  aria-label={`Arrastar item ${i + 1}`}
-                                  title="Arrastar para reordenar"
-                                  onDragStart={(e) => iniciarArrasteLinha(e, i)}
-                                  onDragEnd={encerrarArraste}
-                                >
-                                  <i className="bi bi-grip-vertical" aria-hidden="true" />
-                                </button>
-                              ) : (
-                                <span className="visitas-orc-drag-handle visitas-orc-drag-handle--disabled" aria-hidden="true">
-                                  <i className="bi bi-grip-vertical" />
-                                </span>
-                              )}
-                              <span className="visitas-orc-table__ordem-num">{i + 1}</span>
+                              <span className="visitas-orc-table__ordem-inner">
+                                {editingLinhaIdx === null ? (
+                                  <button
+                                    type="button"
+                                    className="visitas-orc-drag-handle"
+                                    draggable
+                                    aria-label={`Arrastar item ${i + 1}`}
+                                    title="Arrastar para reordenar"
+                                    onDragStart={(e) => iniciarArrasteLinha(e, i)}
+                                    onDragEnd={encerrarArraste}
+                                  >
+                                    <i className="bi bi-grip-vertical" aria-hidden="true" />
+                                  </button>
+                                ) : (
+                                  <span className="visitas-orc-drag-handle visitas-orc-drag-handle--disabled" aria-hidden="true">
+                                    <i className="bi bi-grip-vertical" />
+                                  </span>
+                                )}
+                                <span className="visitas-orc-table__ordem-num">{i + 1}</span>
+                              </span>
                             </td>
-                            <td>{linha.material}</td>
+                            <td className="visitas-orc-table__material">{linha.material}</td>
                             {editingLinhaIdx === i ? (
                               editCalcInfo ? (
                                 <td colSpan={4} className="visitas-orc-table__edit-calc">
