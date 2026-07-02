@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+
+import { DashAlertModal } from "@/components/admin/DashAlertModal";
 import { AdminModal } from "@/components/admin/modals/AdminModal";
 import { CalculadoraBobinaWidget } from "@/components/admin/CalculadoraBobinaWidget";
 import type { OrcamentoLinha } from "@/lib/orcamento.server";
@@ -9,12 +12,19 @@ type Props = {
 };
 
 export function PopupCalculadoraOrcamento({ open, onClose, onImportar }: Props) {
+  const [itensAdicionados, setItensAdicionados] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!open) setItensAdicionados(null);
+  }, [open]);
+
   function handleImportar(linhas: OrcamentoLinha[]) {
     onImportar(linhas);
-    onClose();
+    setItensAdicionados(linhas.length);
   }
 
   return (
+    <>
     <AdminModal
       open={open}
       onClose={onClose}
@@ -46,5 +56,21 @@ export function PopupCalculadoraOrcamento({ open, onClose, onImportar }: Props) 
         </div>
       </div>
     </AdminModal>
+
+    <DashAlertModal
+      open={itensAdicionados !== null}
+      options={
+        itensAdicionados !== null
+          ? {
+              title: "Adicionado ao orçamento",
+              message: `${itensAdicionados} item(ns) adicionado(s) com sucesso. Você pode continuar calculando.`,
+              variant: "success",
+              okText: "OK",
+            }
+          : null
+      }
+      onClose={() => setItensAdicionados(null)}
+    />
+    </>
   );
 }

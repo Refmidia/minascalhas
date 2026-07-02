@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 import type { DashAlertOptions } from "@/lib/dash-ui-store";
 
@@ -50,7 +51,7 @@ export function DashAlertModal({ open, options, onClose }: Props) {
 
   if (!open || !options) return null;
 
-  return (
+  const modal = (
     <>
       <div
         className="modal-backdrop fade show dash-alert-modal__backdrop"
@@ -93,4 +94,6 @@ export function DashAlertModal({ open, options, onClose }: Props) {
       </div>
     </>
   );
+
+  return typeof document !== "undefined" ? createPortal(modal, document.body) : modal;
 }

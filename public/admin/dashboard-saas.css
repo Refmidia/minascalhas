@@ -11525,11 +11525,11 @@ html[data-bs-theme="dark"] .dash-alert-modal__btn-cancel:hover {
 }
 
 .dash-alert-modal__backdrop {
-    z-index: 1050;
+    z-index: 9990 !important;
 }
 
 .dash-alert-modal.modal {
-    z-index: 1055;
+    z-index: 9995 !important;
 }
 
 .dash-alert-modal__detail {
