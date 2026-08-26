@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { dbErrorMessage } from "@/lib/agendamento.server";
-import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarPonto } from "@/lib/auth.server";
+import { getAdminSessionFromRequest, isAdminRequest, podeConsultarPonto, podeGerenciarPonto } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import {
   apagarJornadaPonto,
@@ -14,7 +14,7 @@ import {
   mapaValorDiarioFuncionarios,
   montarJornadasAdmin,
 } from "@/lib/ponto.server";
-import { getUsuarioAssinaturaDataUrl, mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
+import { getAssinaturaEmpresaDataUrl, mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
 import { mapaThumbsEnriquecidos } from "@/lib/usuario-thumb.server";
 import {
   formatAgoraPontoControle,
@@ -45,8 +45,8 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
       GET: async ({ request }) => {
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
-        if (!session || !podeGerenciarPonto(session)) {
-          return jsonResponse({ ok: false, message: "Sem permiss?o para controle de ponto." }, 403);
+        if (!session || !podeConsultarPonto(session)) {
+          return jsonResponse({ ok: false, message: "Sem permissão para consultar o ponto." }, 403);
         }
 
         const url = new URL(request.url);
@@ -63,12 +63,14 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
 
         try {
           const funcionariosRaw = await listarFuncionariosPonto();
-          const registrosRaw = await buscarRegistrosAdmin(
+          const idsFolha = new Set(funcionariosRaw.map((f) => f.id));
+          const registrosBrutos = await buscarRegistrosAdmin(
             usuario > 0 ? usuario : null,
             de,
             ate,
             limite,
           );
+          const registrosRaw = registrosBrutos.filter((r) => idsFolha.has(r.usuario_id));
           const ids = [...new Set(registrosRaw.map((r) => r.usuario_id))];
           const valorDiarioMap = await mapaValorDiarioFuncionarios(ids);
           const jornadasRaw = montarJornadasAdmin(registrosRaw, valorDiarioMap);
@@ -112,7 +114,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
               ])
             : undefined;
           const assinaturaEmpresa = incluirAssinaturas
-            ? await getUsuarioAssinaturaDataUrl(session.userId)
+            ? await getAssinaturaEmpresaDataUrl(session.userId, session.visao)
             : undefined;
 
           return jsonResponse({

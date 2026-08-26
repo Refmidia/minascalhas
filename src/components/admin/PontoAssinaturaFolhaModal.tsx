@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { AdminModal } from "@/components/admin/modals/AdminModal";
 import { AssinaturaPreviewImg } from "@/components/admin/AssinaturaPreviewImg";
-import { fetchAssinaturaUsuario } from "@/lib/usuarios-client";
+import { OS_ORCAMENTO_EMPRESA } from "@/lib/os-document";
 
 export type PontoAssinaturaConfirmacao = {
   assFunc: boolean;
@@ -31,6 +31,7 @@ export function PontoAssinaturaFolhaModal({
   onConfirm,
 }: Props) {
   const { user } = useAdminAuth();
+  const isAdmin = user?.visao === "admin";
   const [incluirFunc, setIncluirFunc] = useState(true);
   const [incluirEmpresa, setIncluirEmpresa] = useState(true);
   const [funcSrc, setFuncSrc] = useState<string | null>(null);
@@ -43,13 +44,19 @@ export function PontoAssinaturaFolhaModal({
     setFuncSrc(null);
     setEmpresaSrc(null);
     let cancelled = false;
-    const adminId = user?.id && user.id > 0 ? user.id : 0;
 
-    Promise.all([
-      fetchAssinaturaUsuario(usuarioId),
-      adminId ? fetchAssinaturaUsuario(adminId) : Promise.resolve(null),
-    ])
-      .then(([func, empresa]) => {
+    fetch("/api/admin/ponto-assinaturas", { credentials: "include" })
+      .then(async (res) => {
+        const json = (await res.json()) as {
+          ok?: boolean;
+          assinaturaEmpresa?: string | null;
+          itens?: { id: number; dataUrl?: string | null }[];
+        };
+        if (!res.ok || !json.ok) throw new Error("Não foi possível carregar as assinaturas.");
+        const func = json.itens?.find((item) => item.id === usuarioId)?.dataUrl ?? null;
+        return { func, empresa: json.assinaturaEmpresa ?? null };
+      })
+      .then(({ func, empresa }) => {
         if (cancelled) return;
         setFuncSrc(func);
         setEmpresaSrc(empresa);
@@ -70,7 +77,7 @@ export function PontoAssinaturaFolhaModal({
     return () => {
       cancelled = true;
     };
-  }, [open, usuarioId, user?.id]);
+  }, [open, usuarioId]);
 
   function confirmar() {
     if (confirmando) return;
@@ -81,7 +88,9 @@ export function PontoAssinaturaFolhaModal({
   }
 
   const tituloAcao = acao === "abrir" ? "Ver folha" : "Baixar PDF";
-  const nomeEmpresa = user?.nome?.trim() || "empresa";
+  const nomeEmpresa = isAdmin
+    ? user?.nome?.trim() || OS_ORCAMENTO_EMPRESA.assinaturaNome
+    : OS_ORCAMENTO_EMPRESA.assinaturaNome;
 
   return (
     <AdminModal
@@ -162,11 +171,17 @@ export function PontoAssinaturaFolhaModal({
                 </span>
               ) : (
                 <span className="dash-ponto-ass-col__vazio">
-                  Grave em{" "}
-                  <Link to="/painel/assinatura" className="dash-ponto-relatorio-modal__link">
-                    Administração → Assinatura
-                  </Link>
-                  .
+                  {isAdmin ? (
+                    <>
+                      Grave em{" "}
+                      <Link to="/painel/assinatura" className="dash-ponto-relatorio-modal__link">
+                        Administração → Assinatura
+                      </Link>
+                      .
+                    </>
+                  ) : (
+                    "A empresa ainda não gravou a assinatura."
+                  )}
                 </span>
               )}
             </label>

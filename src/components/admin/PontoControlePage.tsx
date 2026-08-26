@@ -59,6 +59,8 @@ const PONTO_DETALHE_POR_PAGINA = 20;
 
 export function PontoControlePage() {
   const { user, ready } = useAdminAuth();
+  const isAdminPonto = user?.visao === "admin";
+  const isContador = user?.visao === "contador";
   const navigate = useNavigate({ from: PontoControleRoute.fullPath });
   const search = PontoControleRoute.useSearch();
 
@@ -140,7 +142,7 @@ export function PontoControlePage() {
 
   useEffect(() => {
     if (!ready) return;
-    if (user && user.visao !== "admin") {
+    if (user && user.visao !== "admin" && user.visao !== "contador") {
       void navigate({ to: "/painel/ponto" });
       return;
     }
@@ -269,8 +271,12 @@ export function PontoControlePage() {
   return (
     <div className="analytics-page dash-form-page--pro">
       <DashPageHero
-        title="Controle de ponto"
-        subtitle="Entradas, saídas e horas dos funcionários"
+        title={isContador ? "Folha de ponto" : "Controle de ponto"}
+        subtitle={
+          isContador
+            ? "Consulte as jornadas e baixe o PDF para conferência"
+            : "Entradas, saídas e horas dos funcionários"
+        }
         iconClass="bi-clock-history"
         accent="ponto"
         layout="header"
@@ -292,7 +298,8 @@ export function PontoControlePage() {
                   <span className="inv-list-stat">{jornadas.length} jornada(s) no período</span>
                 </div>
                 <span className="inv-list-toolbar__badge inv-list-toolbar__badge--ponto">
-                  <i className="bi bi-shield-lock" aria-hidden="true" /> Administração
+                  <i className={`bi ${isContador ? "bi-calculator" : "bi-shield-lock"}`} aria-hidden="true" />{" "}
+                  {isContador ? "Contador" : "Administração"}
                 </span>
               </div>
 
@@ -346,9 +353,9 @@ export function PontoControlePage() {
                   <i className="bi bi-file-earmark-pdf" aria-hidden="true" /> Relatório para o contador
                 </h2>
                 <p className="dash-ponto-relatorio__hint">
-                  Escolha o mês e clique em Baixar PDF para escolher o funcionário. Junho já está
-                  liberado; os demais meses saem depois do último dia. O contador não precisa de
-                  acesso ao sistema.
+                  {isContador
+                    ? "Escolha o mês e baixe o PDF da folha de ponto. Não é possível alterar batidas."
+                    : "Escolha o mês e clique em Baixar PDF para escolher o funcionário. Junho já está liberado; os demais meses saem depois do último dia."}
                 </p>
                 <div className="dash-form">
                   <div className="row g-2 align-items-end">
@@ -388,16 +395,22 @@ export function PontoControlePage() {
                         <th className="text-center">Saída</th>
                         <th className="text-center">Intervalo</th>
                         <th className="text-center">Trabalhado</th>
-                        <th className="text-center">R$/h</th>
-                        <th className="text-center">Ganho no dia</th>
+                        {isAdminPonto ? (
+                          <>
+                            <th className="text-center">R$/h</th>
+                            <th className="text-center">Ganho no dia</th>
+                          </>
+                        ) : null}
                         <th className="text-center">Status</th>
-                        <th className="text-end dash-ponto-table__col-acoes">Ações</th>
+                        {isAdminPonto ? (
+                          <th className="text-end dash-ponto-table__col-acoes">Ações</th>
+                        ) : null}
                       </tr>
                     </thead>
                     <tbody>
                       {jornadas.length === 0 ? (
                         <tr>
-                          <td colSpan={12} className="dash-ponto-table__empty">
+                          <td colSpan={isAdminPonto ? 12 : 9} className="dash-ponto-table__empty">
                             Nenhum registro encontrado para os filtros selecionados.
                           </td>
                         </tr>
@@ -416,6 +429,8 @@ export function PontoControlePage() {
                               intervalo={j.intervalo_fmt}
                               total={j.total_fmt}
                             />
+                            {isAdminPonto ? (
+                              <>
                             <td className="text-center dash-ponto-cel--valor" title={j.valor_diario > 0 ? `Diária ${j.valor_diario.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} ÷ ${j.total_fmt || "horas do dia"}` : "Cadastre o valor diário em Pagamentos"}>
                               <span className="dash-ponto-valor-h">{j.valor_hora_fmt}</span>
                             </td>
@@ -436,6 +451,8 @@ export function PontoControlePage() {
                                 <span className="dash-ponto-ganho__hint">est.</span>
                               ) : null}
                             </td>
+                              </>
+                            ) : null}
                             <td className="text-center">
                               {j.aberto ? (
                                 <span className="dash-ponto-status dash-ponto-status--aberto">
@@ -445,6 +462,7 @@ export function PontoControlePage() {
                                 <span className="dash-ponto-status dash-ponto-status--ok">Encerrado</span>
                               )}
                             </td>
+                            {isAdminPonto ? (
                             <td className="text-end dash-ponto-table__col-acoes">
                               <div className="dash-pag-func-actions" role="group" aria-label="Ações da jornada">
                                 <button
@@ -467,6 +485,7 @@ export function PontoControlePage() {
                                 </button>
                               </div>
                             </td>
+                            ) : null}
                           </tr>
                         ))
                       )}
@@ -507,7 +526,7 @@ export function PontoControlePage() {
                               <th className="dash-ponto-table__col-func">Funcionário</th>
                               <th className="text-center">Tipo</th>
                               <th className="text-center">Data e hora</th>
-                              <th className="text-end">Ações</th>
+                              {isAdminPonto ? <th className="text-end">Ações</th> : null}
                             </tr>
                           </thead>
                           <tbody>
@@ -530,6 +549,7 @@ export function PontoControlePage() {
                                       <span className="dash-ponto-datetime__hora">{hora}</span>
                                     </div>
                                   </td>
+                                  {isAdminPonto ? (
                                   <td className="text-end">
                                     <div className="dash-pag-func-actions" role="group" aria-label="Ações do registro">
                                       <button
@@ -552,6 +572,7 @@ export function PontoControlePage() {
                                       </button>
                                     </div>
                                   </td>
+                                  ) : null}
                                 </tr>
                               );
                             })}
@@ -570,7 +591,9 @@ export function PontoControlePage() {
                     </div>
                   ) : (
                     <p className="dash-ponto-detalhe__hint mb-0">
-                      Clique na seta para ver cada batida, corrigir horários ou excluir registros.
+                      {isAdminPonto
+                        ? "Clique na seta para ver cada batida, corrigir horários ou excluir registros."
+                        : "Clique na seta para ver cada batida do período."}
                     </p>
                   )}
                 </section>

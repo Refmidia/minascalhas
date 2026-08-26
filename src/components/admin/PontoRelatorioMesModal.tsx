@@ -62,19 +62,31 @@ export function PontoRelatorioMesModal({ open, onClose, mes, onMesChange }: Prop
     let cancelled = false;
     setLoading(true);
     setErro("");
-    fetch(`/api/admin/funcionarios-pagamento?fechamento_mes=${encodeURIComponent(mesAtual)}`, {
+    fetch("/api/admin/ponto-assinaturas", {
       credentials: "include",
     })
       .then(async (res) => {
         const json = (await res.json()) as {
           ok?: boolean;
           message?: string;
-          funcionarios?: FechamentoItem[];
+          itens?: { id: number; nome: string; thumb: string; thumb_url?: string | null }[];
         };
         if (!res.ok || !json.ok) {
           throw new Error(json.message ?? "Não foi possível carregar os funcionários.");
         }
-        if (!cancelled) setLista(json.funcionarios ?? []);
+        if (!cancelled) {
+          setLista(
+            (json.itens ?? []).map((f) => ({
+              usuario_id: f.id,
+              nome: f.nome,
+              thumb: f.thumb,
+              thumb_url: f.thumb_url,
+              primeira_pago: true,
+              segunda_pago: true,
+              mes_fechado: true,
+            })),
+          );
+        }
       })
       .catch((e) => {
         if (!cancelled) setErro(e instanceof Error ? e.message : "Erro ao carregar.");
@@ -119,7 +131,7 @@ export function PontoRelatorioMesModal({ open, onClose, mes, onMesChange }: Prop
     setBaixandoId(item.usuario_id);
     try {
       await baixarPdfPontoRelatorio(params, item.nome);
-      dashToast(`PDF de ${item.nome} baixado. Envie o arquivo para o contador.`, "success");
+      dashToast(`PDF de ${item.nome} baixado.`, "success");
       setPendencia(null);
     } catch (err) {
       dashToast(err instanceof Error ? err.message : "Não foi possível gerar o PDF.", "danger");
@@ -213,8 +225,8 @@ export function PontoRelatorioMesModal({ open, onClose, mes, onMesChange }: Prop
           </div>
 
           <p className="dash-ponto-relatorio-modal__intro">
-            Escolha o funcionário. A assinatura dele vem do perfil. Junho já está liberado. Os outros
-            meses ficam disponíveis depois do último dia do mês.
+            Escolha o funcionário para baixar ou ver a folha. A assinatura vem do perfil. Junho já
+            está liberado. Os outros meses ficam disponíveis depois do último dia do mês.
           </p>
 
           {loading ? <p className="text-muted mb-0">Carregando funcionários…</p> : null}

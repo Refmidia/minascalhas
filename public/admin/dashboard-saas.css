@@ -2542,7 +2542,13 @@ html[data-bs-theme="dark"] .form-control:read-only {
 
 @media (min-width: 480px) {
     .dash-user-tipo-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .dash-user-tipo-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
@@ -2591,6 +2597,11 @@ html[data-bs-theme="dark"] .form-control:read-only {
 .dash-user-tipo-card__icon--forn {
     background: rgba(202, 138, 4, 0.12);
     color: #854D0E;
+}
+
+.dash-user-tipo-card__icon--contador {
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
 }
 
 .dash-user-tipo-card__title {

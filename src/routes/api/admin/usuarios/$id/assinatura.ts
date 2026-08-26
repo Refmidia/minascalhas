@@ -4,6 +4,7 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import {
   getAdminSessionFromRequest,
   isAdminRequest,
+  podeConsultarPonto,
   podeGerenciarPonto,
   podeGerenciarUsuarios,
   type AdminSessionPayload,
@@ -24,7 +25,7 @@ function lerId(valor: string): number | null {
 function podeVerAssinatura(session: AdminSessionPayload | null, id: number): boolean {
   if (!session) return false;
   if (session.userId === id) return true;
-  return podeGerenciarUsuarios(session) || podeGerenciarPonto(session);
+  return podeGerenciarUsuarios(session) || podeGerenciarPonto(session) || podeConsultarPonto(session);
 }
 
 function podeEditarAssinatura(session: AdminSessionPayload | null, id: number): boolean {

@@ -11,6 +11,9 @@ function PainelHome() {
   if (user?.visao === "funcionário") {
     return <Navigate to="/painel/ponto" replace />;
   }
+  if (user?.visao === "contador") {
+    return <Navigate to="/painel/ponto-controle" replace />;
+  }
   if (user?.visao === "fornecedor") {
     const fid = user.fornecedorPreviewId;
     return (

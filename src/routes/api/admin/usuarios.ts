@@ -9,7 +9,7 @@ import { mapaTemAssinatura } from "@/lib/usuario-assinatura.server";
 import { repararThumbOrfao, resolverThumbUrlExibicao } from "@/lib/usuario-thumb.server";
 import { createUsuario, listUsuarios, usuarioLoginExists } from "@/lib/usuarios.server";
 
-const NIVEIS = ["admin", "funcionário", "funcionario", "fornecedor"] as const;
+const NIVEIS = ["admin", "funcionário", "funcionario", "fornecedor", "contador"] as const;
 
 const postSchema = z.object({
   nome: z.string().trim().min(1).max(255),

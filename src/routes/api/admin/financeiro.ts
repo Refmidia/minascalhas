@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { dbErrorMessage } from "@/lib/agendamento.server";
-import { isAdminRequest } from "@/lib/auth.server";
+import { getAdminSessionFromRequest, isAdminRequest } from "@/lib/auth.server";
 import { finResumoFaturadoMensal, resumoFinanceiroGlobal } from "@/lib/financeiro.server";
 import { jsonResponse } from "@/lib/http.server";
 
@@ -10,6 +10,10 @@ export const Route = createFileRoute("/api/admin/financeiro")({
     handlers: {
       GET: async ({ request }) => {
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
+        const session = getAdminSessionFromRequest(request);
+        if (!session || session.visao !== "admin") {
+          return jsonResponse({ ok: false, message: "Sem permissão." }, 403);
+        }
         const url = new URL(request.url);
         const ano = Math.max(2000, Number(url.searchParams.get("ano") ?? new Date().getFullYear()));
         const desde = url.searchParams.get("desde")?.trim() || null;

@@ -302,12 +302,23 @@ export type PontoJornada = {
   status_label: string;
 };
 
+/** Escritório não entra na folha; só quem bate ponto (Thiago e Josimar). */
+function nomeNaFolhaPonto(nome: string): boolean {
+  const n = nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  return !n.includes("katia");
+}
+
 export async function listarFuncionariosPonto() {
   const prisma = await getPrisma();
   const rows = await prisma.$queryRawUnsafe<{ id: unknown; nome: string; thumb: string }[]>(
     `SELECT id, nome, thumb FROM usuarios WHERE nivel IN ('funcionário', 'funcionario') ORDER BY nome ASC`,
   );
-  return rows.map((r) => ({ id: int(r.id), nome: r.nome, thumb: String(r.thumb ?? "nao.png") }));
+  return rows
+    .map((r) => ({ id: int(r.id), nome: r.nome, thumb: String(r.thumb ?? "nao.png") }))
+    .filter((r) => nomeNaFolhaPonto(r.nome));
 }
 
 export async function mapaValorDiarioFuncionarios(ids: number[]): Promise<Map<number, number>> {

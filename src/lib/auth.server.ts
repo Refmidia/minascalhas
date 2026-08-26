@@ -56,6 +56,11 @@ function signPayload(payloadB64: string, secret: string) {
   return createHmac("sha256", secret).update(payloadB64).digest("base64url");
 }
 
+/** Consulta/download de ponto (admin e contador). */
+export function podeConsultarPonto(session: AdminSessionPayload | null | undefined): boolean {
+  return session?.visao === "admin" || session?.visao === "contador";
+}
+
 /** Controle/exclusão de ponto — igual Alex `usuarioEhAdmin()` (visão administrador ativa). */
 export function podeGerenciarPonto(session: AdminSessionPayload | null | undefined): boolean {
   return session?.visao === "admin";
@@ -280,6 +285,7 @@ export function visaoPorNivel(nivel: string): AdminVisao {
   const n = normalizarNivelUsuario(nivel);
   if (n === "funcionário") return "funcionário";
   if (n === "fornecedor") return "fornecedor";
+  if (n === "contador") return "contador";
   return "admin";
 }
 

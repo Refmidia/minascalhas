@@ -77,6 +77,24 @@ export async function limparUsuarioAssinatura(id: number): Promise<void> {
   );
 }
 
+export async function getAssinaturaEmpresaDataUrl(sessionUserId: number, visao?: string): Promise<string | null> {
+  if ((visao ?? "admin") === "admin") {
+    const propria = await getUsuarioAssinaturaDataUrl(sessionUserId);
+    if (propria) return propria;
+  }
+  const prisma = await getPrisma();
+  await ensureAssinaturaColumns(prisma);
+  const rows = await prisma.$queryRawUnsafe<{ id: unknown }[]>(
+    `SELECT id FROM usuarios
+     WHERE LOWER(TRIM(nivel)) = 'admin'
+       AND assinatura_data IS NOT NULL AND TRIM(assinatura_data) <> ''
+     ORDER BY id ASC LIMIT 1`,
+  );
+  const id = Number(rows[0]?.id) || 0;
+  if (id <= 0) return null;
+  return getUsuarioAssinaturaDataUrl(id);
+}
+
 export async function mapaAssinaturasDataUrl(ids: number[]): Promise<Record<number, string>> {
   const uniq = [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))];
   if (uniq.length === 0) return {};

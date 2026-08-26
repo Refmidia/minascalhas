@@ -1405,6 +1405,11 @@ body.dashboard-app .dashboard-data-mobile .record-card:last-child {
     color: #A16207;
 }
 
+.user-list-card__badge--contador {
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+}
+
 .user-list-card__body {
     flex: 1;
     min-width: 0;

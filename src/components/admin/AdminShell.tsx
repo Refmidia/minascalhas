@@ -44,14 +44,11 @@ function visaoAtiva(user: { visao: AdminVisao } | null): AdminVisao {
 }
 
 function roleLabel(visao: AdminVisao, simulando: boolean, impersonando: boolean): string {
-  if (impersonando) {
-    if (visao === "funcionário") return "Funcionário";
-    if (visao === "fornecedor") return "Fornecedor";
-    return "Usuário";
-  }
-  if (!simulando) return "Admin";
   if (visao === "funcionário") return "Funcionário";
   if (visao === "fornecedor") return "Fornecedor";
+  if (visao === "contador") return "Contador";
+  if (impersonando) return "Usuário";
+  if (simulando) return "Admin";
   return "Admin";
 }
 
@@ -104,6 +101,7 @@ export function AdminShell() {
   const isAdminVisao = visao === "admin";
   const isFuncVisao = visao === "funcionário";
   const isFornVisao = visao === "fornecedor";
+  const isContadorVisao = visao === "contador";
   const podeSimular = Boolean(user?.podeSimular);
 
   async function trocar(v: AdminVisao) {
@@ -240,7 +238,7 @@ export function AdminShell() {
       >
         <div className="dash-sidebar__brand">
           <div className="dash-sidebar__brand-logo">
-            <Link to="/painel" className="dash-sidebar__brand-link" onClick={() => setSidebarOpen(false)}>
+            <Link to={isContadorVisao ? "/painel/ponto-controle" : "/painel"} className="dash-sidebar__brand-link" onClick={() => setSidebarOpen(false)}>
               <DashBrandLogo />
             </Link>
           </div>
@@ -323,6 +321,20 @@ export function AdminShell() {
                   </Link>
                 </li>
               </>
+            )}
+
+            {isContadorVisao && (
+              <li className={navActive(pathname, "/painel/ponto-controle") ? "activeMenu" : ""}>
+                <Link
+                  to="/painel/ponto-controle"
+                  className="dash-nav-link"
+                  title="Folha de ponto"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <i className="bi bi-clock-history" aria-hidden="true" />
+                  <span>Folha de ponto</span>
+                </Link>
+              </li>
             )}
 
             {isAdminVisao &&

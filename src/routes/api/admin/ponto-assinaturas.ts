@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { dbErrorMessage } from "@/lib/agendamento.server";
-import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarPonto } from "@/lib/auth.server";
+import { getAdminSessionFromRequest, isAdminRequest, podeConsultarPonto } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import { listarFuncionariosPonto } from "@/lib/ponto.server";
-import { mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
+import { getAssinaturaEmpresaDataUrl, mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
 import { mapaThumbsEnriquecidos } from "@/lib/usuario-thumb.server";
 
 export const Route = createFileRoute("/api/admin/ponto-assinaturas")({
@@ -13,15 +13,17 @@ export const Route = createFileRoute("/api/admin/ponto-assinaturas")({
       GET: async ({ request }) => {
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
-        if (!session || !podeGerenciarPonto(session)) {
-          return jsonResponse({ ok: false, message: "Acesso apenas para administrador." }, 403);
+        if (!session || !podeConsultarPonto(session)) {
+          return jsonResponse({ ok: false, message: "Sem permissão para consultar o ponto." }, 403);
         }
         try {
           const funcionarios = await listarFuncionariosPonto();
           const thumbs = await mapaThumbsEnriquecidos(funcionarios);
           const assinaturas = await mapaAssinaturasDataUrl(funcionarios.map((f) => f.id));
+          const assinaturaEmpresa = await getAssinaturaEmpresaDataUrl(session.userId, session.visao);
           return jsonResponse({
             ok: true,
+            assinaturaEmpresa,
             itens: funcionarios.map((f) => {
               const t = thumbs.get(f.id);
               return {

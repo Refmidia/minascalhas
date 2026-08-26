@@ -91,6 +91,9 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
         if (!isAdminRequest(request)) return jsonResponse({ ok: false }, 401);
         const session = getAdminSessionFromRequest(request);
         if (!session) return jsonResponse({ ok: false }, 401);
+        if (session.visao === "contador") {
+          return jsonResponse({ ok: false, message: "Sem permissão." }, 403);
+        }
 
         const url = new URL(request.url);
         const semana = pagamentoInicioSemana(url.searchParams.get("semana") ?? ymdLocal(new Date()));
