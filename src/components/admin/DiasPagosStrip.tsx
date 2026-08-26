@@ -4,16 +4,13 @@ type CelulaDia = { estado: Estado; dia: string; title: string };
 
 function parseDiasPagosLista(texto: string): CelulaDia[] {
   const out: CelulaDia[] = [];
-  for (const part of texto.split(/,\s*/)) {
-    const t = part.trim();
-    if (!t) continue;
-    const empreita = /\(empreita\)/i.test(t);
-    const clean = t.replace(/\s*\(empreita\)/i, "").trim();
-    const m = /\b(\d{1,2})\/(\d{1,2})\b/.exec(clean);
+  const re = /(\d{1,2})\/(\d{1,2})(?:\s*\((empreita)\))?/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(texto))) {
     out.push({
-      estado: empreita ? "empreita" : "diaria",
-      dia: m?.[1] ?? "?",
-      title: t,
+      estado: m[3] ? "empreita" : "diaria",
+      dia: String(Number(m[1])),
+      title: m[0].trim(),
     });
   }
   return out;
@@ -36,11 +33,6 @@ export function DiasPagosStrip({ texto }: { texto: string }) {
           </span>
         ))}
       </div>
-      {lista.length > 6 ? (
-        <span className="dash-pag-dias-strip__qtd" aria-hidden="true">
-          {lista.length}
-        </span>
-      ) : null}
     </div>
   );
 }

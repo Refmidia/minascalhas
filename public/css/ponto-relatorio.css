@@ -1,6 +1,6 @@
 @page {
   size: A4;
-  margin: 12mm 10mm;
+  margin: 0;
 }
 
 :root {
@@ -8,7 +8,7 @@
   --ponto-rel-text: #1b1b1b;
   --ponto-rel-muted: #6b6b6b;
   --ponto-rel-line: #e5e5e5;
-  --ponto-rel-head: #454545;
+  --ponto-rel-head: #3f3f46;
   --ponto-rel-soft: #fff8e1;
 }
 
@@ -16,15 +16,20 @@ html,
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 
 .ponto-rel-body {
   margin: 0;
-  padding: 20px;
+  padding: 24px 16px 32px;
   background: #ececec;
   font-family: "Segoe UI", Arial, Helvetica, sans-serif;
   color: var(--ponto-rel-text);
   color-scheme: light;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .ponto-rel-body--embed {
@@ -33,6 +38,8 @@ body {
   background: #fff !important;
   width: 794px !important;
   max-width: 794px !important;
+  min-height: 0 !important;
+  display: block !important;
   overflow: visible !important;
 }
 
@@ -56,9 +63,10 @@ html.ponto-rel-exporting .ponto-rel-page {
 .ponto-rel-page {
   width: 794px;
   max-width: 794px;
+  min-height: 1123px;
   margin: 0 auto;
   background: #fff;
-  padding: 14px 20px 10px;
+  padding: 22px 28px 20px;
   box-sizing: border-box;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   color: var(--ponto-rel-text);
@@ -78,107 +86,118 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
 }
 
 .ponto-rel-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 12px;
   border-bottom: 2px solid var(--ponto-rel-brand);
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+}
+
+.ponto-rel-head td {
+  vertical-align: top;
+  padding: 0 0 10px;
+  border: 0;
+}
+
+.ponto-rel-head__brand {
+  width: 58%;
+  text-align: left;
 }
 
 .ponto-rel-head__brand img {
   display: block;
-  width: 148px;
-  height: auto;
-  max-height: 36px;
+  width: auto;
+  height: 56px;
+  max-width: 240px;
   object-fit: contain;
+  object-position: left center;
 }
 
 .ponto-rel-head__tagline {
-  margin: 3px 0 2px;
+  margin: 8px 0 4px;
   font-size: 11px;
+  line-height: 1.4;
   color: var(--ponto-rel-muted);
 }
 
 .ponto-rel-head__meta {
   margin: 0;
   font-size: 10px;
-  line-height: 1.3;
+  line-height: 1.5;
   color: #444;
 }
 
 .ponto-rel-head__doc {
+  width: 42%;
   text-align: right;
 }
 
 .ponto-rel-head__kicker {
   margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  font-size: 10px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ponto-rel-brand);
   font-weight: 700;
 }
 
 .ponto-rel-head__title {
-  margin: 1px 0 2px;
-  font-size: 20px;
+  margin: 4px 0 4px;
+  font-size: 22px;
   line-height: 1.15;
   font-weight: 800;
 }
 
 .ponto-rel-head__mes {
-  margin: 0;
+  margin: 0 0 2px;
   font-size: 13px;
   font-weight: 700;
 }
 
 .ponto-rel-head__periodo,
 .ponto-rel-head__emitido {
-  margin: 1px 0 0;
+  margin: 3px 0 0;
   font-size: 11px;
+  line-height: 1.4;
   color: var(--ponto-rel-muted);
 }
 
 .ponto-rel-resumo {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 6px;
-  border: 1px solid #fde68a;
-  border-radius: 4px;
-  overflow: hidden;
-  background: var(--ponto-rel-soft);
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 14px;
+  background: #faf7f0;
+  border: 1px solid #ead9a8;
 }
 
-.ponto-rel-resumo > div {
-  flex: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  background: transparent;
+.ponto-rel-resumo td {
+  width: 33.33%;
+  padding: 8px 8px 7px;
   border: 0;
-  border-radius: 0;
-  border-right: 1px solid #fde68a;
-  padding: 3px 10px;
-  line-height: 1.2;
+  border-right: 1px solid #ead9a8;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.25;
 }
 
-.ponto-rel-resumo > div:last-child {
+.ponto-rel-resumo td:last-child {
   border-right: 0;
 }
 
 .ponto-rel-resumo__label {
-  display: inline;
-  font-size: 10px;
-  color: #854d0e;
-  font-weight: 600;
-  margin: 0;
+  display: block;
+  margin: 0 0 2px;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #92650a;
+  font-weight: 700;
 }
 
 .ponto-rel-resumo strong {
-  font-size: 12px;
-  line-height: 1.2;
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1b1b1b;
 }
 
 .ponto-rel-vazio {
@@ -188,29 +207,30 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
 }
 
 .ponto-rel-func {
-  margin-top: 6px;
-  break-inside: auto;
-  page-break-inside: auto;
+  margin: 0;
 }
 
 .ponto-rel-func__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  border-bottom: 1px solid var(--ponto-rel-text);
-  padding-bottom: 3px;
-  margin-bottom: 4px;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 6px;
+  border-bottom: 1px solid #111;
+}
+
+.ponto-rel-func__head td {
+  padding: 2px 0 6px;
+  border: 0;
+  vertical-align: baseline;
 }
 
 .ponto-rel-func__nome {
-  margin: 0;
+  text-align: left;
   font-size: 13px;
   font-weight: 800;
 }
 
 .ponto-rel-func__totais {
-  margin: 0;
+  text-align: right;
   font-size: 11px;
   font-weight: 600;
   color: #444;
@@ -220,12 +240,14 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
 .ponto-rel-table {
   width: 100%;
   table-layout: fixed;
-  border-collapse: collapse;
-  font-size: 9px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 10px;
+  border: 1px solid #d4d4d4;
 }
 
 .ponto-rel-col-dia {
-  width: 20%;
+  width: 15%;
 }
 
 .ponto-rel-col-hora {
@@ -234,11 +256,11 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
 
 .ponto-rel-col-int,
 .ponto-rel-col-tot {
-  width: 12%;
+  width: 13%;
 }
 
 .ponto-rel-col-status {
-  width: 13.5%;
+  width: 13%;
 }
 
 .ponto-rel-table thead {
@@ -248,57 +270,63 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
 .ponto-rel-table th {
   background: var(--ponto-rel-head);
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
-  padding: 2px 2px;
+  padding: 0;
+  vertical-align: middle;
   white-space: nowrap;
-  overflow: hidden;
-  line-height: 1.2;
+  letter-spacing: 0.02em;
 }
 
 .ponto-rel-table td {
-  border-bottom: 1px solid var(--ponto-rel-line);
+  border-bottom: 1px solid #e8e8e8;
   text-align: center;
-  padding: 1px 2px;
+  padding: 0;
   vertical-align: middle;
-  line-height: 1.15;
   white-space: nowrap;
-  overflow: hidden;
-  height: 15px;
+}
+
+.ponto-rel-table__cell {
+  display: block;
+  box-sizing: border-box;
+  padding: 7px 4px;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .ponto-rel-table tbody tr:nth-child(even) td {
-  background: #fafafa;
+  background: #f6f6f6;
 }
 
 .ponto-rel-table__dia {
-  text-align: left !important;
-  width: auto;
-}
-
-.ponto-rel-table__wd {
-  display: inline-block;
-  min-width: 28px;
-  color: var(--ponto-rel-muted);
-  font-weight: 600;
+  text-align: center !important;
 }
 
 .ponto-rel-table__total {
   font-weight: 700;
 }
 
-.ponto-rel-table tr {
-  break-inside: avoid;
-  page-break-inside: avoid;
+.ponto-rel-visto-gap {
+  height: 16px;
+  font-size: 0;
+  line-height: 0;
+}
+
+.ponto-rel-visto__titulo {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #92650a;
 }
 
 .ponto-rel-visto {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
-  margin-top: 14px;
-  page-break-inside: avoid;
-  break-inside: avoid;
+  margin: 0;
 }
 
 .ponto-rel-visto__col {
@@ -307,37 +335,40 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
   vertical-align: bottom;
   font-size: 10px;
   color: var(--ponto-rel-muted);
-  padding: 0 10px;
+  padding: 8px 18px 4px;
+  border: 1px solid #e5e5e5;
+}
+
+.ponto-rel-visto__col + .ponto-rel-visto__col {
+  border-left: 0;
 }
 
 .ponto-rel-visto__espaco {
-  display: inline-block;
+  display: block;
   width: 160px;
   height: 48px;
-  vertical-align: bottom;
+  margin: 0 auto;
 }
 
 .ponto-rel-visto__img {
-  display: inline-block;
+  display: block;
   width: 160px;
   height: 48px;
-  vertical-align: bottom;
+  margin: 0 auto;
 }
 
 .ponto-rel-visto__linha {
-  display: inline-block;
+  display: block;
   width: 160px;
-  border-top: 1px solid #111;
-  margin: 2px 0 3px;
-  height: 0;
-  overflow: hidden;
+  height: 1px;
+  margin: 4px auto 4px;
+  background: #111;
 }
 
 .ponto-rel-visto__quem {
-  display: inline-block;
   color: var(--ponto-rel-text);
-  font-weight: 600;
-  font-size: 11px;
+  font-weight: 700;
+  font-size: 10px;
   margin-bottom: 1px;
 }
 
@@ -391,10 +422,9 @@ html.ponto-rel-exporting .ponto-rel-visto__img {
   }
 
   .ponto-rel-page {
-    width: auto;
-    max-width: none;
+    width: 794px;
+    min-height: 1123px;
     box-shadow: none;
-    padding: 0;
   }
 
   .ponto-rel-actions,

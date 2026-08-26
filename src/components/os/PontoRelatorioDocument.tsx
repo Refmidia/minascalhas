@@ -26,6 +26,28 @@ function horaFolha(fmt: string | null | undefined): string {
   return m ? m[1] : fmt;
 }
 
+function Cel({
+  children,
+  className,
+  th,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  th?: boolean;
+}) {
+  const Tag = th ? "th" : "td";
+  return (
+    <Tag className={className}>
+      <span className="ponto-rel-table__cell">{children}</span>
+    </Tag>
+  );
+}
+
+function diaFolha(iso: string, dataFmt: string): string {
+  const curto = dataFmt.replace(/\/\d{4}$/, "");
+  return `${weekdayCurtoIso(iso)} ${curto}`;
+}
+
 export function PontoRelatorioDocument({
   de,
   ate,
@@ -46,51 +68,63 @@ export function PontoRelatorioDocument({
 
   return (
     <article id="ponto-relatorio-documento" className="ponto-rel-page">
-      <header className="ponto-rel-head">
-        <div className="ponto-rel-head__brand">
-          <img src={empresa.logoSrc} alt="Minas Calhas" width={148} height={36} />
-          <p className="ponto-rel-head__tagline">{empresa.tagline}</p>
-          <p className="ponto-rel-head__meta">
-            CNPJ {empresa.cnpj}
-            <br />
-            {empresa.enderecoLinha1} — {empresa.enderecoLinha2}
-          </p>
-        </div>
-        <div className="ponto-rel-head__doc">
-          <p className="ponto-rel-head__kicker">Relatório para conferência</p>
-          <h1 className="ponto-rel-head__title">Folha de ponto</h1>
-          {mesLabel ? <p className="ponto-rel-head__mes">{mesLabel}</p> : null}
-          <p className="ponto-rel-head__periodo">{periodoLabel}</p>
-          <p className="ponto-rel-head__emitido">Emitido em {emitido}</p>
-        </div>
-      </header>
+      <table className="ponto-rel-head">
+        <tbody>
+          <tr>
+            <td className="ponto-rel-head__brand">
+              <img src={empresa.logoSrc} alt="Minas Calhas" />
+              <p className="ponto-rel-head__tagline">{empresa.tagline}</p>
+              <p className="ponto-rel-head__meta">
+                CNPJ {empresa.cnpj}
+                <br />
+                {empresa.enderecoLinha1} — {empresa.enderecoLinha2}
+              </p>
+            </td>
+            <td className="ponto-rel-head__doc">
+              <p className="ponto-rel-head__kicker">Relatório para conferência</p>
+              <h1 className="ponto-rel-head__title">Folha de ponto</h1>
+              {mesLabel ? <p className="ponto-rel-head__mes">{mesLabel}</p> : null}
+              <p className="ponto-rel-head__periodo">{periodoLabel}</p>
+              <p className="ponto-rel-head__emitido">Emitido em {emitido}</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <section className="ponto-rel-resumo">
-        <div>
-          <span className="ponto-rel-resumo__label">Funcionários</span>
-          <strong>{grupos.length}</strong>
-        </div>
-        <div>
-          <span className="ponto-rel-resumo__label">Dias com ponto</span>
-          <strong>{totalDias}</strong>
-        </div>
-        <div>
-          <span className="ponto-rel-resumo__label">Horas trabalhadas</span>
-          <strong>{formatMinutosRelatorio(totalMin)}</strong>
-        </div>
-      </section>
+      <table className="ponto-rel-resumo">
+        <tbody>
+          <tr>
+            <td>
+              <span className="ponto-rel-resumo__label">Funcionários</span>
+              <strong>{grupos.length}</strong>
+            </td>
+            <td>
+              <span className="ponto-rel-resumo__label">Dias com ponto</span>
+              <strong>{totalDias}</strong>
+            </td>
+            <td>
+              <span className="ponto-rel-resumo__label">Horas trabalhadas</span>
+              <strong>{formatMinutosRelatorio(totalMin)}</strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       {grupos.length === 0 ? (
         <p className="ponto-rel-vazio">Nenhum ponto registrado neste período.</p>
       ) : (
         grupos.map((g) => (
           <section key={g.usuario_id} className="ponto-rel-func">
-            <div className="ponto-rel-func__head">
-              <h2 className="ponto-rel-func__nome">{g.usuario_nome}</h2>
-              <p className="ponto-rel-func__totais">
-                {g.dias} dia{g.dias === 1 ? "" : "s"} · {g.total_fmt}
-              </p>
-            </div>
+            <table className="ponto-rel-func__head">
+              <tbody>
+                <tr>
+                  <td className="ponto-rel-func__nome">{g.usuario_nome}</td>
+                  <td className="ponto-rel-func__totais">
+                    {g.dias} dia{g.dias === 1 ? "" : "s"} · {g.total_fmt}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
             <table className="ponto-rel-table">
               <colgroup>
                 <col className="ponto-rel-col-dia" />
@@ -104,34 +138,35 @@ export function PontoRelatorioDocument({
               </colgroup>
               <thead>
                 <tr>
-                  <th className="ponto-rel-table__dia">Dia</th>
-                  <th>Entrada</th>
-                  <th>Almoço</th>
-                  <th>Retorno</th>
-                  <th>Saída</th>
-                  <th>Intervalo</th>
-                  <th>Trabalhado</th>
-                  <th>Status</th>
+                  <Cel th className="ponto-rel-table__dia">
+                    Dia
+                  </Cel>
+                  <Cel th>Entrada</Cel>
+                  <Cel th>Almoço</Cel>
+                  <Cel th>Retorno</Cel>
+                  <Cel th>Saída</Cel>
+                  <Cel th>Intervalo</Cel>
+                  <Cel th>Trabalhado</Cel>
+                  <Cel th>Status</Cel>
                 </tr>
               </thead>
               <tbody>
                 {g.jornadas.map((j) => (
                   <tr key={`${j.usuario_id}-${j.data}-${j.entrada_fmt}`}>
-                    <td className="ponto-rel-table__dia">
-                      <span className="ponto-rel-table__wd">{weekdayCurtoIso(j.data)}</span>{" "}
-                      {j.data_fmt}
-                    </td>
-                    <td>{horaFolha(j.entrada_fmt)}</td>
-                    <td>{horaFolha(j.almoco_fmt)}</td>
-                    <td>{horaFolha(j.retorno_fmt)}</td>
-                    <td>{horaFolha(j.saida_fmt)}</td>
-                    <td>{j.intervalo_fmt || "—"}</td>
-                    <td className="ponto-rel-table__total">{j.total_fmt || "—"}</td>
-                    <td>{j.aberto ? j.status_label : "Encerrado"}</td>
+                    <Cel className="ponto-rel-table__dia">{diaFolha(j.data, j.data_fmt)}</Cel>
+                    <Cel>{horaFolha(j.entrada_fmt)}</Cel>
+                    <Cel>{horaFolha(j.almoco_fmt)}</Cel>
+                    <Cel>{horaFolha(j.retorno_fmt)}</Cel>
+                    <Cel>{horaFolha(j.saida_fmt)}</Cel>
+                    <Cel>{j.intervalo_fmt || "—"}</Cel>
+                    <Cel className="ponto-rel-table__total">{j.total_fmt || "—"}</Cel>
+                    <Cel>{j.aberto ? j.status_label : "Encerrado"}</Cel>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <div className="ponto-rel-visto-gap" aria-hidden="true" />
+            <p className="ponto-rel-visto__titulo">Assinaturas</p>
             <table className="ponto-rel-visto">
               <tbody>
                 <tr>
@@ -147,12 +182,9 @@ export function PontoRelatorioDocument({
                     ) : (
                       <span className="ponto-rel-visto__espaco" aria-hidden="true" />
                     )}
-                    <br />
-                    <span className="ponto-rel-visto__linha" />
-                    <br />
-                    <span className="ponto-rel-visto__quem">{g.usuario_nome}</span>
-                    <br />
-                    <span>Funcionário</span>
+                    <div className="ponto-rel-visto__linha" />
+                    <div className="ponto-rel-visto__quem">{g.usuario_nome}</div>
+                    <div>Funcionário</div>
                   </td>
                   <td className="ponto-rel-visto__col">
                     {assinaturaEmpresa ? (
@@ -166,12 +198,9 @@ export function PontoRelatorioDocument({
                     ) : (
                       <span className="ponto-rel-visto__espaco" aria-hidden="true" />
                     )}
-                    <br />
-                    <span className="ponto-rel-visto__linha" />
-                    <br />
-                    <span className="ponto-rel-visto__quem">{empresa.assinaturaNome}</span>
-                    <br />
-                    <span>Empresa</span>
+                    <div className="ponto-rel-visto__linha" />
+                    <div className="ponto-rel-visto__quem">{empresa.assinaturaNome}</div>
+                    <div>Empresa</div>
                   </td>
                 </tr>
               </tbody>

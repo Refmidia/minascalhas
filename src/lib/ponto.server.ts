@@ -216,16 +216,30 @@ function calcMinutosTrabalhados(
   return Math.floor((s - e) / 60000);
 }
 
-export function valorHoraFromDiario(valorDiario: number): number {
-  if (valorDiario <= 0) return 0;
-  return Math.round((valorDiario / (PONTO_MINUTOS_CARGA_DIA / 60)) * 100) / 100;
+function arredondarMoeda(valor: number): number {
+  return Math.round(valor * 100) / 100;
 }
 
-export function ganhoDiaFromPonto(valorDiario: number, minutosTrabalhados: number | null): number {
-  if (valorDiario <= 0 || minutosTrabalhados == null || minutosTrabalhados <= 0) return 0;
-  return (
-    Math.round(valorDiario * (minutosTrabalhados / PONTO_MINUTOS_CARGA_DIA) * 100) / 100
-  );
+export function valorHoraFromDiario(valorDiario: number, minutosTrabalhados?: number | null): number {
+  if (valorDiario <= 0) return 0;
+  if (minutosTrabalhados != null && minutosTrabalhados > 0) {
+    return arredondarMoeda(valorDiario / (minutosTrabalhados / 60));
+  }
+  return arredondarMoeda(valorDiario / (PONTO_MINUTOS_CARGA_DIA / 60));
+}
+
+/** Jornada encerrada paga a diária cadastrada; em aberto estima até o teto da diária. */
+export function ganhoDiaFromPonto(
+  valorDiario: number,
+  minutosTrabalhados: number | null,
+  encerrado = false,
+): number {
+  if (valorDiario <= 0) return 0;
+  const diaria = arredondarMoeda(valorDiario);
+  if (encerrado) return diaria;
+  if (minutosTrabalhados == null || minutosTrabalhados <= 0) return 0;
+  const proporcional = diaria * (minutosTrabalhados / PONTO_MINUTOS_CARGA_DIA);
+  return arredondarMoeda(Math.min(diaria, proporcional));
 }
 
 function formatMoedaPonto(valor: number): string {
@@ -409,8 +423,8 @@ export function montarJornadasAdmin(
       );
       const minAlm = calcMinutosAlmoco(atual.almoco, atual.retorno);
       const valorDiario = valorDiarioPorUsuario.get(grupo.usuario_id) ?? 0;
-      const valorHora = valorHoraFromDiario(valorDiario);
-      const ganhoDia = ganhoDiaFromPonto(valorDiario, minTrab);
+      const ganhoDia = ganhoDiaFromPonto(valorDiario, minTrab, !aberto);
+      const valorHora = valorHoraFromDiario(ganhoDia > 0 ? ganhoDia : valorDiario, minTrab);
       jornadas.push({
         usuario_id: grupo.usuario_id,
         usuario_nome: grupo.usuario_nome,

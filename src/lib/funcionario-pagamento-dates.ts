@@ -120,6 +120,8 @@ export type DiaPeriodo = {
   label: string;
 };
 
+const DOW_CURTO = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const;
+
 /** Dias úteis (seg–sex) dentro do período de pagamento. */
 export function diasUteisPeriodo(periodoInicio: string): DiaPeriodo[] {
   const ini = pagamentoInicioSemana(periodoInicio);
@@ -131,14 +133,12 @@ export function diasUteisPeriodo(periodoInicio: string): DiaPeriodo[] {
     const dow = cur.getDay();
     if (dow >= 1 && dow <= 5) {
       const data = ymdLocal(cur);
+      const dd = String(cur.getDate()).padStart(2, "0");
+      const mm = String(cur.getMonth() + 1).padStart(2, "0");
       out.push({
         chave: data,
         data,
-        label: cur.toLocaleDateString("pt-BR", {
-          weekday: "short",
-          day: "2-digit",
-          month: "2-digit",
-        }),
+        label: `${DOW_CURTO[dow]} ${dd}/${mm}`,
       });
     }
     cur.setDate(cur.getDate() + 1);

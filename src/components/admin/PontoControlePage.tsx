@@ -416,7 +416,7 @@ export function PontoControlePage() {
                               intervalo={j.intervalo_fmt}
                               total={j.total_fmt}
                             />
-                            <td className="text-center dash-ponto-cel--valor" title={j.valor_diario > 0 ? `Diária cadastrada: ${j.valor_diario.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (8h)` : "Cadastre o valor diário em Pagamentos"}>
+                            <td className="text-center dash-ponto-cel--valor" title={j.valor_diario > 0 ? `Diária ${j.valor_diario.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} ÷ ${j.total_fmt || "horas do dia"}` : "Cadastre o valor diário em Pagamentos"}>
                               <span className="dash-ponto-valor-h">{j.valor_hora_fmt}</span>
                             </td>
                             <td className="text-center dash-ponto-cel--valor">
@@ -424,9 +424,9 @@ export function PontoControlePage() {
                                 className={`dash-ponto-ganho${j.ganho_parcial ? " dash-ponto-ganho--parcial" : ""}`}
                                 title={
                                   j.ganho_parcial
-                                    ? "Estimativa até o momento (jornada em aberto)"
+                                    ? "Estimativa até o momento (jornada em aberto), limitada à diária"
                                     : j.ganho_dia_fmt !== "—"
-                                      ? "Proporcional às horas trabalhadas (base 8h/dia)"
+                                      ? "Diária cadastrada no perfil do funcionário"
                                       : undefined
                                 }
                               >

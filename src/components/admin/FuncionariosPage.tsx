@@ -629,7 +629,7 @@ export function FuncionariosPage() {
                                     <strong>{formatMoeda(res.total_pago)}</strong>
                                   </div>
                                 </div>
-                                <p className="small text-secondary mb-0">Último: {res.ultima_semana_label}</p>
+                                <p className="dash-func-pag-resumo-card__ultimo">Último: {res.ultima_semana_label}</p>
                               </div>
                             </div>
                           ))}
@@ -717,7 +717,7 @@ export function FuncionariosPage() {
                       <tr>
                         <th>Funcionário</th>
                         <th>Quinzena</th>
-                        <th>Dias pagos</th>
+                        <th className="text-center">Dias pagos</th>
                         <th className="text-end">Qtd</th>
                         <th className="text-end">Bruto</th>
                         <th className="text-end">Empreitas</th>

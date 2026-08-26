@@ -9218,25 +9218,35 @@ html[data-bs-theme="dark"] .dash-func-pag-semana__extras {
 }
 
 .dash-func-pag-resumo-card {
-    padding: 0.75rem 0.9rem;
+    padding: 0.9rem 1rem;
     border-radius: 10px;
     border: 1px solid #e2e8f0;
     background: #fff;
     height: 100%;
+    text-align: center;
 }
 
 .dash-func-pag-resumo-card__nome {
     font-weight: 700;
     color: #181818;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.65rem;
+    text-align: center;
 }
 
 .dash-func-pag-resumo-card__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.35rem 0.75rem;
-    margin-bottom: 0.35rem;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
     font-size: 0.78rem;
+    text-align: center;
+}
+
+.dash-func-pag-resumo-card__grid > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .dash-func-pag-resumo-card__grid span {
@@ -9246,13 +9256,18 @@ html[data-bs-theme="dark"] .dash-func-pag-semana__extras {
     text-transform: uppercase;
 }
 
+.dash-func-pag-resumo-card__grid strong {
+    font-size: 1.05rem;
+    line-height: 1.2;
+}
+
 .dash-func-pag-resumo-card__total {
     grid-column: 1 / -1;
 }
 
 .dash-func-pag-resumo-card__total strong {
     color: #854D0E;
-    font-size: 1rem;
+    font-size: 1.15rem;
 }
 
 html[data-bs-theme="dark"] .dash-func-pag-chips__item {
@@ -9282,6 +9297,18 @@ html[data-bs-theme="dark"] .dash-func-pag-resumo-card__grid strong {
 
 html[data-bs-theme="dark"] .dash-func-pag-resumo-card__total strong {
     color: #EAB308;
+}
+
+.dash-func-pag-resumo-card__ultimo {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.35;
+}
+
+html[data-bs-theme="dark"] .dash-func-pag-resumo-card__ultimo {
+    color: #6b7889;
 }
 
 html[data-bs-theme="dark"] .dash-func-pag-mapa__col-nome,

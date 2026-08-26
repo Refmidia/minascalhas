@@ -1,5 +1,4 @@
-import { PDF_A4_WIDTH_PX } from "@/lib/os-pdf";
-import { ASSINATURA_PDF_ALTURA_PX, ASSINATURA_PDF_LARGURA_PX } from "@/lib/ponto-assinatura";
+import { PDF_A4_HEIGHT_PX, PDF_A4_WIDTH_PX } from "@/lib/os-pdf";
 import { nomeArquivoPontoRelatorio } from "@/lib/ponto-relatorio";
 
 export const PONTO_PDF_MSG_DONE = "ponto-pdf-done";
@@ -48,31 +47,58 @@ async function aguardarImagens(el: HTMLElement): Promise<void> {
   );
 }
 
-function prepararElementoPdf(el: HTMLElement): () => void {
+export function encaixarFolhaA4(el: HTMLElement): () => void {
   const prev = {
     width: el.style.width,
     maxWidth: el.style.maxWidth,
+    height: el.style.height,
     minHeight: el.style.minHeight,
+    maxHeight: el.style.maxHeight,
     margin: el.style.margin,
     boxSizing: el.style.boxSizing,
     overflow: el.style.overflow,
     boxShadow: el.style.boxShadow,
+    display: el.style.display,
   };
+  const gaps = Array.from(el.querySelectorAll<HTMLElement>(".ponto-rel-visto-gap"));
+  const prevGaps = gaps.map((g) => g.style.height);
+
+  el.style.display = "block";
   el.style.width = `${PDF_A4_WIDTH_PX}px`;
   el.style.maxWidth = `${PDF_A4_WIDTH_PX}px`;
-  el.style.minHeight = "";
-  el.style.margin = "0";
+  el.style.margin = "0 auto";
   el.style.boxSizing = "border-box";
-  el.style.overflow = "visible";
   el.style.boxShadow = "none";
+  el.style.height = "auto";
+  el.style.minHeight = "0";
+  el.style.maxHeight = "none";
+  el.style.overflow = "visible";
+  for (const g of gaps) g.style.height = "0px";
+  void el.offsetHeight;
+
+  const contentH = Math.max(el.scrollHeight, el.offsetHeight);
+  const sobra = PDF_A4_HEIGHT_PX - contentH;
+  if (gaps[0] && sobra > 0) {
+    gaps[0].style.height = `${sobra}px`;
+  }
+  el.style.minHeight = `${PDF_A4_HEIGHT_PX}px`;
+  el.style.height = `${PDF_A4_HEIGHT_PX}px`;
+  void el.offsetHeight;
+
   return () => {
     el.style.width = prev.width;
     el.style.maxWidth = prev.maxWidth;
+    el.style.height = prev.height;
     el.style.minHeight = prev.minHeight;
+    el.style.maxHeight = prev.maxHeight;
     el.style.margin = prev.margin;
     el.style.boxSizing = prev.boxSizing;
     el.style.overflow = prev.overflow;
     el.style.boxShadow = prev.boxShadow;
+    el.style.display = prev.display;
+    gaps.forEach((g, i) => {
+      g.style.height = prevGaps[i] ?? "";
+    });
   };
 }
 
@@ -87,70 +113,63 @@ async function aguardarLayoutExportacao(el: HTMLElement): Promise<void> {
 
 export async function gerarPdfPontoRelatorio(el: HTMLElement, filename: string): Promise<void> {
   await aguardarImagens(el);
-  document.documentElement.classList.add("ponto-rel-exporting");
-  const restaurar = prepararElementoPdf(el);
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+  window.scrollTo(0, 0);
+  const restaurar = encaixarFolhaA4(el);
 
   try {
     await aguardarLayoutExportacao(el);
-    const { width, height } = {
+    el.style.overflow = "hidden";
+
+    const [canvasMod, jspdfMod] = await Promise.all([import("html2canvas"), import("jspdf")]);
+    const html2canvas = canvasMod.default;
+    const JsPDF = jspdfMod.jsPDF;
+    if (!html2canvas || !JsPDF) throw new Error("Biblioteca de PDF indisponível.");
+
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+      scrollX: 0,
+      scrollY: 0,
+      x: 0,
+      y: 0,
       width: PDF_A4_WIDTH_PX,
-      height: Math.max(el.scrollHeight, el.offsetHeight, 1),
-    };
-    const mod = await import("html2pdf.js");
-    const html2pdf = mod.default;
-    if (!html2pdf) throw new Error("Biblioteca de PDF indisponível.");
+      height: PDF_A4_HEIGHT_PX,
+      windowWidth: PDF_A4_WIDTH_PX,
+      windowHeight: PDF_A4_HEIGHT_PX,
+      onclone: (doc: Document) => {
+        const cloned = doc.getElementById("ponto-relatorio-documento");
+        if (!cloned) return;
+        cloned.style.margin = "0";
+        cloned.style.boxShadow = "none";
+        cloned.style.position = "relative";
+        cloned.style.left = "0";
+        cloned.style.top = "0";
+        cloned.style.width = `${PDF_A4_WIDTH_PX}px`;
+        cloned.style.height = `${PDF_A4_HEIGHT_PX}px`;
+        cloned.style.maxHeight = `${PDF_A4_HEIGHT_PX}px`;
+        cloned.style.overflow = "hidden";
+        const srcGaps = el.querySelectorAll<HTMLElement>(".ponto-rel-visto-gap");
+        cloned.querySelectorAll<HTMLElement>(".ponto-rel-visto-gap").forEach((g, i) => {
+          g.style.height = srcGaps[i]?.style.height || "0px";
+        });
+      },
+    });
 
-    const blob = (await html2pdf()
-      .set({
-        margin: 0,
-        filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: "#ffffff",
-          scrollX: 0,
-          scrollY: 0,
-          x: 0,
-          y: 0,
-          width,
-          height,
-          windowWidth: width,
-          windowHeight: height,
-          onclone: (doc: Document) => {
-            doc.documentElement.classList.add("ponto-rel-exporting");
-            const cloned = doc.getElementById("ponto-relatorio-documento");
-            if (!cloned) return;
-            cloned.style.width = `${PDF_A4_WIDTH_PX}px`;
-            cloned.style.maxWidth = `${PDF_A4_WIDTH_PX}px`;
-            cloned.style.minHeight = "0";
-            cloned.style.margin = "0";
-            cloned.style.boxSizing = "border-box";
-            cloned.style.overflow = "visible";
-            cloned.style.boxShadow = "none";
-            cloned.querySelectorAll(".ponto-rel-visto__img").forEach((node) => {
-              const img = node as HTMLImageElement;
-              img.style.width = `${ASSINATURA_PDF_LARGURA_PX}px`;
-              img.style.height = `${ASSINATURA_PDF_ALTURA_PX}px`;
-              img.style.maxWidth = "none";
-              img.style.objectFit = "fill";
-              img.style.display = "inline-block";
-              img.style.margin = "0";
-              img.style.verticalAlign = "bottom";
-            });
-          },
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
-        pagebreak: {
-          mode: ["css", "legacy"],
-          avoid: [".ponto-rel-func__head", ".ponto-rel-resumo", ".ponto-rel-visto", "tr"],
-        },
-      })
-      .from(el)
-      .toPdf()
-      .output("blob")) as Blob;
+    const img = canvas.toDataURL("image/jpeg", 0.98);
+    const pdf = new JsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
+    const w = pdf.internal.pageSize.getWidth();
+    const h = pdf.internal.pageSize.getHeight();
+    pdf.addImage(img, "JPEG", 0, 0, w, h, undefined, "FAST");
+    while (pdf.getNumberOfPages() > 1) {
+      pdf.deletePage(pdf.getNumberOfPages());
+    }
 
+    const blob = pdf.output("blob");
     if (!blob || blob.size < 500) {
       throw new Error("PDF gerado está vazio. Tente novamente.");
     }
@@ -158,7 +177,6 @@ export async function gerarPdfPontoRelatorio(el: HTMLElement, filename: string):
     baixarBlob(blob, filename);
   } finally {
     restaurar();
-    document.documentElement.classList.remove("ponto-rel-exporting");
   }
 }
 
@@ -193,7 +211,7 @@ export function baixarPdfPontoRelatorio(params: PontoPdfParams, funcionarioNome?
     iframe.setAttribute("aria-hidden", "true");
     iframe.title = "Gerando PDF de ponto";
     iframe.style.cssText =
-      "position:fixed;left:-12000px;top:0;width:834px;height:12000px;border:0;opacity:0;pointer-events:none;overflow:visible";
+      "position:fixed;left:0;top:0;width:1100px;height:1400px;border:0;opacity:0.01;pointer-events:none;z-index:-1;overflow:auto;background:#ececec";
 
     const timeout = window.setTimeout(() => {
       cleanup();
@@ -221,7 +239,7 @@ export function baixarPdfPontoRelatorio(params: PontoPdfParams, funcionarioNome?
     }
 
     window.addEventListener("message", onMessage);
-    const extra: Record<string, string> = { embed: "1", download: "1", req };
+    const extra: Record<string, string> = { download: "1", req };
     if (funcionarioNome) extra.nome = funcionarioNome;
     iframe.src = urlPontoRelatorio(params, extra);
     document.body.appendChild(iframe);

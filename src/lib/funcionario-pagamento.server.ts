@@ -49,21 +49,40 @@ function diasMarcadosFromPag(
   const out = Object.fromEntries(chaves.map((c) => [c, 0])) as Record<string, number>;
   if (!pag) return out;
 
+  const marcar = (chave: string) => {
+    if (chave && chave in out) out[chave] = 1;
+  };
+
   const rawJson = pag.dias_json;
+  let jsonOk = false;
   if (rawJson != null && String(rawJson).trim()) {
     try {
       const parsed = JSON.parse(String(rawJson)) as Record<string, unknown>;
-      for (const c of chaves) out[c] = parsed[c] ? 1 : 0;
-      return out;
+      for (const c of chaves) {
+        if (parsed[c]) {
+          marcar(c);
+          jsonOk = true;
+        }
+      }
+      if (!jsonOk) {
+        const legDays = diasUteisPeriodo(periodoInicio);
+        for (let i = 0; i < DIAS_LEGADO.length && i < legDays.length; i++) {
+          const k = DIAS_LEGADO[i];
+          if (parsed[k] || parsed[`dias_${k}`]) {
+            marcar(legDays[i].chave);
+            jsonOk = true;
+          }
+        }
+      }
     } catch {
-      /* legado abaixo */
+      jsonOk = false;
     }
   }
 
-  if (pagamentoEhLegadoSemanal(periodoInicio)) {
+  if (!jsonOk && pagamentoEhLegadoSemanal(periodoInicio)) {
     const legDays = diasUteisPeriodo(periodoInicio);
     for (let i = 0; i < DIAS_LEGADO.length && i < legDays.length; i++) {
-      out[legDays[i].chave] = int(pag[`dias_${DIAS_LEGADO[i]}`]) === 1 ? 1 : 0;
+      if (int(pag[`dias_${DIAS_LEGADO[i]}`]) === 1) marcar(legDays[i].chave);
     }
   }
 
@@ -272,8 +291,8 @@ export async function montarCardsSemana(semanaInicio: string): Promise<Pagamento
   const cards: PagamentoCard[] = [];
   for (const f of funcionarios) {
     const pag = pagMap.get(f.id) ?? null;
-    let valorDiario = pag ? num(pag.valor_diario) : vdMap.get(f.id) ?? 0;
-    if (valorDiario <= 0) valorDiario = vdMap.get(f.id) ?? 0;
+    let valorDiario = vdMap.get(f.id) ?? 0;
+    if (valorDiario <= 0 && pag) valorDiario = num(pag.valor_diario);
 
     const totalVales = pag ? num(pag.total_vales) : valesMap.get(f.id) ?? 0;
     const totalEmpreitas = pag ? num(pag.total_empreitas) : empMap.get(f.id) ?? 0;
@@ -286,7 +305,7 @@ export async function montarCardsSemana(semanaInicio: string): Promise<Pagamento
     if (pag) {
       const diasDiaria = contarDiasMarcadosMapa(diasMarcadosFromPag(pag, sem));
       diasCount = diasDiaria + empDiasQtd;
-      valorBruto = num(pag.valor_bruto);
+      valorBruto = pagamentoCalcularBrutoPeriodo(valorDiario, diasDiaria, totalEmpreitas);
       valorLiquido = num(pag.valor);
     } else {
       const sug = sugestaoMap[f.id] ?? {};
@@ -368,8 +387,8 @@ export async function montarDadosSemana(usuarioId: number, semanaInicio: string)
   if (!userRows[0]) return null;
   const nome = userRows[0].nome;
 
-  let valorDiario = pag ? num(pag.valor_diario) : num(userRows[0].valor_diario);
-  if (valorDiario <= 0 && pag) valorDiario = num(userRows[0].valor_diario);
+  let valorDiario = num(userRows[0].valor_diario);
+  if (valorDiario <= 0 && pag) valorDiario = num(pag.valor_diario);
 
   const sugestaoMap = await sugerirDiasBatePontoLote([uid], sem);
   const sugeridos = sugestaoMap[uid] ?? Object.fromEntries(chavesDiasPeriodo(sem).map((c) => [c, false]));
@@ -661,7 +680,8 @@ export async function resumoFuncionariosPeriodo(dataDe: string, dataAte: string)
   }
 
   const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-    `SELECT p.*, u.nome AS funcionario_nome FROM funcionario_pagamento_semanal p
+    `SELECT p.*, u.nome AS funcionario_nome, u.valor_diario AS usuario_valor_diario
+     FROM funcionario_pagamento_semanal p
      INNER JOIN usuarios u ON u.id = p.usuario_id
      WHERE p.semana_inicio >= '${de}' AND p.semana_inicio <= '${ate}'
      ORDER BY u.nome ASC, p.semana_inicio ASC`,
@@ -676,6 +696,13 @@ export async function resumoFuncionariosPeriodo(dataDe: string, dataAte: string)
     const uid = int(row.usuario_id);
     const sem = ymdFromDb(row.semana_inicio);
     if (!sem) continue;
+    const diasDiaria = contarDiasMarcadosMapa(diasMarcadosFromPag(row, sem));
+    const empD = empDias[uid]?.[sem] ?? 0;
+    const diasQtd = diasDiaria + empD;
+    const valorDiario = num(row.usuario_valor_diario) > 0 ? num(row.usuario_valor_diario) : num(row.valor_diario);
+    const valorBruto = pagamentoCalcularBrutoPeriodo(valorDiario, diasDiaria, num(row.total_empreitas));
+    const valorPago = Math.max(0, Math.round((valorBruto - num(row.total_vales)) * 100) / 100);
+    if (diasQtd <= 0 && valorBruto <= 0 && num(row.valor) <= 0) continue;
     if (!byUser.has(uid)) {
       byUser.set(uid, {
         nome: String(row.funcionario_nome),
@@ -686,11 +713,9 @@ export async function resumoFuncionariosPeriodo(dataDe: string, dataAte: string)
       });
     }
     const item = byUser.get(uid)!;
-    const diasDiaria = contarDiasMarcadosMapa(diasMarcadosFromPag(row, sem));
-    const empD = empDias[uid]?.[sem] ?? 0;
     item.qtd_semanas++;
-    item.total_pago += num(row.valor);
-    item.total_dias += diasDiaria + empD;
+    item.total_pago += valorPago;
+    item.total_dias += diasQtd;
     if (sem > item.ultima_semana) item.ultima_semana = sem;
   }
 
@@ -728,7 +753,8 @@ export async function listarPagamentosHistorico(de: string, ate: string, usuario
   if (usuarioId && usuarioId > 0) where += ` AND p.usuario_id = ${int(usuarioId)}`;
 
   const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
-    `SELECT p.*, u.nome AS funcionario_nome FROM funcionario_pagamento_semanal p
+    `SELECT p.*, u.nome AS funcionario_nome, u.valor_diario AS usuario_valor_diario
+     FROM funcionario_pagamento_semanal p
      INNER JOIN usuarios u ON u.id = p.usuario_id
      WHERE ${where}
      ORDER BY p.semana_inicio DESC, u.nome ASC LIMIT 500`,
@@ -743,18 +769,25 @@ export async function listarPagamentosHistorico(de: string, ate: string, usuario
     if (!sem) continue;
     const diasDiaria = contarDiasMarcadosMapa(diasMarcadosFromPag(r, sem));
     const empDias = empPeriodo[uid]?.[sem] ?? 0;
+    const diasQtd = diasDiaria + empDias;
+    const valorDiario = num(r.usuario_valor_diario) > 0 ? num(r.usuario_valor_diario) : num(r.valor_diario);
+    const totalEmpreitas = num(r.total_empreitas);
+    const totalVales = num(r.total_vales);
+    const valorBruto = pagamentoCalcularBrutoPeriodo(valorDiario, diasDiaria, totalEmpreitas);
+    const valorPago = Math.max(0, Math.round((valorBruto - totalVales) * 100) / 100);
+    if (diasQtd <= 0 && valorBruto <= 0 && num(r.valor) <= 0) continue;
     out.push({
       id: int(r.id),
       usuario_id: uid,
       usuario_nome: String(r.funcionario_nome ?? ""),
       semana_inicio: sem,
       dias_trabalhados: int(r.dias_trabalhados),
-      dias_qtd: diasDiaria + empDias,
+      dias_qtd: diasQtd,
       dias_pagos: await descricaoDiasPagos(r, sem, uid),
-      valor_bruto: num(r.valor_bruto),
-      total_empreitas: num(r.total_empreitas),
-      total_vales: num(r.total_vales),
-      valor: num(r.valor),
+      valor_bruto: valorBruto,
+      total_empreitas: totalEmpreitas,
+      total_vales: totalVales,
+      valor: valorPago,
       observacao: String(r.observacao ?? ""),
     });
   }

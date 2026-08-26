@@ -5,6 +5,7 @@ import { z } from "zod";
 import { PontoRelatorioDocument } from "@/components/os/PontoRelatorioDocument";
 import { centralizarAssinaturaDataUrl, centralizarMapaAssinaturas } from "@/lib/ponto-assinatura";
 import {
+  encaixarFolhaA4,
   gerarPdfPontoRelatorio,
   nomePdfPontoRelatorio,
   PONTO_PDF_MSG_DONE,
@@ -125,13 +126,20 @@ function PontoRelatorioPage() {
     setAssReady(Boolean(jornadas));
   }, [jornadas]);
 
+  useLayoutEffect(() => {
+    if (!jornadas) return;
+    const el = document.getElementById("ponto-relatorio-documento");
+    if (!el) return;
+    return encaixarFolhaA4(el);
+  }, [jornadas, assinaturaEmpresa, assinaturasFuncionario]);
+
   useEffect(() => {
     if (!download || !jornadas || !assReady) return;
     let cancelled = false;
 
     void (async () => {
       try {
-        await new Promise((r) => window.setTimeout(r, 600));
+        await new Promise((r) => window.setTimeout(r, 800));
         if (cancelled) return;
         const el = document.getElementById("ponto-relatorio-documento");
         if (!el) throw new Error("Documento não encontrado.");
