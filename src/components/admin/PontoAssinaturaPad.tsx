@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 
+import { centralizarAssinaturaCanvas } from "@/lib/ponto-assinatura";
+
 type Props = {
   initial?: string | null;
   onChange: (dataUrl: string | null) => void;
@@ -52,7 +54,13 @@ export function PontoAssinaturaPad({ initial, onChange, label, disabled }: Props
       if (!base) return;
       const img = new Image();
       img.onload = () => {
-        ctx.drawImage(img, 0, 0, w, h);
+        const iw = img.naturalWidth || img.width;
+        const ih = img.naturalHeight || img.height;
+        if (!iw || !ih) return;
+        const scale = Math.min(w / iw, h / ih);
+        const dw = iw * scale;
+        const dh = ih * scale;
+        ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
       };
       img.src = base;
     }
@@ -60,9 +68,10 @@ export function PontoAssinaturaPad({ initial, onChange, label, disabled }: Props
     function emitir() {
       const c = canvasRef.current;
       if (!c) return;
-      const data = c.toDataURL("image/png");
-      inkRef.current = data;
-      onChangeRef.current(data);
+      const centered = centralizarAssinaturaCanvas(c);
+      if (!centered) return;
+      inkRef.current = c.toDataURL("image/png");
+      onChangeRef.current(centered);
     }
 
     function ponto(e: PointerEvent) {

@@ -1,8 +1,9 @@
 import { useLayoutEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 
-import { PontoAssinaturaPad } from "@/components/admin/PontoAssinaturaPad";
+import { useAdminAuth } from "@/components/admin/admin-auth";
 import { AdminModal } from "@/components/admin/modals/AdminModal";
-import { lerAssinaturaEmpresaPonto, salvarAssinaturaEmpresaPonto } from "@/lib/ponto-assinatura";
+import { AssinaturaPreviewImg } from "@/components/admin/AssinaturaPreviewImg";
 import { fetchAssinaturaUsuario } from "@/lib/usuarios-client";
 
 export type PontoAssinaturaConfirmacao = {
@@ -29,50 +30,58 @@ export function PontoAssinaturaFolhaModal({
   confirmando,
   onConfirm,
 }: Props) {
+  const { user } = useAdminAuth();
   const [incluirFunc, setIncluirFunc] = useState(true);
   const [incluirEmpresa, setIncluirEmpresa] = useState(true);
   const [funcSrc, setFuncSrc] = useState<string | null>(null);
   const [empresaSrc, setEmpresaSrc] = useState<string | null>(null);
-  const [seed, setSeed] = useState(0);
-  const [carregandoFunc, setCarregandoFunc] = useState(false);
+  const [carregando, setCarregando] = useState(false);
 
   useLayoutEffect(() => {
     if (!open) return;
-    setIncluirEmpresa(true);
-    setEmpresaSrc(lerAssinaturaEmpresaPonto());
-    setSeed((s) => s + 1);
-    setCarregandoFunc(true);
+    setCarregando(true);
     setFuncSrc(null);
+    setEmpresaSrc(null);
     let cancelled = false;
-    fetchAssinaturaUsuario(usuarioId)
-      .then((src) => {
+    const adminId = user?.id && user.id > 0 ? user.id : 0;
+
+    Promise.all([
+      fetchAssinaturaUsuario(usuarioId),
+      adminId ? fetchAssinaturaUsuario(adminId) : Promise.resolve(null),
+    ])
+      .then(([func, empresa]) => {
         if (cancelled) return;
-        setFuncSrc(src);
-        setIncluirFunc(Boolean(src));
+        setFuncSrc(func);
+        setEmpresaSrc(empresa);
+        setIncluirFunc(Boolean(func));
+        setIncluirEmpresa(Boolean(empresa));
       })
       .catch(() => {
         if (cancelled) return;
         setFuncSrc(null);
+        setEmpresaSrc(null);
         setIncluirFunc(false);
+        setIncluirEmpresa(false);
       })
       .finally(() => {
-        if (!cancelled) setCarregandoFunc(false);
+        if (!cancelled) setCarregando(false);
       });
+
     return () => {
       cancelled = true;
     };
-  }, [open, usuarioId]);
+  }, [open, usuarioId, user?.id]);
 
   function confirmar() {
     if (confirmando) return;
-    salvarAssinaturaEmpresaPonto(empresaSrc);
     onConfirm({
       assFunc: incluirFunc && Boolean(funcSrc),
       assEmpresa: incluirEmpresa && Boolean(empresaSrc),
     });
   }
 
-  const tituloAcao = acao === "abrir" ? "Abrir folha" : "Baixar PDF";
+  const tituloAcao = acao === "abrir" ? "Ver folha" : "Baixar PDF";
+  const nomeEmpresa = user?.nome?.trim() || "empresa";
 
   return (
     <AdminModal
@@ -104,50 +113,64 @@ export function PontoAssinaturaFolhaModal({
 
         <div className="modal-body dash-edit-modal__body">
           <p className="dash-ponto-ass-modal__intro">
-            A assinatura do funcionário vem do perfil. Aqui você só confirma e, se quiser, assina
-            pela empresa.
+            Marque o que deve entrar no PDF.
           </p>
 
-          <label className={`dash-ponto-ass-modal__check${funcSrc ? "" : " is-off"}`}>
-            <input
-              type="checkbox"
-              checked={incluirFunc && Boolean(funcSrc)}
-              onChange={(e) => setIncluirFunc(e.target.checked)}
-              disabled={confirmando || carregandoFunc || !funcSrc}
-            />
-            <span>Incluir assinatura de {funcionarioNome}</span>
-          </label>
-          {carregandoFunc ? <p className="text-muted">Carregando assinatura do perfil…</p> : null}
-          {!carregandoFunc && funcSrc ? (
-            <div className="dash-ponto-ass-preview">
-              <img src={funcSrc} alt={`Assinatura de ${funcionarioNome}`} />
-            </div>
-          ) : null}
-          {!carregandoFunc && !funcSrc ? (
-            <p className="dash-ponto-ass-modal__aviso">
-              {funcionarioNome} ainda não gravou a assinatura. Peça para assinar em{" "}
-              <strong>Usuários</strong> (editar perfil) ou na tela de <strong>Ponto</strong> dele.
-            </p>
-          ) : null}
+          {carregando ? <p className="text-muted mb-0">Carregando assinaturas…</p> : null}
 
-          <label className="dash-ponto-ass-modal__check">
-            <input
-              type="checkbox"
-              checked={incluirEmpresa}
-              onChange={(e) => setIncluirEmpresa(e.target.checked)}
-              disabled={confirmando}
-            />
-            <span>Incluir assinatura da empresa</span>
-          </label>
-          {seed > 0 && incluirEmpresa ? (
-            <PontoAssinaturaPad
-              key={`empresa-${seed}`}
-              initial={empresaSrc}
-              onChange={setEmpresaSrc}
-              label="Assinatura — Minas Calhas"
-              disabled={confirmando}
-            />
-          ) : null}
+          <div className="dash-ponto-ass-cols">
+            <label
+              className={`dash-ponto-ass-col${incluirFunc && funcSrc ? " is-on" : ""}${funcSrc ? "" : " is-off"}`}
+            >
+              <span className="dash-ponto-ass-col__top">
+                <input
+                  type="checkbox"
+                  checked={incluirFunc && Boolean(funcSrc)}
+                  onChange={(e) => setIncluirFunc(e.target.checked)}
+                  disabled={confirmando || carregando || !funcSrc}
+                />
+                <span className="dash-ponto-ass-col__papel">Funcionário</span>
+              </span>
+              <strong className="dash-ponto-ass-col__nome">{funcionarioNome}</strong>
+              {!carregando && funcSrc ? (
+                <span className="dash-ponto-ass-col__preview">
+                  <AssinaturaPreviewImg src={funcSrc} alt="" />
+                </span>
+              ) : (
+                <span className="dash-ponto-ass-col__vazio">
+                  Ainda não gravou a assinatura na tela de Ponto.
+                </span>
+              )}
+            </label>
+
+            <label
+              className={`dash-ponto-ass-col${incluirEmpresa && empresaSrc ? " is-on" : ""}${empresaSrc ? "" : " is-off"}`}
+            >
+              <span className="dash-ponto-ass-col__top">
+                <input
+                  type="checkbox"
+                  checked={incluirEmpresa && Boolean(empresaSrc)}
+                  onChange={(e) => setIncluirEmpresa(e.target.checked)}
+                  disabled={confirmando || carregando || !empresaSrc}
+                />
+                <span className="dash-ponto-ass-col__papel">Empresa</span>
+              </span>
+              <strong className="dash-ponto-ass-col__nome">{nomeEmpresa}</strong>
+              {!carregando && empresaSrc ? (
+                <span className="dash-ponto-ass-col__preview">
+                  <AssinaturaPreviewImg src={empresaSrc} alt="" />
+                </span>
+              ) : (
+                <span className="dash-ponto-ass-col__vazio">
+                  Grave em{" "}
+                  <Link to="/painel/assinatura" className="dash-ponto-relatorio-modal__link">
+                    Administração → Assinatura
+                  </Link>
+                  .
+                </span>
+              )}
+            </label>
+          </div>
         </div>
 
         <div className="modal-footer visitas-orc-modal__footer flex-shrink-0">
@@ -165,7 +188,7 @@ export function PontoAssinaturaFolhaModal({
             onClick={confirmar}
             disabled={confirmando}
           >
-            <i className={`bi ${acao === "abrir" ? "bi-printer" : "bi-download"}`} aria-hidden="true" />{" "}
+            <i className={`bi ${acao === "abrir" ? "bi-eye" : "bi-download"}`} aria-hidden="true" />{" "}
             {confirmando ? "Gerando…" : tituloAcao}
           </button>
         </div>

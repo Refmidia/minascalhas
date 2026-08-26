@@ -30,6 +30,7 @@ const NAV_ADMIN: { to: string; label: string; icon: string }[] = [
   { to: "/painel/financeiro", label: "Financeiro", icon: "bi-cash-coin" },
   { to: "/painel/funcionarios", label: "Funcionários", icon: "bi-people-fill" },
   { to: "/painel/ponto-controle", label: "Bate-ponto", icon: "bi-clock" },
+  { to: "/painel/assinatura", label: "Assinatura", icon: "bi-pen" },
   { to: "/painel/logs", label: "Log do sistema", icon: "bi-journal-code" },
 ];
 

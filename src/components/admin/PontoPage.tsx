@@ -5,7 +5,8 @@ import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero, NovaVisitaCta } from "@/components/admin/DashPageHero";
 import { UsuarioAssinaturaEditor } from "@/components/admin/UsuarioAssinaturaEditor";
 import { formatDataHoraPonto, pontoClasseBadge, pontoLabelTipo } from "@/lib/ponto-display";
-import { PONTO_TIMEZONE } from "@/lib/ponto-timezone";
+import { weekdayCurtoIso } from "@/lib/ponto-relatorio";
+import { PONTO_TIMEZONE, pontoHojeIso, pontoSerializarDatetime } from "@/lib/ponto-timezone";
 import { dashConfirm, dashToast } from "@/lib/dash-ui";
 
 type Estado = {
@@ -18,6 +19,30 @@ type Estado = {
 };
 
 type Registro = { id: number; tipo: string; registrado_em: string };
+
+type DiaRegistros = {
+  iso: string;
+  data: string;
+  weekday: string;
+  itens: Array<Registro & { hora: string }>;
+};
+
+function agruparRegistrosPorDia(regs: Registro[]): DiaRegistros[] {
+  const grupos: DiaRegistros[] = [];
+  const index = new Map<string, number>();
+  for (const reg of regs) {
+    const { data, hora } = formatDataHoraPonto(reg.registrado_em);
+    const iso = pontoSerializarDatetime(reg.registrado_em).slice(0, 10);
+    let i = index.get(iso);
+    if (i == null) {
+      i = grupos.length;
+      index.set(iso, i);
+      grupos.push({ iso, data, weekday: weekdayCurtoIso(iso), itens: [] });
+    }
+    grupos[i].itens.push({ ...reg, hora: hora.slice(0, 5) });
+  }
+  return grupos;
+}
 
 function badgeClass(status: string) {
   if (status === "trabalhando") return "on";
@@ -245,59 +270,48 @@ export function PontoPage() {
                 <i className="bi bi-journal-text" aria-hidden="true" />
                 Registros
               </h2>
-              <div className="table-responsive">
-                <table className="table table-sm dash-ponto-log-table mb-0">
-                  <thead>
-                    <tr>
-                      <th scope="col">Data</th>
-                      <th scope="col">Hora</th>
-                      <th scope="col">Registro</th>
-                      {podeExcluir ? (
-                        <th scope="col" className="text-end">
-                          Ações
-                        </th>
-                      ) : null}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historico.length === 0 ? (
-                      <tr>
-                        <td colSpan={podeExcluir ? 4 : 3} className="text-center text-secondary py-4">
-                          Nenhum registro ainda. Use os botões acima para marcar o ponto.
-                        </td>
-                      </tr>
-                    ) : (
-                      historico.map((reg) => {
-                        const { data, hora } = formatDataHoraPonto(reg.registrado_em);
-                        return (
-                          <tr key={reg.id}>
-                            <td className="dash-ponto-log-table__data">{data}</td>
-                            <td className="dash-ponto-log-table__hora">{hora}</td>
-                            <td>
-                              <span className={`dash-ponto-tipo ${pontoClasseBadge(reg.tipo)}`}>
-                                {pontoLabelTipo(reg.tipo)}
-                              </span>
-                            </td>
+              {historico.length === 0 ? (
+                <p className="dash-ponto-dias__vazio">
+                  Nenhum registro ainda. Use os botões acima para marcar o ponto.
+                </p>
+              ) : (
+                <div className="dash-ponto-dias">
+                  {agruparRegistrosPorDia(historico).map((dia) => (
+                    <article key={dia.iso} className="dash-ponto-dia">
+                      <header className="dash-ponto-dia__head">
+                        <span className="dash-ponto-dia__wd">{dia.weekday}</span>
+                        <span className="dash-ponto-dia__data">{dia.data}</span>
+                        {dia.iso === pontoHojeIso() ? (
+                          <span className="dash-ponto-dia__hoje">Hoje</span>
+                        ) : null}
+                      </header>
+                      <ul className="dash-ponto-dia__lista">
+                        {dia.itens.map((reg) => (
+                          <li key={reg.id} className="dash-ponto-dia__item">
+                            <time className="dash-ponto-dia__hora" dateTime={reg.registrado_em}>
+                              {reg.hora}
+                            </time>
+                            <span className={`dash-ponto-tipo ${pontoClasseBadge(reg.tipo)}`}>
+                              {pontoLabelTipo(reg.tipo)}
+                            </span>
                             {podeExcluir ? (
-                              <td className="text-end">
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-outline-danger dash-ponto-btn-excluir"
-                                  title="Excluir registro"
-                                  onClick={() => void excluirRegistro(reg)}
-                                >
-                                  <i className="bi bi-trash" aria-hidden="true" />
-                                  <span className="visually-hidden">Excluir</span>
-                                </button>
-                              </td>
+                              <button
+                                type="button"
+                                className="dash-ponto-dia__excluir"
+                                title="Excluir registro"
+                                onClick={() => void excluirRegistro(reg)}
+                              >
+                                <i className="bi bi-trash" aria-hidden="true" />
+                                <span className="visually-hidden">Excluir</span>
+                              </button>
                             ) : null}
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+              )}
             </section>
           </>
         ) : null}

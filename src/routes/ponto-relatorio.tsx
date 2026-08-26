@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { z } from "zod";
 
 import { PontoRelatorioDocument } from "@/components/os/PontoRelatorioDocument";
-import { lerAssinaturaEmpresaPonto } from "@/lib/ponto-assinatura";
+import { centralizarAssinaturaDataUrl, centralizarMapaAssinaturas } from "@/lib/ponto-assinatura";
 import {
   gerarPdfPontoRelatorio,
   nomePdfPontoRelatorio,
@@ -61,7 +61,7 @@ function PontoRelatorioPage() {
   const req = search.req ?? "";
   const nome = search.nome ?? "";
   const assFuncOff = search.assFunc === "0" || search.assFunc === 0;
-  const assEmpresa = search.assEmpresa === "1" || search.assEmpresa === 1;
+  const assEmpresaOff = search.assEmpresa === "0" || search.assEmpresa === 0;
 
   const [jornadas, setJornadas] = useState<PontoRelatorioJornada[] | null>(null);
   const [error, setError] = useState("");
@@ -77,6 +77,9 @@ function PontoRelatorioPage() {
   }, [embed]);
 
   useEffect(() => {
+    let cancelled = false;
+    setJornadas(null);
+    setAssReady(false);
     const qs = new URLSearchParams();
     qs.set("de", de);
     qs.set("ate", ate);
@@ -90,32 +93,37 @@ function PontoRelatorioPage() {
           message?: string;
           jornadas?: PontoRelatorioJornada[];
           assinaturas?: Record<string, string>;
+          assinaturaEmpresa?: string | null;
         };
         if (!r.ok || !d.ok) {
           throw new Error(d.message ?? (r.status === 403 || r.status === 401 ? "Faça login como administrador." : "Erro ao carregar."));
         }
-        setJornadas(d.jornadas ?? []);
         const fromApi: Record<number, string> = {};
         for (const [k, v] of Object.entries(d.assinaturas ?? {})) {
           const id = Number(k);
           if (id > 0 && v) fromApi[id] = v;
         }
-        setAssinaturasFuncionario(fromApi);
+        const [funcs, empresa] = await Promise.all([
+          centralizarMapaAssinaturas(fromApi),
+          d.assinaturaEmpresa ? centralizarAssinaturaDataUrl(d.assinaturaEmpresa) : Promise.resolve(null),
+        ]);
+        if (cancelled) return;
+        setAssinaturasFuncionario(assFuncOff ? {} : funcs);
+        setAssinaturaEmpresa(assEmpresaOff ? null : empresa);
+        setJornadas(d.jornadas ?? []);
       })
-      .catch((e) => setError(e instanceof Error ? e.message : "Não foi possível carregar o relatório."));
-  }, [de, ate, usuario]);
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Não foi possível carregar o relatório.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [de, ate, usuario, assFuncOff, assEmpresaOff]);
 
   useLayoutEffect(() => {
-    if (!jornadas) {
-      setAssReady(false);
-      return;
-    }
-    setAssinaturaEmpresa(assEmpresa ? lerAssinaturaEmpresaPonto() : null);
-    if (assFuncOff) {
-      setAssinaturasFuncionario({});
-    }
-    setAssReady(true);
-  }, [jornadas, assFuncOff, assEmpresa]);
+    setAssReady(Boolean(jornadas));
+  }, [jornadas]);
 
   useEffect(() => {
     if (!download || !jornadas || !assReady) return;

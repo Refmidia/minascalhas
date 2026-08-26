@@ -35,6 +35,7 @@ import { Route as PainelFinalizadoRouteImport } from './routes/painel/finalizado
 import { Route as PainelConfirmadoRouteImport } from './routes/painel/confirmado'
 import { Route as PainelClientesRouteImport } from './routes/painel/clientes'
 import { Route as PainelCalculadoraBobinaRouteImport } from './routes/painel/calculadora-bobina'
+import { Route as PainelAssinaturaRouteImport } from './routes/painel/assinatura'
 import { Route as PainelAgendarRouteImport } from './routes/painel/agendar'
 import { Route as GaleriaSlugRouteImport } from './routes/galeria/$slug'
 import { Route as ApiOsRouteImport } from './routes/api/os'
@@ -49,6 +50,7 @@ import { Route as ApiAdminSessionRouteImport } from './routes/api/admin/session'
 import { Route as ApiAdminProdutosMenuRouteImport } from './routes/api/admin/produtos-menu'
 import { Route as ApiAdminProdutosRouteImport } from './routes/api/admin/produtos'
 import { Route as ApiAdminPontoControleRouteImport } from './routes/api/admin/ponto-controle'
+import { Route as ApiAdminPontoAssinaturasRouteImport } from './routes/api/admin/ponto-assinaturas'
 import { Route as ApiAdminPontoRouteImport } from './routes/api/admin/ponto'
 import { Route as ApiAdminMateriaisRouteImport } from './routes/api/admin/materiais'
 import { Route as ApiAdminLogsRouteImport } from './routes/api/admin/logs'
@@ -206,6 +208,11 @@ const PainelCalculadoraBobinaRoute = PainelCalculadoraBobinaRouteImport.update({
   path: '/calculadora-bobina',
   getParentRoute: () => PainelRouteRoute,
 } as any)
+const PainelAssinaturaRoute = PainelAssinaturaRouteImport.update({
+  id: '/assinatura',
+  path: '/assinatura',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
 const PainelAgendarRoute = PainelAgendarRouteImport.update({
   id: '/agendar',
   path: '/agendar',
@@ -276,6 +283,12 @@ const ApiAdminPontoControleRoute = ApiAdminPontoControleRouteImport.update({
   path: '/api/admin/ponto-controle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminPontoAssinaturasRoute =
+  ApiAdminPontoAssinaturasRouteImport.update({
+    id: '/api/admin/ponto-assinaturas',
+    path: '/api/admin/ponto-assinaturas',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminPontoRoute = ApiAdminPontoRouteImport.update({
   id: '/api/admin/ponto',
   path: '/api/admin/ponto',
@@ -433,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/api/os': typeof ApiOsRoute
   '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/assinatura': typeof PainelAssinaturaRoute
   '/painel/calculadora-bobina': typeof PainelCalculadoraBobinaRoute
   '/painel/clientes': typeof PainelClientesRoute
   '/painel/confirmado': typeof PainelConfirmadoRoute
@@ -466,6 +480,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/logs': typeof ApiAdminLogsRoute
   '/api/admin/materiais': typeof ApiAdminMateriaisRoute
   '/api/admin/ponto': typeof ApiAdminPontoRoute
+  '/api/admin/ponto-assinaturas': typeof ApiAdminPontoAssinaturasRoute
   '/api/admin/ponto-controle': typeof ApiAdminPontoControleRoute
   '/api/admin/produtos': typeof ApiAdminProdutosRouteWithChildren
   '/api/admin/produtos-menu': typeof ApiAdminProdutosMenuRoute
@@ -500,6 +515,7 @@ export interface FileRoutesByTo {
   '/api/os': typeof ApiOsRoute
   '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/assinatura': typeof PainelAssinaturaRoute
   '/painel/calculadora-bobina': typeof PainelCalculadoraBobinaRoute
   '/painel/clientes': typeof PainelClientesRoute
   '/painel/confirmado': typeof PainelConfirmadoRoute
@@ -533,6 +549,7 @@ export interface FileRoutesByTo {
   '/api/admin/logs': typeof ApiAdminLogsRoute
   '/api/admin/materiais': typeof ApiAdminMateriaisRoute
   '/api/admin/ponto': typeof ApiAdminPontoRoute
+  '/api/admin/ponto-assinaturas': typeof ApiAdminPontoAssinaturasRoute
   '/api/admin/ponto-controle': typeof ApiAdminPontoControleRoute
   '/api/admin/produtos': typeof ApiAdminProdutosRouteWithChildren
   '/api/admin/produtos-menu': typeof ApiAdminProdutosMenuRoute
@@ -569,6 +586,7 @@ export interface FileRoutesById {
   '/api/os': typeof ApiOsRoute
   '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
+  '/painel/assinatura': typeof PainelAssinaturaRoute
   '/painel/calculadora-bobina': typeof PainelCalculadoraBobinaRoute
   '/painel/clientes': typeof PainelClientesRoute
   '/painel/confirmado': typeof PainelConfirmadoRoute
@@ -602,6 +620,7 @@ export interface FileRoutesById {
   '/api/admin/logs': typeof ApiAdminLogsRoute
   '/api/admin/materiais': typeof ApiAdminMateriaisRoute
   '/api/admin/ponto': typeof ApiAdminPontoRoute
+  '/api/admin/ponto-assinaturas': typeof ApiAdminPontoAssinaturasRoute
   '/api/admin/ponto-controle': typeof ApiAdminPontoControleRoute
   '/api/admin/produtos': typeof ApiAdminProdutosRouteWithChildren
   '/api/admin/produtos-menu': typeof ApiAdminProdutosMenuRoute
@@ -639,6 +658,7 @@ export interface FileRouteTypes {
     | '/api/os'
     | '/galeria/$slug'
     | '/painel/agendar'
+    | '/painel/assinatura'
     | '/painel/calculadora-bobina'
     | '/painel/clientes'
     | '/painel/confirmado'
@@ -672,6 +692,7 @@ export interface FileRouteTypes {
     | '/api/admin/logs'
     | '/api/admin/materiais'
     | '/api/admin/ponto'
+    | '/api/admin/ponto-assinaturas'
     | '/api/admin/ponto-controle'
     | '/api/admin/produtos'
     | '/api/admin/produtos-menu'
@@ -706,6 +727,7 @@ export interface FileRouteTypes {
     | '/api/os'
     | '/galeria/$slug'
     | '/painel/agendar'
+    | '/painel/assinatura'
     | '/painel/calculadora-bobina'
     | '/painel/clientes'
     | '/painel/confirmado'
@@ -739,6 +761,7 @@ export interface FileRouteTypes {
     | '/api/admin/logs'
     | '/api/admin/materiais'
     | '/api/admin/ponto'
+    | '/api/admin/ponto-assinaturas'
     | '/api/admin/ponto-controle'
     | '/api/admin/produtos'
     | '/api/admin/produtos-menu'
@@ -774,6 +797,7 @@ export interface FileRouteTypes {
     | '/api/os'
     | '/galeria/$slug'
     | '/painel/agendar'
+    | '/painel/assinatura'
     | '/painel/calculadora-bobina'
     | '/painel/clientes'
     | '/painel/confirmado'
@@ -807,6 +831,7 @@ export interface FileRouteTypes {
     | '/api/admin/logs'
     | '/api/admin/materiais'
     | '/api/admin/ponto'
+    | '/api/admin/ponto-assinaturas'
     | '/api/admin/ponto-controle'
     | '/api/admin/produtos'
     | '/api/admin/produtos-menu'
@@ -856,6 +881,7 @@ export interface RootRouteChildren {
   ApiAdminLogsRoute: typeof ApiAdminLogsRoute
   ApiAdminMateriaisRoute: typeof ApiAdminMateriaisRoute
   ApiAdminPontoRoute: typeof ApiAdminPontoRoute
+  ApiAdminPontoAssinaturasRoute: typeof ApiAdminPontoAssinaturasRoute
   ApiAdminPontoControleRoute: typeof ApiAdminPontoControleRoute
   ApiAdminProdutosRoute: typeof ApiAdminProdutosRouteWithChildren
   ApiAdminProdutosMenuRoute: typeof ApiAdminProdutosMenuRoute
@@ -1049,6 +1075,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelCalculadoraBobinaRouteImport
       parentRoute: typeof PainelRouteRoute
     }
+    '/painel/assinatura': {
+      id: '/painel/assinatura'
+      path: '/assinatura'
+      fullPath: '/painel/assinatura'
+      preLoaderRoute: typeof PainelAssinaturaRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
     '/painel/agendar': {
       id: '/painel/agendar'
       path: '/agendar'
@@ -1145,6 +1178,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/ponto-controle'
       fullPath: '/api/admin/ponto-controle'
       preLoaderRoute: typeof ApiAdminPontoControleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/ponto-assinaturas': {
+      id: '/api/admin/ponto-assinaturas'
+      path: '/api/admin/ponto-assinaturas'
+      fullPath: '/api/admin/ponto-assinaturas'
+      preLoaderRoute: typeof ApiAdminPontoAssinaturasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/ponto': {
@@ -1334,6 +1374,7 @@ declare module '@tanstack/react-router' {
 
 interface PainelRouteRouteChildren {
   PainelAgendarRoute: typeof PainelAgendarRoute
+  PainelAssinaturaRoute: typeof PainelAssinaturaRoute
   PainelCalculadoraBobinaRoute: typeof PainelCalculadoraBobinaRoute
   PainelClientesRoute: typeof PainelClientesRoute
   PainelConfirmadoRoute: typeof PainelConfirmadoRoute
@@ -1356,6 +1397,7 @@ interface PainelRouteRouteChildren {
 
 const PainelRouteRouteChildren: PainelRouteRouteChildren = {
   PainelAgendarRoute: PainelAgendarRoute,
+  PainelAssinaturaRoute: PainelAssinaturaRoute,
   PainelCalculadoraBobinaRoute: PainelCalculadoraBobinaRoute,
   PainelClientesRoute: PainelClientesRoute,
   PainelConfirmadoRoute: PainelConfirmadoRoute,
@@ -1511,6 +1553,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminLogsRoute: ApiAdminLogsRoute,
   ApiAdminMateriaisRoute: ApiAdminMateriaisRoute,
   ApiAdminPontoRoute: ApiAdminPontoRoute,
+  ApiAdminPontoAssinaturasRoute: ApiAdminPontoAssinaturasRoute,
   ApiAdminPontoControleRoute: ApiAdminPontoControleRoute,
   ApiAdminProdutosRoute: ApiAdminProdutosRouteWithChildren,
   ApiAdminProdutosMenuRoute: ApiAdminProdutosMenuRoute,

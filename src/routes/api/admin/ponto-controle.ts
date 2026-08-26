@@ -14,7 +14,7 @@ import {
   mapaValorDiarioFuncionarios,
   montarJornadasAdmin,
 } from "@/lib/ponto.server";
-import { mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
+import { getUsuarioAssinaturaDataUrl, mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
 import { mapaThumbsEnriquecidos } from "@/lib/usuario-thumb.server";
 import {
   formatAgoraPontoControle,
@@ -111,6 +111,9 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
                 ...(usuario > 0 ? [usuario] : funcionarios.map((f) => f.id)),
               ])
             : undefined;
+          const assinaturaEmpresa = incluirAssinaturas
+            ? await getUsuarioAssinaturaDataUrl(session.userId)
+            : undefined;
 
           return jsonResponse({
             ok: true,
@@ -119,6 +122,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
             registros,
             jornadas,
             ...(assinaturas ? { assinaturas } : {}),
+            ...(incluirAssinaturas ? { assinaturaEmpresa: assinaturaEmpresa ?? null } : {}),
           });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);

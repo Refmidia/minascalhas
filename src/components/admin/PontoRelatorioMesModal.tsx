@@ -276,9 +276,10 @@ export function PontoRelatorioMesModal({ open, onClose, mes, onMesChange }: Prop
                         type="button"
                         className="btn btn-outline-secondary btn-sm"
                         disabled={baixandoId != null}
+                        title="Ver a folha sem baixar"
                         onClick={() => pedirAssinatura(item, "abrir")}
                       >
-                        <i className="bi bi-printer" aria-hidden="true" /> Abrir
+                        <i className="bi bi-eye" aria-hidden="true" /> Ver
                       </button>
                     </div>
                   ) : (

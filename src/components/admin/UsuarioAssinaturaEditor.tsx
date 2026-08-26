@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
+import { AssinaturaPreviewImg } from "@/components/admin/AssinaturaPreviewImg";
 import { PontoAssinaturaPad } from "@/components/admin/PontoAssinaturaPad";
 import { dashToast } from "@/lib/dash-ui";
+import { centralizarAssinaturaDataUrl } from "@/lib/ponto-assinatura";
 import {
   fetchAssinaturaUsuario,
   removerAssinaturaUsuario,
@@ -16,6 +18,9 @@ type Props = {
   ocultarDepoisDeSalvar?: boolean;
   /** Admin pode remover para o funcionário assinar de novo, se precisar. */
   podeRemover?: boolean;
+  titulo?: string;
+  intro?: string;
+  introGravada?: string;
 };
 
 export function UsuarioAssinaturaEditor({
@@ -24,6 +29,9 @@ export function UsuarioAssinaturaEditor({
   onChanged,
   ocultarDepoisDeSalvar = false,
   podeRemover = false,
+  titulo = "Assinatura do ponto",
+  intro,
+  introGravada = "Assinatura gravada. O funcionário não pode alterar.",
 }: Props) {
   const [ready, setReady] = useState(false);
   const [seed, setSeed] = useState(0);
@@ -59,7 +67,8 @@ export function UsuarioAssinaturaEditor({
     if (!rascunho || busy || gravada) return;
     setBusy(true);
     try {
-      const saved = await salvarAssinaturaUsuario(usuarioId, rascunho);
+      const centered = await centralizarAssinaturaDataUrl(rascunho);
+      const saved = await salvarAssinaturaUsuario(usuarioId, centered);
       setGravada(saved);
       setRascunho(saved);
       dashToast("Assinatura gravada. O PDF de ponto já sai com ela.", "success");
@@ -97,11 +106,11 @@ export function UsuarioAssinaturaEditor({
       <section className="dash-edit-modal__panel dash-user-ass">
         <h3 className="dash-edit-modal__panel-title">
           <i className="bi bi-pen" aria-hidden="true" />
-          Assinatura do ponto
+          {titulo}
         </h3>
-        <p className="dash-user-ass__intro">Assinatura gravada. O funcionário não pode alterar.</p>
+        <p className="dash-user-ass__intro">{introGravada}</p>
         <div className="dash-ponto-ass-preview">
-          <img src={gravada} alt={`Assinatura de ${nome}`} />
+          <AssinaturaPreviewImg src={gravada} alt={`Assinatura de ${nome}`} />
         </div>
         {podeRemover ? (
           <div className="dash-user-ass__acoes">
@@ -121,14 +130,14 @@ export function UsuarioAssinaturaEditor({
 
   return (
     <section className="dash-edit-modal__panel dash-user-ass">
-      <h3 className="dash-edit-modal__panel-title">
-        <i className="bi bi-pen" aria-hidden="true" />
-        Assinatura do ponto
-      </h3>
-      <p className="dash-user-ass__intro">
-        {nome} assina aqui uma vez. Depois de salvar, este quadro some e não dá para assinar de
-        novo.
-      </p>
+        <h3 className="dash-edit-modal__panel-title">
+          <i className="bi bi-pen" aria-hidden="true" />
+          {titulo}
+        </h3>
+        <p className="dash-user-ass__intro">
+          {intro ??
+            `${nome} assina aqui uma vez. Depois de salvar, este quadro some e não dá para assinar de novo.`}
+        </p>
       {!ready ? <p className="text-muted mb-0">Carregando assinatura…</p> : null}
       {ready ? (
         <>

@@ -17,6 +17,7 @@ const ADMIN_ONLY = [
   "/painel/financeiro",
   "/painel/logs",
   "/painel/ponto-controle",
+  "/painel/assinatura",
   "/painel/produtos",
   "/painel/agendar",
 ];

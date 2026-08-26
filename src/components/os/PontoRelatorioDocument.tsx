@@ -1,4 +1,5 @@
 import { OS_ORCAMENTO_EMPRESA } from "@/lib/os-document";
+import { ASSINATURA_PDF_ALTURA_PX, ASSINATURA_PDF_LARGURA_PX } from "@/lib/ponto-assinatura";
 import {
   agruparJornadasPorFuncionario,
   formatIsoDataBr,
@@ -18,6 +19,12 @@ type Props = {
   assinaturaEmpresa?: string | null;
   assinaturasFuncionario?: Record<number, string>;
 };
+
+function horaFolha(fmt: string | null | undefined): string {
+  if (!fmt || fmt === "—") return "—";
+  const m = fmt.match(/^(\d{1,2}:\d{2})/);
+  return m ? m[1] : fmt;
+}
 
 export function PontoRelatorioDocument({
   de,
@@ -41,7 +48,7 @@ export function PontoRelatorioDocument({
     <article id="ponto-relatorio-documento" className="ponto-rel-page">
       <header className="ponto-rel-head">
         <div className="ponto-rel-head__brand">
-          <img src={empresa.logoSrc} alt="Minas Calhas" width={188} height={48} />
+          <img src={empresa.logoSrc} alt="Minas Calhas" width={148} height={36} />
           <p className="ponto-rel-head__tagline">{empresa.tagline}</p>
           <p className="ponto-rel-head__meta">
             CNPJ {empresa.cnpj}
@@ -85,6 +92,16 @@ export function PontoRelatorioDocument({
               </p>
             </div>
             <table className="ponto-rel-table">
+              <colgroup>
+                <col className="ponto-rel-col-dia" />
+                <col className="ponto-rel-col-hora" />
+                <col className="ponto-rel-col-hora" />
+                <col className="ponto-rel-col-hora" />
+                <col className="ponto-rel-col-hora" />
+                <col className="ponto-rel-col-int" />
+                <col className="ponto-rel-col-tot" />
+                <col className="ponto-rel-col-status" />
+              </colgroup>
               <thead>
                 <tr>
                   <th className="ponto-rel-table__dia">Dia</th>
@@ -104,10 +121,10 @@ export function PontoRelatorioDocument({
                       <span className="ponto-rel-table__wd">{weekdayCurtoIso(j.data)}</span>{" "}
                       {j.data_fmt}
                     </td>
-                    <td>{j.entrada_fmt || "—"}</td>
-                    <td>{j.almoco_fmt || "—"}</td>
-                    <td>{j.retorno_fmt || "—"}</td>
-                    <td>{j.saida_fmt || "—"}</td>
+                    <td>{horaFolha(j.entrada_fmt)}</td>
+                    <td>{horaFolha(j.almoco_fmt)}</td>
+                    <td>{horaFolha(j.retorno_fmt)}</td>
+                    <td>{horaFolha(j.saida_fmt)}</td>
                     <td>{j.intervalo_fmt || "—"}</td>
                     <td className="ponto-rel-table__total">{j.total_fmt || "—"}</td>
                     <td>{j.aberto ? j.status_label : "Encerrado"}</td>
@@ -115,44 +132,53 @@ export function PontoRelatorioDocument({
                 ))}
               </tbody>
             </table>
-            <div className="ponto-rel-visto">
-              <div className="ponto-rel-visto__col">
-                {assinaturasFuncionario?.[g.usuario_id] ? (
-                  <img
-                    className="ponto-rel-visto__img"
-                    src={assinaturasFuncionario[g.usuario_id]}
-                    alt={`Assinatura de ${g.usuario_nome}`}
-                  />
-                ) : (
-                  <span className="ponto-rel-visto__espaco" aria-hidden="true" />
-                )}
-                <span className="ponto-rel-visto__linha" />
-                <span className="ponto-rel-visto__quem">{g.usuario_nome}</span>
-                <span>Funcionário</span>
-              </div>
-              <div className="ponto-rel-visto__col">
-                {assinaturaEmpresa ? (
-                  <img
-                    className="ponto-rel-visto__img"
-                    src={assinaturaEmpresa}
-                    alt="Assinatura da empresa"
-                  />
-                ) : (
-                  <span className="ponto-rel-visto__espaco" aria-hidden="true" />
-                )}
-                <span className="ponto-rel-visto__linha" />
-                <span className="ponto-rel-visto__quem">{empresa.assinaturaNome}</span>
-                <span>Empresa</span>
-              </div>
-            </div>
+            <table className="ponto-rel-visto">
+              <tbody>
+                <tr>
+                  <td className="ponto-rel-visto__col">
+                    {assinaturasFuncionario?.[g.usuario_id] ? (
+                      <img
+                        className="ponto-rel-visto__img"
+                        src={assinaturasFuncionario[g.usuario_id]}
+                        alt={`Assinatura de ${g.usuario_nome}`}
+                        width={ASSINATURA_PDF_LARGURA_PX}
+                        height={ASSINATURA_PDF_ALTURA_PX}
+                      />
+                    ) : (
+                      <span className="ponto-rel-visto__espaco" aria-hidden="true" />
+                    )}
+                    <br />
+                    <span className="ponto-rel-visto__linha" />
+                    <br />
+                    <span className="ponto-rel-visto__quem">{g.usuario_nome}</span>
+                    <br />
+                    <span>Funcionário</span>
+                  </td>
+                  <td className="ponto-rel-visto__col">
+                    {assinaturaEmpresa ? (
+                      <img
+                        className="ponto-rel-visto__img"
+                        src={assinaturaEmpresa}
+                        alt="Assinatura da empresa"
+                        width={ASSINATURA_PDF_LARGURA_PX}
+                        height={ASSINATURA_PDF_ALTURA_PX}
+                      />
+                    ) : (
+                      <span className="ponto-rel-visto__espaco" aria-hidden="true" />
+                    )}
+                    <br />
+                    <span className="ponto-rel-visto__linha" />
+                    <br />
+                    <span className="ponto-rel-visto__quem">{empresa.assinaturaNome}</span>
+                    <br />
+                    <span>Empresa</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </section>
         ))
       )}
-
-      <footer className="ponto-rel-foot">
-        Documento gerado pelo sistema de ponto da Minas Calhas para envio ao contador. Não
-        concede acesso ao sistema.
-      </footer>
     </article>
   );
 }

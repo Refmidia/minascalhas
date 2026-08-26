@@ -1,4 +1,5 @@
 import { PDF_A4_WIDTH_PX } from "@/lib/os-pdf";
+import { ASSINATURA_PDF_ALTURA_PX, ASSINATURA_PDF_LARGURA_PX } from "@/lib/ponto-assinatura";
 import { nomeArquivoPontoRelatorio } from "@/lib/ponto-relatorio";
 
 export const PONTO_PDF_MSG_DONE = "ponto-pdf-done";
@@ -29,17 +30,21 @@ function baixarBlob(blob: Blob, filename: string): void {
 async function aguardarImagens(el: HTMLElement): Promise<void> {
   const imgs = Array.from(el.querySelectorAll("img"));
   await Promise.all(
-    imgs.map(
-      (img) =>
-        new Promise<void>((resolve) => {
-          if (img.complete) {
-            resolve();
-            return;
-          }
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-        }),
-    ),
+    imgs.map(async (img) => {
+      if (typeof img.decode === "function") {
+        try {
+          await img.decode();
+        } catch {
+          /* imagem quebrada */
+        }
+        return;
+      }
+      if (img.complete) return;
+      await new Promise<void>((resolve) => {
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      });
+    }),
   );
 }
 
@@ -47,6 +52,7 @@ function prepararElementoPdf(el: HTMLElement): () => void {
   const prev = {
     width: el.style.width,
     maxWidth: el.style.maxWidth,
+    minHeight: el.style.minHeight,
     margin: el.style.margin,
     boxSizing: el.style.boxSizing,
     overflow: el.style.overflow,
@@ -54,6 +60,7 @@ function prepararElementoPdf(el: HTMLElement): () => void {
   };
   el.style.width = `${PDF_A4_WIDTH_PX}px`;
   el.style.maxWidth = `${PDF_A4_WIDTH_PX}px`;
+  el.style.minHeight = "";
   el.style.margin = "0";
   el.style.boxSizing = "border-box";
   el.style.overflow = "visible";
@@ -61,6 +68,7 @@ function prepararElementoPdf(el: HTMLElement): () => void {
   return () => {
     el.style.width = prev.width;
     el.style.maxWidth = prev.maxWidth;
+    el.style.minHeight = prev.minHeight;
     el.style.margin = prev.margin;
     el.style.boxSizing = prev.boxSizing;
     el.style.overflow = prev.overflow;
@@ -116,10 +124,21 @@ export async function gerarPdfPontoRelatorio(el: HTMLElement, filename: string):
             if (!cloned) return;
             cloned.style.width = `${PDF_A4_WIDTH_PX}px`;
             cloned.style.maxWidth = `${PDF_A4_WIDTH_PX}px`;
+            cloned.style.minHeight = "0";
             cloned.style.margin = "0";
             cloned.style.boxSizing = "border-box";
             cloned.style.overflow = "visible";
             cloned.style.boxShadow = "none";
+            cloned.querySelectorAll(".ponto-rel-visto__img").forEach((node) => {
+              const img = node as HTMLImageElement;
+              img.style.width = `${ASSINATURA_PDF_LARGURA_PX}px`;
+              img.style.height = `${ASSINATURA_PDF_ALTURA_PX}px`;
+              img.style.maxWidth = "none";
+              img.style.objectFit = "fill";
+              img.style.display = "inline-block";
+              img.style.margin = "0";
+              img.style.verticalAlign = "bottom";
+            });
           },
         },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
