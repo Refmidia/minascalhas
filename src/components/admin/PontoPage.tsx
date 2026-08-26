@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { DashPageHero, NovaVisitaCta } from "@/components/admin/DashPageHero";
+import { UsuarioAssinaturaEditor } from "@/components/admin/UsuarioAssinaturaEditor";
 import { formatDataHoraPonto, pontoClasseBadge, pontoLabelTipo } from "@/lib/ponto-display";
 import { PONTO_TIMEZONE } from "@/lib/ponto-timezone";
 import { dashConfirm, dashToast } from "@/lib/dash-ui";
@@ -230,6 +231,14 @@ export function PontoPage() {
                 </button>
               </div>
             </section>
+
+            {user?.id ? (
+              <UsuarioAssinaturaEditor
+                usuarioId={user.id}
+                nome={nome || user.nome}
+                ocultarDepoisDeSalvar
+              />
+            ) : null}
 
             <section className="dash-edit-modal__panel dash-ponto-registros">
               <h2 className="dash-edit-modal__panel-title">

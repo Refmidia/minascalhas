@@ -39,6 +39,12 @@ function parseYmdLocal(ymd: string): Date {
   return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date();
 }
 
+/** Início da 1ª e da 2ª quinzena de um mês (YYYY-MM). */
+export function quinzenasDoMes(yyyyMm: string): { primeira: string; segunda: string } {
+  const mes = /^\d{4}-\d{2}$/.test(yyyyMm) ? yyyyMm : ymdLocal(new Date()).slice(0, 7);
+  return { primeira: `${mes}-01`, segunda: `${mes}-16` };
+}
+
 /** Pagamento quinzenal: 1–15 ou 16–último dia do mês. */
 export function pagamentoInicioPeriodo(dataYmd: string): string {
   const d = parseYmdLocal(dataYmd);

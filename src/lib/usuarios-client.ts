@@ -10,6 +10,7 @@ export type UsuarioItem = {
   fornecedor_id: number | null;
   fornecedor_nome?: string | null;
   thumb_url?: string | null;
+  tem_assinatura?: boolean;
 };
 
 async function parseJson<T>(res: Response): Promise<T> {
@@ -28,6 +29,34 @@ export async function fetchUsuario(id: number): Promise<UsuarioItem> {
   const data = await parseJson<{ ok?: boolean; item?: UsuarioItem; message?: string }>(res);
   if (!res.ok || !data.item) throw new Error(data.message ?? "Usuário não encontrado.");
   return data.item;
+}
+
+export async function fetchAssinaturaUsuario(id: number): Promise<string | null> {
+  const res = await fetch(`/api/admin/usuarios/${id}/assinatura`, { credentials: "include" });
+  const data = await parseJson<{ ok?: boolean; dataUrl?: string | null; message?: string }>(res);
+  if (!res.ok) throw new Error(data.message ?? "Não foi possível carregar a assinatura.");
+  return data.dataUrl ?? null;
+}
+
+export async function salvarAssinaturaUsuario(id: number, dataUrl: string): Promise<string> {
+  const res = await fetch(`/api/admin/usuarios/${id}/assinatura`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dataUrl }),
+  });
+  const data = await parseJson<{ ok?: boolean; dataUrl?: string; message?: string }>(res);
+  if (!res.ok || !data.dataUrl) throw new Error(data.message ?? "Não foi possível salvar a assinatura.");
+  return data.dataUrl;
+}
+
+export async function removerAssinaturaUsuario(id: number): Promise<void> {
+  const res = await fetch(`/api/admin/usuarios/${id}/assinatura`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  const data = await parseJson<{ ok?: boolean; message?: string }>(res);
+  if (!res.ok) throw new Error(data.message ?? "Não foi possível remover a assinatura.");
 }
 
 export async function atualizarUsuario(

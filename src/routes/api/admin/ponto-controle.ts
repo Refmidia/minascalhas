@@ -14,6 +14,7 @@ import {
   mapaValorDiarioFuncionarios,
   montarJornadasAdmin,
 } from "@/lib/ponto.server";
+import { mapaAssinaturasDataUrl } from "@/lib/usuario-assinatura.server";
 import { mapaThumbsEnriquecidos } from "@/lib/usuario-thumb.server";
 import {
   formatAgoraPontoControle,
@@ -56,6 +57,9 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
         let ate = url.searchParams.get("ate")?.trim() || hoje;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(de)) de = primeiroMes;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(ate)) ate = hoje;
+        const limiteRaw = Number(url.searchParams.get("limite") ?? 500);
+        const limite = Number.isFinite(limiteRaw) ? Math.min(5000, Math.max(1, limiteRaw)) : 500;
+        const incluirAssinaturas = url.searchParams.get("assinaturas") === "1";
 
         try {
           const funcionariosRaw = await listarFuncionariosPonto();
@@ -63,6 +67,7 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
             usuario > 0 ? usuario : null,
             de,
             ate,
+            limite,
           );
           const ids = [...new Set(registrosRaw.map((r) => r.usuario_id))];
           const valorDiarioMap = await mapaValorDiarioFuncionarios(ids);
@@ -100,12 +105,20 @@ export const Route = createFileRoute("/api/admin/ponto-controle")({
             };
           });
 
+          const assinaturas = incluirAssinaturas
+            ? await mapaAssinaturasDataUrl([
+                ...jornadas.map((j) => j.usuario_id),
+                ...(usuario > 0 ? [usuario] : funcionarios.map((f) => f.id)),
+              ])
+            : undefined;
+
           return jsonResponse({
             ok: true,
             updated_at: formatAgoraPontoControle(),
             funcionarios,
             registros,
             jornadas,
+            ...(assinaturas ? { assinaturas } : {}),
           });
         } catch (err) {
           return jsonResponse({ ok: false, message: dbErrorMessage(err) }, 503);

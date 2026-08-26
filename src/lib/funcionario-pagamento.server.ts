@@ -6,12 +6,19 @@ import {
   pagamentoInicioSemana,
   pagamentoPeriodoAnterior,
   pagamentoPeriodoProximo,
+  quinzenasDoMes,
   ymdFromDb,
   ymdLocal,
 } from "@/lib/funcionario-pagamento-dates";
 import { pagamentoTituloQuinzena } from "@/lib/funcionario-pagamento-display";
 
-export { pagamentoFimSemana, pagamentoInicioSemana, pagamentoPeriodoAnterior, pagamentoPeriodoProximo };
+export {
+  pagamentoFimSemana,
+  pagamentoInicioSemana,
+  pagamentoPeriodoAnterior,
+  pagamentoPeriodoProximo,
+  quinzenasDoMes,
+};
 
 const DIAS_LEGADO = ["seg", "ter", "qua", "qui", "sex"] as const;
 export type DiaChave = string;
@@ -144,6 +151,36 @@ export async function listarFuncionarios() {
     `SELECT id, nome, thumb FROM usuarios WHERE nivel IN ('funcionário', 'funcionario') ORDER BY nome ASC`,
   );
   return rows.map((r) => ({ id: int(r.id), nome: r.nome, thumb: String(r.thumb ?? "nao.png") }));
+}
+
+export type FechamentoMesFuncionario = {
+  usuario_id: number;
+  nome: string;
+  thumb: string;
+  primeira_pago: boolean;
+  segunda_pago: boolean;
+  mes_fechado: boolean;
+};
+
+/** Mês fechado = 1ª e 2ª quinzenas já lançadas (pagas) para o funcionário. */
+export async function statusFechamentoMes(yyyyMm: string): Promise<FechamentoMesFuncionario[]> {
+  const { primeira, segunda } = quinzenasDoMes(yyyyMm);
+  const funcionarios = await listarFuncionarios();
+  if (funcionarios.length === 0) return [];
+  const mapa = await buscarMapaPagamentosSemanas([primeira, segunda]);
+  return funcionarios.map((f) => {
+    const pag = mapa[f.id] ?? {};
+    const primeiraPago = Boolean(pag[primeira]);
+    const segundaPago = Boolean(pag[segunda]);
+    return {
+      usuario_id: f.id,
+      nome: f.nome,
+      thumb: f.thumb,
+      primeira_pago: primeiraPago,
+      segunda_pago: segundaPago,
+      mes_fechado: primeiraPago && segundaPago,
+    };
+  });
 }
 
 async function buscarPagamentoUsuarioSemana(prisma: Awaited<ReturnType<typeof getPrisma>>, uid: number, sem: string) {

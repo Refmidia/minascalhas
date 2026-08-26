@@ -2,10 +2,12 @@ import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
+import { DashDatePicker, DashMonthPicker } from "@/components/admin/DashDatePickers";
 import { DashPageHero } from "@/components/admin/DashPageHero";
 import { InvPagination, paginateItems } from "@/components/admin/inventario-ui";
 import { PontoEditarJornadaModal } from "@/components/admin/PontoEditarJornadaModal";
 import { PontoFuncCell, PontoJornadaHoras } from "@/components/admin/PontoFuncCell";
+import { PontoRelatorioMesModal } from "@/components/admin/PontoRelatorioMesModal";
 import {
   formatDataHoraPonto,
   pontoClasseBadge,
@@ -90,6 +92,8 @@ export function PontoControlePage() {
   const [fUsuario, setFUsuario] = useState(String(usuarioFiltro || ""));
   const [fDe, setFDe] = useState(de);
   const [fAte, setFAte] = useState(ate);
+  const [pdfMes, setPdfMes] = useState(hoje.slice(0, 7));
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
 
   const detalheTotalPaginas = Math.max(
     1,
@@ -320,25 +324,13 @@ export function PontoControlePage() {
                       <label className="dash-edit-modal__label" htmlFor="filtro-de">
                         De
                       </label>
-                      <input
-                        type="date"
-                        id="filtro-de"
-                        className="form-control dash-edit-modal__input"
-                        value={fDe}
-                        onChange={(e) => setFDe(e.target.value)}
-                      />
+                      <DashDatePicker id="filtro-de" value={fDe} onChange={setFDe} max={hoje} />
                     </div>
                     <div className="col-6 col-md-3">
                       <label className="dash-edit-modal__label" htmlFor="filtro-ate">
                         Até
                       </label>
-                      <input
-                        type="date"
-                        id="filtro-ate"
-                        className="form-control dash-edit-modal__input"
-                        value={fAte}
-                        onChange={(e) => setFAte(e.target.value)}
-                      />
+                      <DashDatePicker id="filtro-ate" value={fAte} onChange={setFAte} min={fDe} max={hoje} />
                     </div>
                     <div className="col-12 col-md-2 d-grid">
                       <button type="submit" className="btn visitas-orc-add-btn">
@@ -347,6 +339,37 @@ export function PontoControlePage() {
                     </div>
                   </div>
                 </form>
+              </section>
+
+              <section className="dash-edit-modal__panel mb-3 dash-ponto-relatorio">
+                <h2 className="dash-edit-modal__panel-title">
+                  <i className="bi bi-file-earmark-pdf" aria-hidden="true" /> Relatório para o contador
+                </h2>
+                <p className="dash-ponto-relatorio__hint">
+                  Escolha o mês e clique em Baixar PDF para escolher o funcionário. Junho já está
+                  liberado; os demais meses saem depois do último dia. O contador não precisa de
+                  acesso ao sistema.
+                </p>
+                <div className="dash-form">
+                  <div className="row g-2 align-items-end">
+                    <div className="col-12 col-md-5">
+                      <label className="dash-edit-modal__label" htmlFor="pdf-mes">
+                        Mês
+                      </label>
+                      <DashMonthPicker id="pdf-mes" value={pdfMes} onChange={setPdfMes} />
+                    </div>
+                    <div className="col-12 col-md-7 d-grid">
+                      <button
+                        type="button"
+                        className="btn visitas-orc-add-btn"
+                        onClick={() => setPdfModalOpen(true)}
+                        disabled={!pdfMes}
+                      >
+                        <i className="bi bi-download" aria-hidden="true" /> Baixar PDF
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </section>
 
               <section className="dash-edit-modal__panel mb-3">
@@ -568,6 +591,13 @@ export function PontoControlePage() {
         registros={registros}
         registroId={editarRegistroId}
         onSaved={() => void load()}
+      />
+
+      <PontoRelatorioMesModal
+        open={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        mes={pdfMes}
+        onMesChange={setPdfMes}
       />
     </div>
   );

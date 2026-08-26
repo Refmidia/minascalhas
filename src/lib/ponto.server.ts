@@ -5,10 +5,12 @@ import {
   formatHoraPontoTz,
   pontoAgoraSql,
   pontoDiaChave,
+  pontoHojeIso,
   pontoSerializarDatetime,
   parsePontoDatetime,
   PONTO_SQL_DT_RE,
 } from "@/lib/ponto-timezone";
+import { datetimeHierarquiaPonto } from "@/lib/ponto-hierarquia";
 
 /** Carga horária de referência para converter valor diário em hora (8h). */
 export const PONTO_MINUTOS_CARGA_DIA = 8 * 60;
@@ -156,7 +158,9 @@ export async function pontoRegistrar(
   const prisma = await getPrisma();
   const uid = int(usuarioId);
   const tipoEsc = esc(tipo);
-  const agora = esc(pontoAgoraSql());
+  const dia = pontoHojeIso();
+  const oficial = datetimeHierarquiaPonto(tipo, uid, dia) || pontoAgoraSql();
+  const agora = esc(oficial);
   await prisma.$executeRawUnsafe(
     `INSERT INTO funcionario_ponto (usuario_id, tipo, registrado_em) VALUES (${uid}, '${tipoEsc}', '${agora}')`,
   );
@@ -311,12 +315,14 @@ export async function buscarRegistrosAdmin(
   usuarioId: number | null,
   dataDe: string,
   dataAte: string,
+  limite = 500,
 ): Promise<PontoRegistroAdmin[]> {
   const prisma = await getPrisma();
   const where = ["1=1"];
   if (usuarioId && usuarioId > 0) where.push(`p.usuario_id = ${int(usuarioId)}`);
   if (dataDe) where.push(`p.registrado_em >= '${esc(dataDe)} 00:00:00'`);
   if (dataAte) where.push(`p.registrado_em <= '${esc(dataAte)} 23:59:59'`);
+  const lim = Math.min(5000, Math.max(1, Math.floor(limite) || 500));
 
   const rows = await prisma.$queryRawUnsafe<Record<string, unknown>[]>(
     `SELECT p.id, p.usuario_id, p.tipo,
@@ -326,7 +332,7 @@ export async function buscarRegistrosAdmin(
      INNER JOIN usuarios u ON u.id = p.usuario_id
      WHERE ${where.join(" AND ")}
      ORDER BY p.registrado_em DESC, p.id DESC
-     LIMIT 500`,
+     LIMIT ${lim}`,
   );
   return rows.map((r) => ({
     id: int(r.id),
@@ -393,12 +399,13 @@ export function montarJornadasAdmin(
     const fechar = () => {
       if (!atual?.entrada) return;
       const aberto = Boolean(atual.entrada && !atual.saida);
+      const diaPassado = grupo.data < pontoHojeIso();
       const minTrab = calcMinutosTrabalhados(
         atual.entrada,
         atual.almoco,
         atual.retorno,
         atual.saida,
-        aberto ? agora : null,
+        aberto && !diaPassado ? agora : null,
       );
       const minAlm = calcMinutosAlmoco(atual.almoco, atual.retorno);
       const valorDiario = valorDiarioPorUsuario.get(grupo.usuario_id) ?? 0;

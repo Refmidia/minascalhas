@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as PontoRelatorioRouteImport } from './routes/ponto-relatorio'
 import { Route as OsRouteImport } from './routes/os'
 import { Route as NotaEntregaRouteImport } from './routes/nota-entrega'
 import { Route as GaleriaRouteImport } from './routes/galeria'
@@ -70,6 +71,7 @@ import { Route as ApiAgendamentosIdClienteRouteImport } from './routes/api/agend
 import { Route as ApiAdminUsuariosIdRouteImport } from './routes/api/admin/usuarios/$id'
 import { Route as ApiAdminProdutosIdRouteImport } from './routes/api/admin/produtos/$id'
 import { Route as ApiAdminUsuariosIdThumbRouteImport } from './routes/api/admin/usuarios/$id/thumb'
+import { Route as ApiAdminUsuariosIdAssinaturaRouteImport } from './routes/api/admin/usuarios/$id/assinatura'
 import { Route as ApiAdminProdutosIdFotosRouteImport } from './routes/api/admin/produtos/$id/fotos'
 import { Route as ApiAdminProdutosIdFotosPadraoRouteImport } from './routes/api/admin/produtos/$id/fotos/padrao'
 import { Route as ApiAdminProdutosIdFotosFotoIdRouteImport } from './routes/api/admin/produtos/$id/fotos/$fotoId'
@@ -82,6 +84,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PontoRelatorioRoute = PontoRelatorioRouteImport.update({
+  id: '/ponto-relatorio',
+  path: '/ponto-relatorio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OsRoute = OsRouteImport.update({
@@ -387,6 +394,12 @@ const ApiAdminUsuariosIdThumbRoute = ApiAdminUsuariosIdThumbRouteImport.update({
   path: '/thumb',
   getParentRoute: () => ApiAdminUsuariosIdRoute,
 } as any)
+const ApiAdminUsuariosIdAssinaturaRoute =
+  ApiAdminUsuariosIdAssinaturaRouteImport.update({
+    id: '/assinatura',
+    path: '/assinatura',
+    getParentRoute: () => ApiAdminUsuariosIdRoute,
+  } as any)
 const ApiAdminProdutosIdFotosRoute = ApiAdminProdutosIdFotosRouteImport.update({
   id: '/fotos',
   path: '/fotos',
@@ -411,6 +424,7 @@ export interface FileRoutesByFullPath {
   '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
+  '/ponto-relatorio': typeof PontoRelatorioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
@@ -467,6 +481,7 @@ export interface FileRoutesByFullPath {
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
   '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
+  '/api/admin/usuarios/$id/assinatura': typeof ApiAdminUsuariosIdAssinaturaRoute
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
   '/api/admin/produtos/$id/fotos/padrao': typeof ApiAdminProdutosIdFotosPadraoRoute
@@ -476,6 +491,7 @@ export interface FileRoutesByTo {
   '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
+  '/ponto-relatorio': typeof PontoRelatorioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
@@ -532,6 +548,7 @@ export interface FileRoutesByTo {
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
   '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
+  '/api/admin/usuarios/$id/assinatura': typeof ApiAdminUsuariosIdAssinaturaRoute
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
   '/api/admin/produtos/$id/fotos/padrao': typeof ApiAdminProdutosIdFotosPadraoRoute
@@ -543,6 +560,7 @@ export interface FileRoutesById {
   '/galeria': typeof GaleriaRouteWithChildren
   '/nota-entrega': typeof NotaEntregaRoute
   '/os': typeof OsRoute
+  '/ponto-relatorio': typeof PontoRelatorioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
@@ -599,6 +617,7 @@ export interface FileRoutesById {
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
   '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
+  '/api/admin/usuarios/$id/assinatura': typeof ApiAdminUsuariosIdAssinaturaRoute
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
   '/api/admin/produtos/$id/fotos/$fotoId': typeof ApiAdminProdutosIdFotosFotoIdRoute
   '/api/admin/produtos/$id/fotos/padrao': typeof ApiAdminProdutosIdFotosPadraoRoute
@@ -611,6 +630,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/nota-entrega'
     | '/os'
+    | '/ponto-relatorio'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/api/agendamentos'
@@ -667,6 +687,7 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/orcamento'
     | '/api/agendamentos/$id/recebimentos'
     | '/api/admin/produtos/$id/fotos'
+    | '/api/admin/usuarios/$id/assinatura'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
     | '/api/admin/produtos/$id/fotos/padrao'
@@ -676,6 +697,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/nota-entrega'
     | '/os'
+    | '/ponto-relatorio'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/api/agendamentos'
@@ -732,6 +754,7 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/orcamento'
     | '/api/agendamentos/$id/recebimentos'
     | '/api/admin/produtos/$id/fotos'
+    | '/api/admin/usuarios/$id/assinatura'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
     | '/api/admin/produtos/$id/fotos/padrao'
@@ -742,6 +765,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/nota-entrega'
     | '/os'
+    | '/ponto-relatorio'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/api/agendamentos'
@@ -798,6 +822,7 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/orcamento'
     | '/api/agendamentos/$id/recebimentos'
     | '/api/admin/produtos/$id/fotos'
+    | '/api/admin/usuarios/$id/assinatura'
     | '/api/admin/usuarios/$id/thumb'
     | '/api/admin/produtos/$id/fotos/$fotoId'
     | '/api/admin/produtos/$id/fotos/padrao'
@@ -809,6 +834,7 @@ export interface RootRouteChildren {
   GaleriaRoute: typeof GaleriaRouteWithChildren
   NotaEntregaRoute: typeof NotaEntregaRoute
   OsRoute: typeof OsRoute
+  PontoRelatorioRoute: typeof PontoRelatorioRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAgendamentosRoute: typeof ApiAgendamentosRouteWithChildren
@@ -853,6 +879,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ponto-relatorio': {
+      id: '/ponto-relatorio'
+      path: '/ponto-relatorio'
+      fullPath: '/ponto-relatorio'
+      preLoaderRoute: typeof PontoRelatorioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/os': {
@@ -1268,6 +1301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminUsuariosIdThumbRouteImport
       parentRoute: typeof ApiAdminUsuariosIdRoute
     }
+    '/api/admin/usuarios/$id/assinatura': {
+      id: '/api/admin/usuarios/$id/assinatura'
+      path: '/assinatura'
+      fullPath: '/api/admin/usuarios/$id/assinatura'
+      preLoaderRoute: typeof ApiAdminUsuariosIdAssinaturaRouteImport
+      parentRoute: typeof ApiAdminUsuariosIdRoute
+    }
     '/api/admin/produtos/$id/fotos': {
       id: '/api/admin/produtos/$id/fotos'
       path: '/fotos'
@@ -1420,10 +1460,12 @@ const ApiAdminProdutosRouteWithChildren =
   ApiAdminProdutosRoute._addFileChildren(ApiAdminProdutosRouteChildren)
 
 interface ApiAdminUsuariosIdRouteChildren {
+  ApiAdminUsuariosIdAssinaturaRoute: typeof ApiAdminUsuariosIdAssinaturaRoute
   ApiAdminUsuariosIdThumbRoute: typeof ApiAdminUsuariosIdThumbRoute
 }
 
 const ApiAdminUsuariosIdRouteChildren: ApiAdminUsuariosIdRouteChildren = {
+  ApiAdminUsuariosIdAssinaturaRoute: ApiAdminUsuariosIdAssinaturaRoute,
   ApiAdminUsuariosIdThumbRoute: ApiAdminUsuariosIdThumbRoute,
 }
 
@@ -1447,6 +1489,7 @@ const rootRouteChildren: RootRouteChildren = {
   GaleriaRoute: GaleriaRouteWithChildren,
   NotaEntregaRoute: NotaEntregaRoute,
   OsRoute: OsRoute,
+  PontoRelatorioRoute: PontoRelatorioRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAgendamentosRoute: ApiAgendamentosRouteWithChildren,

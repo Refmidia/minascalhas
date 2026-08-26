@@ -5,6 +5,7 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarUsuarios } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import { hashPasswordPhp } from "@/lib/password.server";
+import { mapaTemAssinatura } from "@/lib/usuario-assinatura.server";
 import { repararThumbOrfao, resolverThumbUrlExibicao } from "@/lib/usuario-thumb.server";
 import { getUsuarioById, updateUsuario, deleteUsuario } from "@/lib/usuarios.server";
 
@@ -42,12 +43,14 @@ export const Route = createFileRoute("/api/admin/usuarios/$id")({
           const item = await getUsuarioById(id);
           if (!item) return jsonResponse({ ok: false, message: "Usuário não encontrado." }, 404);
           const thumb = await repararThumbOrfao(item.id, item.thumb);
+          const temAss = await mapaTemAssinatura([item.id]);
           return jsonResponse({
             ok: true,
             item: {
               ...item,
               thumb,
               thumb_url: thumb !== "nao.png" ? await resolverThumbUrlExibicao(thumb) : null,
+              tem_assinatura: temAss.get(item.id) === true,
             },
           });
         } catch (err) {

@@ -5,6 +5,7 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import { getAdminSessionFromRequest, isAdminRequest, podeGerenciarUsuarios } from "@/lib/auth.server";
 import { jsonResponse } from "@/lib/http.server";
 import { hashPasswordPhp } from "@/lib/password.server";
+import { mapaTemAssinatura } from "@/lib/usuario-assinatura.server";
 import { repararThumbOrfao, resolverThumbUrlExibicao } from "@/lib/usuario-thumb.server";
 import { createUsuario, listUsuarios, usuarioLoginExists } from "@/lib/usuarios.server";
 
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/api/admin/usuarios")({
         }
         try {
           const rows = await listUsuarios();
+          const temAss = await mapaTemAssinatura(rows.map((u) => u.id));
           const itens = await Promise.all(
             rows.map(async (u) => {
               const thumb = await repararThumbOrfao(u.id, u.thumb);
@@ -36,6 +38,7 @@ export const Route = createFileRoute("/api/admin/usuarios")({
                 ...u,
                 thumb,
                 thumb_url: thumb !== "nao.png" ? await resolverThumbUrlExibicao(thumb) : null,
+                tem_assinatura: temAss.get(u.id) === true,
               };
             }),
           );

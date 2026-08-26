@@ -20,6 +20,7 @@ import {
   gerarSemanasAnteriores,
   resumoFuncionariosPeriodo,
   salvarPagamento,
+  statusFechamentoMes,
   valeExcluir,
   valeSalvar,
   type DiaChave,
@@ -143,6 +144,27 @@ export const Route = createFileRoute("/api/admin/funcionarios-pagamento")({
           // Admin: visão de administração completa.
           if (session.visao !== "admin") {
             return jsonResponse({ ok: false, message: "Acesso apenas na visão administrador." }, 403);
+          }
+
+          const fechamentoMes = url.searchParams.get("fechamento_mes")?.trim() ?? "";
+          if (/^\d{4}-\d{2}$/.test(fechamentoMes)) {
+            const lista = await statusFechamentoMes(fechamentoMes);
+            const map = await mapaThumbsEnriquecidos(
+              lista.map((f) => ({ id: f.usuario_id, thumb: f.thumb })),
+            );
+            const funcionarios = lista.map((f) => {
+              const t = map.get(f.usuario_id);
+              return {
+                ...f,
+                thumb: t?.thumb ?? f.thumb,
+                thumb_url: t?.thumb_url ?? null,
+              };
+            });
+            return jsonResponse({
+              ok: true,
+              mes: fechamentoMes,
+              funcionarios,
+            });
           }
 
           if (modal && usuarioId > 0) {

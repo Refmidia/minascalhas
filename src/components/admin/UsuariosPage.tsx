@@ -11,6 +11,7 @@ import {
   UserListCardAvatar,
   type UserListCardAvatarHandle,
 } from "@/components/admin/UserListCardAvatar";
+import { UsuarioAssinaturaEditor } from "@/components/admin/UsuarioAssinaturaEditor";
 import { UsuarioAvatarPicker } from "@/components/admin/UsuarioAvatarPicker";
 import { fetchFornecedoresSelect, type FornecedorSelect } from "@/lib/admin-api";
 import { dashConfirm } from "@/lib/dash-ui";
@@ -519,7 +520,7 @@ export function UsuariosPage() {
                 </span>
                 <div>
                   <h4 className="modal-title dash-edit-modal__title mb-0">Editar usuário</h4>
-                  <p className="dash-edit-modal__subtitle mb-0">Dados, permissão e foto de perfil</p>
+                  <p className="dash-edit-modal__subtitle mb-0">Dados, foto e assinatura do ponto</p>
                 </div>
               </div>
               <button type="button" className="btn-close" aria-label="Fechar" onClick={fecharEdicao} />
@@ -544,6 +545,14 @@ export function UsuariosPage() {
                         : undefined
                     }
                   />
+                  {editId ? (
+                    <UsuarioAssinaturaEditor
+                      usuarioId={editId}
+                      nome={editNome || "Funcionário"}
+                      onChanged={() => void load()}
+                      podeRemover
+                    />
+                  ) : null}
                   <section className="dash-edit-modal__panel">
                     <div className="row g-2">
                       <div className="col-12">
@@ -726,6 +735,15 @@ function UsuarioCard({
       </div>
       <div className="user-list-card__body">
         <h2 className="user-list-card__name">{u.nome}</h2>
+        {u.tem_assinatura ? (
+          <p className="user-list-card__ass">
+            <i className="bi bi-pen-fill" aria-hidden="true" /> Assinatura no perfil
+          </p>
+        ) : (
+          <p className="user-list-card__ass user-list-card__ass--off">
+            <i className="bi bi-pen" aria-hidden="true" /> Sem assinatura do ponto
+          </p>
+        )}
         <p className="user-list-card__email" title={u.email}>
           <i className="bi bi-envelope" aria-hidden="true" />
           {u.email || "Sem e-mail"}

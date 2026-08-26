@@ -1,0 +1,370 @@
+@page {
+  size: A4;
+  margin: 12mm 10mm;
+}
+
+:root {
+  --ponto-rel-brand: #ca8a04;
+  --ponto-rel-text: #1b1b1b;
+  --ponto-rel-muted: #6b6b6b;
+  --ponto-rel-line: #e5e5e5;
+  --ponto-rel-head: #454545;
+  --ponto-rel-soft: #fff8e1;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.ponto-rel-body {
+  margin: 0;
+  padding: 20px;
+  background: #ececec;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  color: var(--ponto-rel-text);
+  color-scheme: light;
+}
+
+.ponto-rel-body--embed {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #fff !important;
+  width: 794px !important;
+  max-width: 794px !important;
+  overflow: visible !important;
+}
+
+html.ponto-rel-embed,
+html.ponto-rel-embed body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 794px !important;
+  max-width: 794px !important;
+  background: #fff !important;
+}
+
+html.ponto-rel-exporting,
+html.ponto-rel-exporting body,
+html.ponto-rel-exporting .ponto-rel-body,
+html.ponto-rel-exporting .ponto-rel-page {
+  overflow: visible !important;
+  background: #fff !important;
+}
+
+.ponto-rel-page {
+  width: 794px;
+  max-width: 794px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 28px 32px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  color: var(--ponto-rel-text);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.ponto-rel-body--embed .ponto-rel-page,
+html.ponto-rel-exporting .ponto-rel-page {
+  box-shadow: none;
+}
+
+.ponto-rel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 3px solid var(--ponto-rel-brand);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.ponto-rel-head__brand img {
+  display: block;
+  width: 188px;
+  height: auto;
+  max-height: 48px;
+  object-fit: contain;
+}
+
+.ponto-rel-head__tagline {
+  margin: 6px 0 4px;
+  font-size: 12px;
+  color: var(--ponto-rel-muted);
+}
+
+.ponto-rel-head__meta {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #444;
+}
+
+.ponto-rel-head__doc {
+  text-align: right;
+}
+
+.ponto-rel-head__kicker {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ponto-rel-brand);
+  font-weight: 700;
+}
+
+.ponto-rel-head__title {
+  margin: 2px 0 4px;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.ponto-rel-head__mes {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ponto-rel-head__periodo,
+.ponto-rel-head__emitido {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ponto-rel-muted);
+}
+
+.ponto-rel-resumo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ponto-rel-resumo > div {
+  background: var(--ponto-rel-soft);
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.ponto-rel-resumo__label {
+  display: block;
+  font-size: 11px;
+  color: #854d0e;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.ponto-rel-resumo strong {
+  font-size: 18px;
+}
+
+.ponto-rel-vazio {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--ponto-rel-muted);
+}
+
+.ponto-rel-func {
+  margin-top: 22px;
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+.ponto-rel-func__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 2px solid var(--ponto-rel-text);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.ponto-rel-func__nome {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.ponto-rel-func__totais {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  white-space: nowrap;
+}
+
+.ponto-rel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.ponto-rel-table thead {
+  display: table-header-group;
+}
+
+.ponto-rel-table th {
+  background: var(--ponto-rel-head);
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px 5px;
+}
+
+.ponto-rel-table td {
+  border-bottom: 1px solid var(--ponto-rel-line);
+  text-align: center;
+  padding: 5px 4px;
+  vertical-align: middle;
+}
+
+.ponto-rel-table tbody tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+.ponto-rel-table__dia {
+  text-align: left !important;
+  white-space: nowrap;
+  width: 22%;
+}
+
+.ponto-rel-table__wd {
+  display: inline-block;
+  min-width: 28px;
+  color: var(--ponto-rel-muted);
+  font-weight: 600;
+}
+
+.ponto-rel-table__total {
+  font-weight: 700;
+}
+
+.ponto-rel-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.ponto-rel-visto {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  margin-top: 22px;
+  padding: 0 12px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.ponto-rel-visto__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: 11px;
+  color: var(--ponto-rel-muted);
+}
+
+.ponto-rel-visto__espaco {
+  display: block;
+  width: 100%;
+  height: 52px;
+}
+
+.ponto-rel-visto__img {
+  display: block;
+  max-width: 220px;
+  max-height: 52px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 2px;
+}
+
+.ponto-rel-visto__linha {
+  display: block;
+  width: 100%;
+  border-top: 1px solid #111;
+  margin-bottom: 6px;
+}
+
+.ponto-rel-visto__quem {
+  display: block;
+  color: var(--ponto-rel-text);
+  font-weight: 600;
+  font-size: 11px;
+  margin-bottom: 1px;
+}
+
+.ponto-rel-foot {
+  margin-top: 28px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ponto-rel-line);
+  font-size: 10px;
+  color: var(--ponto-rel-muted);
+  line-height: 1.4;
+}
+
+.ponto-rel-msg {
+  text-align: center;
+  padding: 32px;
+}
+
+.ponto-rel-msg--erro {
+  color: #b91c1c;
+}
+
+.ponto-rel-msg--info {
+  color: #64748b;
+}
+
+.ponto-rel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+}
+
+.ponto-rel-btn {
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+}
+
+.ponto-rel-btn--pdf {
+  background: #ca8a04;
+  color: #fff;
+  border-color: #ca8a04;
+}
+
+.ponto-rel-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+@media print {
+  .ponto-rel-body {
+    background: #fff;
+    padding: 0;
+  }
+
+  .ponto-rel-page {
+    width: auto;
+    max-width: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .ponto-rel-actions,
+  .no-print {
+    display: none !important;
+  }
+}
