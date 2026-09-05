@@ -4,7 +4,9 @@ import { dbErrorMessage } from "@/lib/agendamento.server";
 import { isAdminRequest } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/db.server";
 import { jsonResponse } from "@/lib/http.server";
-import { fotoPublicUrl, salvarFotoUpload } from "@/lib/produtos-upload.server";
+import { importarFotosProdutoParaMysql, salvarProdutoFotoBytes } from "@/lib/produto-foto-db.server";
+import { fotoPublicUrl } from "@/lib/produto-foto-url";
+import { lerImagemUpload } from "@/lib/produtos-upload.server";
 import { resolveImagemPadraoAdmin } from "@/lib/produtos-site.server";
 
 function lerId(valor: string): number | null {
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/api/admin/produtos/$id/fotos")({
           const produto = await prisma.produtoSite.findUnique({ where: { id: produtoId } });
           if (!produto) return jsonResponse({ ok: false, message: "Produto não encontrado." }, 404);
 
+          await importarFotosProdutoParaMysql(produtoId);
           const fotos = await prisma.produtoFoto.findMany({
             where: { produtoId },
             orderBy: [{ ehCapa: "desc" }, { ordem: "asc" }, { id: "asc" }],
@@ -83,7 +86,7 @@ export const Route = createFileRoute("/api/admin/produtos/$id/fotos")({
           let primeiraCapa = !temCapa;
 
           for (const file of files) {
-            const saved = await salvarFotoUpload(file);
+            const saved = await lerImagemUpload(file);
             if ("erro" in saved) {
               return jsonResponse({ ok: false, message: saved.erro }, 422);
             }
@@ -92,16 +95,18 @@ export const Route = createFileRoute("/api/admin/produtos/$id/fotos")({
             const row = await prisma.produtoFoto.create({
               data: {
                 produtoId,
-                arquivo: saved.arquivo,
+                arquivo: "pending",
                 legenda: legendaPadrao || null,
                 ehCapa,
                 ordem: ordem++,
               },
             });
+            await salvarProdutoFotoBytes(row.id, saved.mime, saved.base64);
+            const arquivo = `db:${row.id}`;
             criadas.push({
               id: row.id,
-              arquivo: row.arquivo,
-              url: fotoPublicUrl(row.arquivo),
+              arquivo,
+              url: fotoPublicUrl(arquivo),
               eh_capa: row.ehCapa === 1,
             });
           }

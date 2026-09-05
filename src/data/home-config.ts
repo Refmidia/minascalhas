@@ -20,7 +20,7 @@ export const HOME_SITE = {
   chat: {
     nome: "Atendimento",
     cargo: "Minas Calhas",
-    foto: "/images/perfil/poliane.jpeg",
+    foto: "/images/logo/icon.png",
   },
   img: {
     logoHeader: "/images/logo/logo-home.png",

@@ -25,16 +25,26 @@ export function isBlobPrivateRef(stored: string): boolean {
   return stored.startsWith(BLOB_PRIVATE_PREFIX);
 }
 
+export function isVercelBlobUrl(stored: string): boolean {
+  const raw = resolveBlobStoredUrl(stored).trim();
+  try {
+    const host = new URL(raw).hostname.toLowerCase();
+    return host.includes("blob.vercel-storage.com") || host.endsWith(".blob.vercel-storage.com");
+  } catch {
+    return false;
+  }
+}
+
 export function resolveBlobStoredUrl(stored: string): string {
   if (isBlobPrivateRef(stored)) return stored.slice(BLOB_PRIVATE_PREFIX.length);
   return stored;
 }
 
 export function blobUrlParaExibicao(stored: string): string {
-  if (isBlobPrivateRef(stored)) {
-    const raw = resolveBlobStoredUrl(stored);
+  const raw = resolveBlobStoredUrl(stored).trim();
+  if (isBlobPrivateRef(stored) || isVercelBlobUrl(raw)) {
     return `/api/media/blob?url=${encodeURIComponent(raw)}`;
   }
-  if (/^https?:\/\//i.test(stored.trim())) return stored.trim();
+  if (/^https?:\/\//i.test(raw)) return raw;
   return stored;
 }

@@ -63,14 +63,16 @@ model ProdutoSite {
 }
 
 model ProdutoFoto {
-  id        Int      @id @default(autoincrement())
-  produtoId Int      @map("produto_id")
-  arquivo   String   @db.VarChar(255)
-  legenda   String?  @db.VarChar(255)
-  ehCapa    Int      @default(0) @map("eh_capa") @db.TinyInt
-  ordem     Int      @default(0)
-  criadoEm  DateTime @default(now()) @map("criado_em")
-  produto   ProdutoSite @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  id          Int      @id @default(autoincrement())
+  produtoId   Int      @map("produto_id")
+  arquivo     String   @db.VarChar(255)
+  arquivoMime String?  @map("arquivo_mime") @db.VarChar(64)
+  arquivoData String?  @map("arquivo_data") @db.MediumText
+  legenda     String?  @db.VarChar(255)
+  ehCapa      Int      @default(0) @map("eh_capa") @db.TinyInt
+  ordem       Int      @default(0)
+  criadoEm    DateTime @default(now()) @map("criado_em")
+  produto     ProdutoSite @relation(fields: [produtoId], references: [id], onDelete: Cascade)
 
   @@map("produto_fotos")
 }

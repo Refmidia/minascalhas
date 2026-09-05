@@ -4,7 +4,7 @@ import path from "node:path";
 import { HOME_SITE, landingServicesFallback, siteAsset, type HomeGaleriaItem, type HomeLandingData, type HomeServico, type HomeSlide } from "@/data/home-config";
 import { getPrisma } from "@/lib/db.server";
 import { resolveProdutoImagemUrl } from "@/lib/produtos-site.server";
-import { fotoPublicUrl } from "@/lib/produtos-upload.server";
+import { resolverUrlProdutoFoto } from "@/lib/produto-foto-db.server";
 
 function staticLanding(): HomeLandingData {
   const servicos = landingServicesFallback().map((s) => ({
@@ -65,7 +65,7 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
     for (const f of fotos) {
       if (!f.arquivo) continue;
       const item = {
-        src: fotoPublicUrl(f.arquivo),
+        src: await resolverUrlProdutoFoto(f.id, f.arquivo),
         legenda: f.legenda?.trim() || p.nome,
       };
       galeria.push(item);

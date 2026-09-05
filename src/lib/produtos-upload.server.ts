@@ -1,15 +1,6 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { randomBytes } from "node:crypto";
+import { resolveUploadDir } from "@/lib/upload-dir.server";
 
-import { uploadBlob } from "@/lib/blob-upload.server";
-import { blobUrlParaExibicao, isBlobPrivateRef } from "@/lib/usuario-thumb-url";
-import {
-  canPersistUploadsOnDisk,
-  isReadOnlyServerless,
-  mensagemUploadIndisponivel,
-  resolveUploadDir,
-} from "@/lib/upload-dir.server";
+export { fotoPublicUrl, isFotoStoredUrl } from "@/lib/produto-foto-url";
 
 export const FOTOS_TIPOS = new Set([
   "image/jpeg",
@@ -82,44 +73,20 @@ export function extensaoFromNomeArquivo(nome: string): string | null {
   return ext;
 }
 
-export function isFotoStoredUrl(arquivo: string): boolean {
-  return /^https?:\/\//i.test(arquivo.trim());
-}
-
-export function fotoPublicUrl(arquivo: string): string {
-  if (isBlobPrivateRef(arquivo) || isFotoStoredUrl(arquivo)) {
-    return blobUrlParaExibicao(arquivo);
-  }
-  const name = arquivo.replace(/^\/+/, "").split(/[/\\]/).pop() ?? arquivo;
-  return `/images/produtos/${encodeURIComponent(name)}`;
-}
-
-export async function salvarFotoUpload(file: File): Promise<{ arquivo: string } | { erro: string }> {
+/** Lê a imagem para gravar no MySQL (sem Blob). */
+export async function lerImagemUpload(
+  file: File,
+): Promise<{ mime: string; base64: string } | { erro: string }> {
   const mime = resolverMimeImagem(file);
   if (!mime) {
     return { erro: "Tipo de arquivo não permitido. Use JPG, PNG, WebP, GIF ou outra imagem comum." };
   }
   if (file.size > FOTOS_MAX_BYTES) {
-    return { erro: "Arquivo maior que 5 MB." };
+    return { erro: "Arquivo maior que 8 MB." };
   }
-  const ext = extensaoSegura(mime) ?? extensaoFromNomeArquivo(file.name) ?? "jpg";
-
-  const key = `produtos/${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
-
-  if (isReadOnlyServerless()) {
-    const blob = await uploadBlob(key, file);
-    if ("erro" in blob) return { erro: blob.erro };
-    return { arquivo: blob.stored };
-  }
-
-  if (!canPersistUploadsOnDisk("PRODUTOS_UPLOAD_DIR")) {
-    return { erro: mensagemUploadIndisponivel("foto de produto") };
-  }
-
-  const dir = produtosUploadDir();
-  await mkdir(dir, { recursive: true });
-  const arquivo = `${Date.now()}_${randomBytes(4).toString("hex")}.${ext}`;
   const buf = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(dir, arquivo), buf);
-  return { arquivo };
+  if (buf.length < 32) {
+    return { erro: "Arquivo de imagem inválido." };
+  }
+  return { mime, base64: buf.toString("base64") };
 }

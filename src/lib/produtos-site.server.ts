@@ -10,7 +10,7 @@ import {
   ocultarImagemPadraoTodos,
   produtoSemImagemPadrao,
 } from "@/lib/produto-imagem-padrao.server";
-import { fotoPublicUrl, produtosUploadDir } from "@/lib/produtos-upload.server";
+import { resolverUrlProdutoFoto } from "@/lib/produto-foto-db.server";
 import type { ProdutoGaleriaPublica, ProdutoSiteHome } from "@/types/site";
 
 export type { ProdutoGaleriaPublica, ProdutoSiteHome };
@@ -68,9 +68,7 @@ export async function resolveProdutoImagemUrl(
 
   const capa = fotos.find((f) => f.ehCapa === 1) ?? fotos[0];
   if (capa?.arquivo) {
-    const local = path.join(produtosUploadDir(), capa.arquivo);
-    if (existsSync(local)) return fotoPublicUrl(capa.arquivo);
-    return fotoPublicUrl(capa.arquivo);
+    return resolverUrlProdutoFoto(capa.id, capa.arquivo);
   }
 
   if (await produtoSemImagemPadrao(prisma, produtoId)) return "";
@@ -130,7 +128,7 @@ export async function loadProdutoGaleriaPublica(slug: string): Promise<ProdutoGa
   for (const f of row.fotos) {
     if (!f.arquivo) continue;
     fotos.push({
-      src: fotoPublicUrl(f.arquivo),
+      src: await resolverUrlProdutoFoto(f.id, f.arquivo),
       legenda: f.legenda?.trim() || row.nome,
     });
   }
