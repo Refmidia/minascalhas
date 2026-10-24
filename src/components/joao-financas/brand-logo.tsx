@@ -9,6 +9,8 @@ type BrandLogoProps = {
   showTagline?: boolean;
 };
 
+const AVATAR_SRC = "/joao-financas/avatar.png";
+
 export function BrandLogo({
   variant = "full",
   className,
@@ -16,22 +18,26 @@ export function BrandLogo({
   to,
   showTagline = false,
 }: BrandLogoProps) {
-  const alt = "João Finanças";
-
   const content = (
     <div className={cn("flex items-center gap-3", className)}>
       <span
         className={cn(
-          "inline-flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-extrabold tracking-tight",
-          variant === "icon" ? "size-9 text-sm" : "h-9 px-2.5 text-sm",
+          "relative inline-flex shrink-0 overflow-hidden rounded-full ring-2 ring-primary/90 shadow-[0_0_0_2px_rgba(245,197,24,0.18)]",
+          variant === "icon" ? "size-8" : "size-9",
           imageClassName,
         )}
-        aria-hidden="true"
       >
-        JF
+        <img
+          src={AVATAR_SRC}
+          alt="João Finanças"
+          className="size-full object-cover"
+          width={36}
+          height={36}
+          decoding="async"
+        />
       </span>
       {variant === "full" || showTagline ? (
-        <div className="leading-tight">
+        <div className="leading-tight min-w-0">
           <div className="text-sm font-bold tracking-tight text-foreground">João Finanças</div>
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Painel pessoal</div>
         </div>
