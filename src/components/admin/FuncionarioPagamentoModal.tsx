@@ -263,7 +263,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
                   <span className="dash-func-pag-modal__badge">{dados.semana_label}</span>
                   <h4 className="modal-title dash-edit-modal__title mb-0">{dados.nome}</h4>
                 </div>
-                <p className="dash-edit-modal__subtitle mb-0">Pagamento quinzenal</p>
+                <p className="dash-edit-modal__subtitle mb-0">Pagamento mensal</p>
               </div>
             </div>
             <button type="button" className="btn-close" aria-label="Fechar" onClick={onClose} />
@@ -301,7 +301,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
               <div className="dash-func-pag-modal__grid">
                 <section className="dash-edit-modal__panel dash-func-pag-modal__panel">
                   <h6 className="dash-edit-modal__panel-title">
-                    <i className="bi bi-calendar3" aria-hidden="true" /> Quinzena
+                    <i className="bi bi-calendar3" aria-hidden="true" /> Mês
                   </h6>
                   <div className="dash-func-pag-modal__diaria">
                     <label className="dash-edit-modal__label" htmlFor="modal-pag-valor-diario">
@@ -472,7 +472,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
                       <tbody>
                         {dados.vales.length === 0 ? (
                           <tr className="dash-func-pag-vales__empty">
-                            <td colSpan={4}>Nenhum vale nesta quinzena.</td>
+                            <td colSpan={4}>Nenhum vale neste mês.</td>
                           </tr>
                         ) : (
                           dados.vales.map((v) => (
@@ -590,7 +590,7 @@ export function FuncionarioPagamentoModal({ open, onClose, usuarioId, semana, on
               </button>
               <button type="submit" className="btn dash-edit-modal__btn-save visitas-orc-add-btn" disabled={saving}>
                 <i className="bi bi-check-lg" aria-hidden="true" />{" "}
-                {saving ? "Salvando…" : dados.pago ? "Salvar pagamento" : "Fechar quinzena"}
+                {saving ? "Salvando…" : dados.pago ? "Salvar pagamento" : "Fechar mês"}
               </button>
             </div>
           </form>

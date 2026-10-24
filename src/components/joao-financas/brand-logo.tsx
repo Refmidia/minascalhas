@@ -9,7 +9,7 @@ type BrandLogoProps = {
   showTagline?: boolean;
 };
 
-const AVATAR_SRC = "/joao-financas/avatar.png";
+const LOGO_SRC = "/images/logo/icon.png";
 
 export function BrandLogo({
   variant = "full",
@@ -22,15 +22,15 @@ export function BrandLogo({
     <div className={cn("flex items-center gap-3", className)}>
       <span
         className={cn(
-          "relative inline-flex shrink-0 overflow-hidden rounded-full ring-2 ring-primary/90 shadow-[0_0_0_2px_rgba(245,197,24,0.18)]",
+          "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 ring-2 ring-primary/90 shadow-[0_0_0_2px_rgba(245,197,24,0.18)]",
           variant === "icon" ? "size-8" : "size-9",
           imageClassName,
         )}
       >
         <img
-          src={AVATAR_SRC}
-          alt="João Finanças"
-          className="size-full object-cover"
+          src={LOGO_SRC}
+          alt="Minas Calhas"
+          className="size-[78%] object-contain"
           width={36}
           height={36}
           decoding="async"

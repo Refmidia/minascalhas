@@ -181,23 +181,22 @@ export type FechamentoMesFuncionario = {
   mes_fechado: boolean;
 };
 
-/** Mês fechado = 1ª e 2ª quinzenas já lançadas (pagas) para o funcionário. */
+/** Mês fechado = pagamento mensal já lançado (pago) para o funcionário. */
 export async function statusFechamentoMes(yyyyMm: string): Promise<FechamentoMesFuncionario[]> {
-  const { primeira, segunda } = quinzenasDoMes(yyyyMm);
+  const { primeira } = quinzenasDoMes(yyyyMm);
   const funcionarios = await listarFuncionarios();
   if (funcionarios.length === 0) return [];
-  const mapa = await buscarMapaPagamentosSemanas([primeira, segunda]);
+  const mapa = await buscarMapaPagamentosSemanas([primeira]);
   return funcionarios.map((f) => {
     const pag = mapa[f.id] ?? {};
-    const primeiraPago = Boolean(pag[primeira]);
-    const segundaPago = Boolean(pag[segunda]);
+    const pago = Boolean(pag[primeira]);
     return {
       usuario_id: f.id,
       nome: f.nome,
       thumb: f.thumb,
-      primeira_pago: primeiraPago,
-      segunda_pago: segundaPago,
-      mes_fechado: primeiraPago && segundaPago,
+      primeira_pago: pago,
+      segunda_pago: pago,
+      mes_fechado: pago,
     };
   });
 }

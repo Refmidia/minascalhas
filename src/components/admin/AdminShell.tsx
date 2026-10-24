@@ -466,23 +466,6 @@ export function AdminShell() {
               <div className="dash-sidebar__modulos-block">
                 <p className="dash-sidebar__visao-label">Trocar módulo</p>
                 <div className="dash-sidebar__modulos" role="group" aria-label="Trocar módulo">
-                  <span
-                    className="dash-sidebar__modulo is-active"
-                    title="Minas Calhas"
-                    aria-current="page"
-                  >
-                    <img
-                      src="/images/logo/icon.png"
-                      alt=""
-                      className="dash-sidebar__modulo-img"
-                      width={28}
-                      height={28}
-                    />
-                    <span className="dash-sidebar__modulo-text">
-                      <strong>Minas Calhas</strong>
-                      <small>Atual</small>
-                    </span>
-                  </span>
                   <button
                     type="button"
                     className="dash-sidebar__modulo"
@@ -491,9 +474,9 @@ export function AdminShell() {
                     onClick={() => void abrirJoaoFinancas()}
                   >
                     <img
-                      src="/joao-financas/avatar.png"
+                      src="/images/logo/icon.png"
                       alt=""
-                      className="dash-sidebar__modulo-img dash-sidebar__modulo-img--avatar"
+                      className="dash-sidebar__modulo-img"
                       width={28}
                       height={28}
                     />

@@ -10,8 +10,6 @@ import {
   formatMoeda,
   pagamentoFormatarQuinzenaMapa,
   pagamentoFormatarSemana,
-  pagamentoFormatarSemanaCompacta,
-  pagamentoNumeroQuinzena,
   pagamentoTituloQuinzena,
   primeiroNome,
 } from "@/lib/funcionario-pagamento-display";
@@ -198,9 +196,7 @@ export function FuncionariosPage() {
     return () => document.body.classList.remove("dashboard-page--funcionarios-pag");
   }, []);
 
-  const semanaLabel = pagamentoFormatarSemana(semana);
   const tituloQuinzena = pagamentoTituloQuinzena(semana);
-  const numQuinzena = pagamentoNumeroQuinzena(semana);
   const isQuinzenaAtual = semana === semanaNav.hoje;
   const fechados = cards.filter((c) => c.pago).length;
   const chipList = useMemo(() => chipsQuinzenas(semanaNav.hoje || semana), [semanaNav.hoje, semana]);
@@ -223,8 +219,8 @@ export function FuncionariosPage() {
         title={isAdminVisao ? "Pagamentos — Funcionários" : "Meus pagamentos"}
         subtitle={
           isAdminVisao
-            ? "Clique no funcionário para lançar o pagamento da quinzena"
-            : "Acompanhe os pagamentos fechados (quinzenas anteriores) e o status da quinzena atual."
+            ? "Clique no funcionário para lançar o pagamento do mês"
+            : "Acompanhe os pagamentos fechados (meses anteriores) e o status do mês atual."
         }
         iconClass="bi-wallet2"
         accent="funcionarios-pag"
@@ -242,17 +238,9 @@ export function FuncionariosPage() {
               <div className="dash-func-pag-semana inv-list-toolbar mb-3">
                 <div className="dash-func-pag-semana__row">
                   <div className="dash-func-pag-semana__info">
-                    <span className="dash-func-pag-semana__label">Quinzena</span>
-                    {numQuinzena ? (
-                      <span
-                        className={`dash-func-pag-semana__meta${numQuinzena === 1 ? " is-primeira" : " is-segunda"}`}
-                        title={tituloQuinzena}
-                      >
-                        {numQuinzena}ª
-                      </span>
-                    ) : null}
+                    <span className="dash-func-pag-semana__label">Mês</span>
                     <strong className="dash-func-pag-semana__periodo" title={tituloQuinzena}>
-                      {semanaLabel}
+                      {tituloQuinzena}
                     </strong>
                     {isQuinzenaAtual ? (
                       <span className="dash-func-pag-semana__atual">Atual</span>
@@ -322,7 +310,7 @@ export function FuncionariosPage() {
                       }}
                     >
                       <label className="dash-func-pag-cal__label" htmlFor="input-semana-data">
-                        <i className="bi bi-calendar3" aria-hidden="true" /> Ir para quinzena
+                        <i className="bi bi-calendar3" aria-hidden="true" /> Ir para o mês
                       </label>
                       <input
                         type="date"
@@ -332,7 +320,7 @@ export function FuncionariosPage() {
                         defaultValue={semana}
                         min={calMin}
                         max={calMax}
-                        title="Escolha qualquer dia — usamos a quinzena (1–15 ou 16–fim) desse mês"
+                        title="Escolha qualquer dia — usamos o mês inteiro (1 ao último dia)"
                       />
                     </form>
                     <div className="dash-func-pag-chips">
@@ -340,7 +328,7 @@ export function FuncionariosPage() {
                         const ativa = chipSem === semana;
                         const chipLabel =
                           chipSem === semanaNav.hoje
-                            ? "Esta quinzena"
+                            ? "Este mês"
                             : pagamentoFormatarQuinzenaMapa(chipSem);
                         return (
                           <Link
@@ -356,7 +344,7 @@ export function FuncionariosPage() {
                     </div>
                     <p className="dash-func-pag-semana__hint">
                       <i className="bi bi-info-circle" aria-hidden="true" /> Use o calendário ou os atalhos para
-                      pagar <strong>quinzenas passadas</strong> em aberto.
+                      pagar <strong>meses passados</strong> em aberto.
                     </p>
                   </div>
                 ) : null}
@@ -365,7 +353,7 @@ export function FuncionariosPage() {
               <section className="dash-edit-modal__panel mb-3">
                 <h2 className="dash-edit-modal__panel-title">
                   <i className="bi bi-people-fill" aria-hidden="true" />{" "}
-                  {isAdminVisao ? "Funcionários — pagamento quinzenal" : "Quinzena atual"}
+                  {isAdminVisao ? "Funcionários — pagamento mensal" : "Mês atual"}
                 </h2>
                 {isAdminVisao ? (
                   <p className="small text-secondary mb-3">
@@ -453,7 +441,7 @@ export function FuncionariosPage() {
                               ) : (
                                 <>
                                   <i className="bi bi-lock-fill" aria-hidden="true" />{" "}
-                                  {isAdminVisao ? "Fechar quinzena" : "Em aberto"}
+                                  {isAdminVisao ? "Fechar mês" : "Em aberto"}
                                 </>
                               )}
                             </span>
@@ -471,8 +459,8 @@ export function FuncionariosPage() {
                   <i className="bi bi-grid-3x3-gap-fill" aria-hidden="true" /> Painel de controle — o que já foi pago
                 </h2>
                 <p className="small text-secondary mb-3">
-                  Visão das últimas <strong>6 quinzenas</strong> (a coluna destacada é a quinzena selecionada acima).
-                  Verde = quinzena fechada · cinza = ainda não pagou · clique na célula para abrir ou lançar.
+                  Visão dos últimos <strong>6 meses</strong> (a coluna destacada é o mês selecionado acima).
+                  Verde = mês fechado · cinza = ainda não pagou · clique na célula para abrir ou lançar.
                 </p>
                 {cards.length === 0 ? (
                   <p className="text-secondary mb-0">Cadastre funcionários para ver o mapa.</p>
@@ -487,7 +475,7 @@ export function FuncionariosPage() {
                       </div>
                       <div className="col-6 col-md-3">
                         <div className="dash-func-pag-controle__stat">
-                          <span className="dash-func-pag-controle__stat-label">Quinzenas no histórico</span>
+                          <span className="dash-func-pag-controle__stat-label">Meses no histórico</span>
                           <strong>{historico.length}</strong>
                         </div>
                       </div>
@@ -499,7 +487,7 @@ export function FuncionariosPage() {
                       </div>
                       <div className="col-6 col-md-3">
                         <div className="dash-func-pag-controle__stat dash-func-pag-controle__stat--alert">
-                          <span className="dash-func-pag-controle__stat-label">Pendentes nesta quinzena</span>
+                          <span className="dash-func-pag-controle__stat-label">Pendentes neste mês</span>
                           <strong>{pendentes}</strong>
                         </div>
                       </div>
@@ -617,7 +605,7 @@ export function FuncionariosPage() {
                                 <div className="dash-func-pag-resumo-card__nome">{res.nome}</div>
                                 <div className="dash-func-pag-resumo-card__grid">
                                   <div>
-                                    <span>Quinzenas pagas</span>
+                                    <span>Meses pagos</span>
                                     <strong>{res.qtd_semanas}</strong>
                                   </div>
                                   <div>
@@ -716,7 +704,7 @@ export function FuncionariosPage() {
                     <thead>
                       <tr>
                         <th>Funcionário</th>
-                        <th>Quinzena</th>
+                        <th>Mês</th>
                         <th className="text-center">Dias pagos</th>
                         <th className="text-end">Qtd</th>
                         <th className="text-end">Bruto</th>
@@ -747,7 +735,7 @@ export function FuncionariosPage() {
                               className="dash-pag-func-table__semana"
                               title={pagamentoFormatarSemana(p.semana_inicio)}
                             >
-                              {pagamentoFormatarSemanaCompacta(p.semana_inicio)}
+                              {pagamentoTituloQuinzena(p.semana_inicio)}
                             </td>
                             <td className="dash-pag-func-table__dias">
                               {p.dias_pagos ? (

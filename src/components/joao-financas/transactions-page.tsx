@@ -326,107 +326,115 @@ export function TransactionsPage({
         <FormModal
           title={`Nova ${kind === "incomes" ? "receita" : "despesa"}`}
           onClose={() => setOpen(false)}
+          wide
         >
-          <div>
-            <FieldLabel>Descrição</FieldLabel>
-            <FieldInput
-              placeholder="Descrição"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              autoFocus
-            />
-          </div>
-          {kind === "incomes" && (
+          <div className="space-y-4">
             <div>
-              <FieldLabel>Cliente</FieldLabel>
+              <FieldLabel>Descrição</FieldLabel>
               <FieldInput
-                placeholder="Cliente"
-                value={form.client_name}
-                onChange={(e) => setForm({ ...form, client_name: e.target.value })}
+                placeholder="Descrição"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                autoFocus
               />
             </div>
-          )}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <FieldLabel>Valor</FieldLabel>
-              <FieldInput
-                placeholder="0,00"
-                value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+            {kind === "incomes" && (
+              <div>
+                <FieldLabel>Cliente</FieldLabel>
+                <FieldInput
+                  placeholder="Cliente"
+                  value={form.client_name}
+                  onChange={(e) => setForm({ ...form, client_name: e.target.value })}
+                />
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <FieldLabel>Valor</FieldLabel>
+                <FieldInput
+                  placeholder="0,00"
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                />
+              </div>
+              <div>
+                <FieldLabel>Data</FieldLabel>
+                <FieldInput
+                  type="date"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <DarkSelect
+                label="Categoria"
+                value={form.category}
+                onChange={(category) => setForm({ ...form, category })}
+                options={categories.map((c) => ({ value: c, label: c }))}
+              />
+              <DarkSelect
+                label="Forma de pagamento"
+                value={form.payment_method}
+                onChange={(payment_method) => setForm({ ...form, payment_method })}
+                options={paymentMethods.map((c) => ({ value: c, label: c }))}
               />
             </div>
+            {kind === "incomes" ? (
+              <DarkSelect
+                label="Status"
+                value={form.status}
+                onChange={(status) => setForm({ ...form, status })}
+                options={[
+                  { value: "prevista", label: "Prevista" },
+                  { value: "recebida", label: "Recebida" },
+                  { value: "parcial", label: "Parcial" },
+                  { value: "atrasada", label: "Atrasada" },
+                  { value: "cancelada", label: "Cancelada" },
+                ]}
+              />
+            ) : null}
+            <div className="flex flex-wrap gap-3">
+              {kind === "expenses" && (
+                <label className="inline-flex items-center gap-2.5 rounded-xl border border-border/70 bg-white/[0.03] px-3.5 py-2.5 text-sm cursor-pointer hover:border-primary/40">
+                  <input
+                    type="checkbox"
+                    className="size-4 accent-[var(--primary)]"
+                    checked={form.is_essential}
+                    onChange={(e) => setForm({ ...form, is_essential: e.target.checked })}
+                  />
+                  Essencial
+                </label>
+              )}
+              <label className="inline-flex items-center gap-2.5 rounded-xl border border-border/70 bg-white/[0.03] px-3.5 py-2.5 text-sm cursor-pointer hover:border-primary/40">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-[var(--primary)]"
+                  checked={form.is_recurring}
+                  onChange={(e) => setForm({ ...form, is_recurring: e.target.checked })}
+                />
+                Recorrente
+              </label>
+            </div>
             <div>
-              <FieldLabel>Data</FieldLabel>
-              <FieldInput
-                type="date"
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
+              <FieldLabel>Observações</FieldLabel>
+              <FieldTextarea
+                rows={3}
+                placeholder="Observações"
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
               />
             </div>
+            <button
+              type="button"
+              disabled={create.isPending}
+              onClick={() => create.mutate()}
+              className="jf-btn-primary w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2"
+            >
+              {create.isPending && <Loader2 className="size-4 animate-spin" />}
+              Salvar
+            </button>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <DarkSelect
-              label="Categoria"
-              value={form.category}
-              onChange={(category) => setForm({ ...form, category })}
-              options={categories.map((c) => ({ value: c, label: c }))}
-            />
-            <DarkSelect
-              label="Forma de pagamento"
-              value={form.payment_method}
-              onChange={(payment_method) => setForm({ ...form, payment_method })}
-              options={paymentMethods.map((c) => ({ value: c, label: c }))}
-            />
-          </div>
-          {kind === "incomes" ? (
-            <DarkSelect
-              label="Status"
-              value={form.status}
-              onChange={(status) => setForm({ ...form, status })}
-              options={[
-                { value: "prevista", label: "Prevista" },
-                { value: "recebida", label: "Recebida" },
-                { value: "parcial", label: "Parcial" },
-                { value: "atrasada", label: "Atrasada" },
-                { value: "cancelada", label: "Cancelada" },
-              ]}
-            />
-          ) : (
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.is_essential}
-                onChange={(e) => setForm({ ...form, is_essential: e.target.checked })}
-              />
-              Essencial
-            </label>
-          )}
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.is_recurring}
-              onChange={(e) => setForm({ ...form, is_recurring: e.target.checked })}
-            />
-            Recorrente
-          </label>
-          <div>
-            <FieldLabel>Observações</FieldLabel>
-            <FieldTextarea
-              rows={2}
-              placeholder="Observações"
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            />
-          </div>
-          <button
-            type="button"
-            disabled={create.isPending}
-            onClick={() => create.mutate()}
-            className="jf-btn-primary w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
-          >
-            {create.isPending && <Loader2 className="size-4 animate-spin" />}
-            Salvar
-          </button>
         </FormModal>
       )}
     </div>

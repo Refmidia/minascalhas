@@ -1,4 +1,4 @@
-﻿import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+﻿import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   TrendingUp,
@@ -34,14 +34,18 @@ const nav = [
 
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const navigate = useNavigate();
   const qc = useQueryClient();
 
   const handleSignOut = async () => {
     await qc.cancelQueries();
     qc.clear();
-    await signOut();
-    navigate({ to: "/painel/modulos", replace: true });
+    try {
+      await signOut();
+    } catch {
+      /* segue mesmo se a sessão já tiver caído */
+    }
+    // Full reload: devolve o CSS do hub/painel (removido no /financas)
+    window.location.assign("/painel/modulos");
   };
 
   return (

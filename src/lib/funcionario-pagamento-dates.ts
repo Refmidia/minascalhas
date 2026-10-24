@@ -39,55 +39,44 @@ function parseYmdLocal(ymd: string): Date {
   return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date();
 }
 
-/** Início da 1ª e da 2ª quinzena de um mês (YYYY-MM). */
+/** Início do período mensal (sempre dia 1). Compat: ainda exporta `primeira`/`segunda` iguais. */
 export function quinzenasDoMes(yyyyMm: string): { primeira: string; segunda: string } {
   const mes = /^\d{4}-\d{2}$/.test(yyyyMm) ? yyyyMm : ymdLocal(new Date()).slice(0, 7);
-  return { primeira: `${mes}-01`, segunda: `${mes}-16` };
+  const inicio = `${mes}-01`;
+  return { primeira: inicio, segunda: inicio };
 }
 
-/** Pagamento quinzenal: 1–15 ou 16–último dia do mês. */
+/** Pagamento mensal: do dia 1 ao último dia do mês. */
 export function pagamentoInicioPeriodo(dataYmd: string): string {
   const d = parseYmdLocal(dataYmd);
-  const y = d.getFullYear();
-  const mo = d.getMonth();
-  if (d.getDate() <= 15) return ymdLocal(new Date(y, mo, 1));
-  return ymdLocal(new Date(y, mo, 16));
+  return ymdLocal(new Date(d.getFullYear(), d.getMonth(), 1));
 }
 
 export function pagamentoFimPeriodo(periodoInicio: string): string {
   const ini = pagamentoInicioPeriodo(periodoInicio);
   const d = parseYmdLocal(ini);
-  if (d.getDate() === 1) return ymdLocal(new Date(d.getFullYear(), d.getMonth(), 15));
   return ymdLocal(new Date(d.getFullYear(), d.getMonth() + 1, 0));
 }
 
 export function pagamentoPeriodoAnterior(periodoInicio: string): string {
   const d = parseYmdLocal(pagamentoInicioPeriodo(periodoInicio));
-  if (d.getDate() === 1) {
-    d.setMonth(d.getMonth() - 1);
-    d.setDate(16);
-  } else {
-    d.setDate(1);
-  }
+  d.setMonth(d.getMonth() - 1);
+  d.setDate(1);
   return ymdLocal(d);
 }
 
 export function pagamentoPeriodoProximo(periodoInicio: string): string {
   const d = parseYmdLocal(pagamentoInicioPeriodo(periodoInicio));
-  if (d.getDate() === 1) {
-    d.setDate(16);
-  } else {
-    d.setMonth(d.getMonth() + 1);
-    d.setDate(1);
-  }
+  d.setMonth(d.getMonth() + 1);
+  d.setDate(1);
   return ymdLocal(d);
 }
 
-/** Registros antigos (início na segunda) continuam legíveis no histórico. */
+/** Registros antigos (semana ou 2ª quinzena) — só leitura de histórico legado. */
 export function pagamentoEhLegadoSemanal(periodoInicio: string): boolean {
   const ymd = ymdFromDb(periodoInicio) || periodoInicio;
   const day = Number.parseInt(ymd.slice(8, 10), 10);
-  return day !== 1 && day !== 16;
+  return day !== 1;
 }
 
 /** @deprecated Use pagamentoInicioPeriodo — mantido para parâmetros `semana` da API. */

@@ -37,6 +37,7 @@ export function getPool() {
       password: requiredDb("PASSWORD"),
       waitForConnections: true,
       connectionLimit: 10,
+      connectTimeout: 8_000,
       dateStrings: true,
       namedPlaceholders: true,
       multipleStatements: true,
