@@ -959,7 +959,7 @@ export async function ensureReserve() {
   const id = crypto.randomUUID();
   await query(
     `INSERT INTO reserve_accounts (id, user_id, name, current_amount, target_amount, safety_target)
-     VALUES (:id, :userId, 'Reserva de emergência', 0, 10000, 1000)`,
+     VALUES (:id, :userId, 'Reserva de emergência', 0, 0, 0)`,
     { id, userId: user.id },
   );
   return (await fetchReserve())!;
@@ -1328,9 +1328,9 @@ export async function fetchFinanceOverview() {
 
   await generateRecurringForPeriod(now.getFullYear(), now.getMonth());
 
-  const incomeMin = num(profile?.income_min) || 8000;
-  const incomeAvg = num(profile?.income_avg) || 9000;
-  const incomeMax = num(profile?.income_max) || 10000;
+  const incomeMin = num(profile?.income_min);
+  const incomeAvg = num(profile?.income_avg);
+  const incomeMax = num(profile?.income_max);
   const scenario = (settings.active_income_scenario || "avg") as IncomeScenario;
   const scenarioIncome =
     scenario === "min" ? incomeMin : scenario === "max" ? incomeMax : incomeAvg;
@@ -1350,7 +1350,7 @@ export async function fetchFinanceOverview() {
     .reduce((a, e) => a + num(e.amount), 0);
 
   const variableEssentialEstimate =
-    essentialFromTemplates > 0 ? essentialFromTemplates : essentialMonthly || 1650;
+    essentialFromTemplates > 0 ? essentialFromTemplates : essentialMonthly;
 
   const monthlyBeforeDebts = recurringTotal + variableEssentialEstimate;
   const projectedBalance = scenarioIncome - monthlyBeforeDebts;

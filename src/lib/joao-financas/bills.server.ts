@@ -537,8 +537,9 @@ export async function fetchDashboardMonth(referenceMonth?: string) {
     `SELECT income_avg FROM profiles WHERE id = :id LIMIT 1`,
     { id: user.id },
   );
-  const incomeAvg = num(profile[0]?.income_avg) || 9000;
-  const receitaMes = receitaRecebida > 0 ? receitaRecebida : receitaPrevista > 0 ? receitaPrevista : incomeAvg;
+  const incomeAvg = num(profile[0]?.income_avg);
+  const receitaMes =
+    receitaRecebida > 0 ? receitaRecebida : receitaPrevista > 0 ? receitaPrevista : incomeAvg;
 
   const { totalExpected, totalPaid, totalPending, count, paidCount, progressPct } = billsData.summary;
   const saldoProjetado = receitaMes - totalExpected;
