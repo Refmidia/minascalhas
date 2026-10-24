@@ -11,6 +11,7 @@ import {
   ymdLocal,
 } from "@/lib/funcionario-pagamento-dates";
 import { pagamentoTituloQuinzena } from "@/lib/funcionario-pagamento-display";
+import { ensureMysqlColumns } from "@/lib/mysql-ensure-columns.server";
 
 export {
   pagamentoFimSemana,
@@ -23,14 +24,15 @@ export {
 const DIAS_LEGADO = ["seg", "ter", "qua", "qui", "sex"] as const;
 export type DiaChave = string;
 
-let diasJsonColunaOk = false;
+const diasJsonColunaCache = { ok: false };
 
 async function ensureDiasJsonColumn(prisma: Awaited<ReturnType<typeof getPrisma>>) {
-  if (diasJsonColunaOk) return;
-  await prisma
-    .$executeRawUnsafe(`ALTER TABLE funcionario_pagamento_semanal ADD COLUMN dias_json TEXT NULL`)
-    .catch(() => undefined);
-  diasJsonColunaOk = true;
+  await ensureMysqlColumns(
+    prisma,
+    "funcionario_pagamento_semanal",
+    [{ name: "dias_json", ddl: "dias_json TEXT NULL" }],
+    diasJsonColunaCache,
+  );
 }
 
 function chavesDiasPeriodo(periodoInicio: string): string[] {

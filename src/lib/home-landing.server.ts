@@ -42,38 +42,51 @@ async function buildFromDb(): Promise<HomeLandingData | null> {
   const galeria: HomeGaleriaItem[] = [];
   const heroSlides: HomeSlide[] = [];
 
-  for (const p of produtos) {
-    const img = await resolveProdutoImagemUrl(prisma, p.id, p.slug);
-    servicos.push({
-      slug: p.slug,
-      titulo: p.nome,
-      texto: p.descricao?.trim() || "",
-      img,
-    });
+  const porProduto = await Promise.all(
+    produtos.map(async (p) => {
+      const [img, fotos] = await Promise.all([
+        resolveProdutoImagemUrl(prisma, p.id, p.slug),
+        prisma.produtoFoto.findMany({
+          where: { produtoId: p.id },
+          orderBy: [{ ehCapa: "desc" }, { ordem: "asc" }, { id: "asc" }],
+        }),
+      ]);
 
-    const fotos = await prisma.produtoFoto.findMany({
-      where: { produtoId: p.id },
-      orderBy: [{ ehCapa: "desc" }, { ordem: "asc" }, { id: "asc" }],
-    });
-
-    if (fotos.length === 0) {
-      if (img) galeria.push({ src: img, legenda: p.nome });
-      continue;
-    }
-
-    const antes = galeria.length;
-    for (const f of fotos) {
-      if (!f.arquivo) continue;
-      const item = {
-        src: await resolverUrlProdutoFoto(f.id, f.arquivo),
-        legenda: f.legenda?.trim() || p.nome,
+      const servico: HomeServico = {
+        slug: p.slug,
+        titulo: p.nome,
+        texto: p.descricao?.trim() || "",
+        img,
       };
-      galeria.push(item);
-      heroSlides.push({ src: item.src, alt: item.legenda || p.nome });
-    }
-    if (fotos.length > 0 && galeria.length === antes && img) {
-      galeria.push({ src: img, legenda: p.nome });
-    }
+
+      const itensGaleria: HomeGaleriaItem[] = [];
+      const slides: HomeSlide[] = [];
+
+      if (fotos.length === 0) {
+        if (img) itensGaleria.push({ src: img, legenda: p.nome });
+        return { servico, itensGaleria, slides };
+      }
+
+      for (const f of fotos) {
+        if (!f.arquivo) continue;
+        const item = {
+          src: await resolverUrlProdutoFoto(f.id, f.arquivo),
+          legenda: f.legenda?.trim() || p.nome,
+        };
+        itensGaleria.push(item);
+        slides.push({ src: item.src, alt: item.legenda || p.nome });
+      }
+      if (fotos.length > 0 && itensGaleria.length === 0 && img) {
+        itensGaleria.push({ src: img, legenda: p.nome });
+      }
+      return { servico, itensGaleria, slides };
+    }),
+  );
+
+  for (const bloco of porProduto) {
+    servicos.push(bloco.servico);
+    galeria.push(...bloco.itensGaleria);
+    heroSlides.push(...bloco.slides);
   }
 
   const heroSlidesFinal: HomeSlide[] =

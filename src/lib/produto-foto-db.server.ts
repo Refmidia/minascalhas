@@ -2,11 +2,12 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { getPrisma } from "@/lib/db.server";
+import { ensureMysqlColumns } from "@/lib/mysql-ensure-columns.server";
 import { dbFotoId, fotoPublicUrl } from "@/lib/produto-foto-url";
 import { produtosUploadDir } from "@/lib/produtos-upload.server";
 import { isBlobPrivateRef, isVercelBlobUrl, resolveBlobStoredUrl } from "@/lib/usuario-thumb-url";
 
-let fotoColsOk = false;
+const fotoColsCache = { ok: false };
 
 function intId(v: number): number {
   return Number.isFinite(v) ? Math.trunc(v) : 0;
@@ -15,19 +16,16 @@ function intId(v: number): number {
 export async function ensureProdutoFotoDataColumns(
   prisma?: Awaited<ReturnType<typeof getPrisma>>,
 ): Promise<void> {
-  if (fotoColsOk) return;
   const db = prisma ?? (await getPrisma());
-  try {
-    await db.$executeRawUnsafe(`ALTER TABLE produto_fotos ADD COLUMN arquivo_mime VARCHAR(64) NULL`);
-  } catch {
-    /* coluna já existe */
-  }
-  try {
-    await db.$executeRawUnsafe(`ALTER TABLE produto_fotos ADD COLUMN arquivo_data MEDIUMTEXT NULL`);
-  } catch {
-    /* coluna já existe */
-  }
-  fotoColsOk = true;
+  await ensureMysqlColumns(
+    db,
+    "produto_fotos",
+    [
+      { name: "arquivo_mime", ddl: "arquivo_mime VARCHAR(64) NULL" },
+      { name: "arquivo_data", ddl: "arquivo_data MEDIUMTEXT NULL" },
+    ],
+    fotoColsCache,
+  );
 }
 
 export async function getProdutoFotoBytes(
@@ -134,9 +132,13 @@ function isFotoHttp(arquivo: string): boolean {
   return /^https?:\/\//i.test(arquivo.trim());
 }
 
+/** Só monta a URL pública — não migra/baixa bytes na leitura (isso deixava a home em 6–7s). */
 export async function resolverUrlProdutoFoto(fotoId: number, arquivo: string): Promise<string> {
-  const ok = await importarProdutoFotoParaMysql(fotoId, arquivo);
-  return fotoPublicUrl(ok ? `db:${fotoId}` : arquivo);
+  const id = intId(fotoId);
+  if (id > 0 && (dbFotoId(arquivo) || arquivo.trim() === `db:${id}`)) {
+    return fotoPublicUrl(`db:${id}`);
+  }
+  return fotoPublicUrl(arquivo);
 }
 
 export async function importarFotosProdutoParaMysql(produtoId: number): Promise<void> {

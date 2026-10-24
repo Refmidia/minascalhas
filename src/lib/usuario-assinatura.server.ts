@@ -1,9 +1,10 @@
 import { getPrisma } from "@/lib/db.server";
+import { ensureMysqlColumns } from "@/lib/mysql-ensure-columns.server";
 
 const ASSINATURA_MAX_BASE64 = 400_000;
 const MIMES_OK = new Set(["image/png", "image/jpeg", "image/webp"]);
 
-let assinaturaColsOk = false;
+const assinaturaColsCache = { ok: false };
 
 function intId(v: number): number {
   return Number.isFinite(v) ? Math.trunc(v) : 0;
@@ -12,19 +13,16 @@ function intId(v: number): number {
 export async function ensureAssinaturaColumns(
   prisma?: Awaited<ReturnType<typeof getPrisma>>,
 ): Promise<void> {
-  if (assinaturaColsOk) return;
   const db = prisma ?? (await getPrisma());
-  try {
-    await db.$executeRawUnsafe(`ALTER TABLE usuarios ADD COLUMN assinatura_mime VARCHAR(64) NULL`);
-  } catch {
-    /* coluna já existe */
-  }
-  try {
-    await db.$executeRawUnsafe(`ALTER TABLE usuarios ADD COLUMN assinatura_data MEDIUMTEXT NULL`);
-  } catch {
-    /* coluna já existe */
-  }
-  assinaturaColsOk = true;
+  await ensureMysqlColumns(
+    db,
+    "usuarios",
+    [
+      { name: "assinatura_mime", ddl: "assinatura_mime VARCHAR(64) NULL" },
+      { name: "assinatura_data", ddl: "assinatura_data MEDIUMTEXT NULL" },
+    ],
+    assinaturaColsCache,
+  );
 }
 
 export function parseAssinaturaDataUrl(raw: string): { mime: string; base64: string } | null {

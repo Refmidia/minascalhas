@@ -20,22 +20,20 @@ import {
   resolveUploadDir,
 } from "@/lib/upload-dir.server";
 import { getPrisma } from "@/lib/db.server";
+import { ensureMysqlColumns } from "@/lib/mysql-ensure-columns.server";
 
-let thumbDataColsOk = false;
+const thumbDataColsCache = { ok: false };
 
 async function ensureThumbDataColumns(prisma: Awaited<ReturnType<typeof getPrisma>>) {
-  if (thumbDataColsOk) return;
-  try {
-    await prisma.$executeRawUnsafe(`ALTER TABLE usuarios ADD COLUMN thumb_mime VARCHAR(64) NULL`);
-  } catch {
-    /* coluna já existe */
-  }
-  try {
-    await prisma.$executeRawUnsafe(`ALTER TABLE usuarios ADD COLUMN thumb_data MEDIUMTEXT NULL`);
-  } catch {
-    /* coluna já existe */
-  }
-  thumbDataColsOk = true;
+  await ensureMysqlColumns(
+    prisma,
+    "usuarios",
+    [
+      { name: "thumb_mime", ddl: "thumb_mime VARCHAR(64) NULL" },
+      { name: "thumb_data", ddl: "thumb_data MEDIUMTEXT NULL" },
+    ],
+    thumbDataColsCache,
+  );
 }
 
 async function setUsuarioThumbData(id: number, mime: string, base64: string): Promise<void> {

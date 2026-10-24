@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
 
-import "@/joao-financas.css";
+/** Só via ?url no head — evita injetar o CSS do Finanças na home/painel. */
 import joaoFinancasCss from "@/joao-financas.css?url";
 
 export const Route = createFileRoute("/financas")({
