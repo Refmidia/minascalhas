@@ -28,6 +28,7 @@ const nav = [
   { to: "/financas/reserva", label: "Reserva", icon: PiggyBank },
   { to: "/financas/metas", label: "Metas", icon: Target },
   { to: "/financas/relatorios", label: "Relatórios", icon: BarChart3 },
+  { to: "/financas/plano-quitacao", label: "Plano de quitação", icon: Target },
   { to: "/financas/contas-recorrentes", label: "Contas mensais", icon: Repeat },
 ] as const;
 
@@ -44,7 +45,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 border-r border-border bg-sidebar/60 backdrop-blur-xl flex-col p-5 z-40">
+    <aside className="jf-sidebar hidden lg:flex fixed left-0 top-0 h-full w-64 border-r border-border bg-sidebar/60 backdrop-blur-xl flex-col p-5 z-40">
       <BrandLogo to="/financas/dashboard" className="mb-8 px-2" imageClassName="h-9" />
 
       <nav className="flex-1 space-y-1 overflow-y-auto">

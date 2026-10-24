@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link, Outlet, useMatch } from "@tanstack/react-router";
+﻿import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -21,11 +21,9 @@ export const Route = createFileRoute("/financas/_authenticated/contas-recorrente
 });
 
 function RecurringLayout() {
-  const detail = useMatch({
-    from: "/_authenticated/contas-recorrentes/$accountId",
-    shouldThrow: false,
-  });
-  if (detail) return <Outlet />;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isDetail = /^\/financas\/contas-recorrentes\/[^/]+\/?$/.test(pathname);
+  if (isDetail) return <Outlet />;
   return <RecurringPage />;
 }
 
@@ -209,8 +207,7 @@ function RecurringPage() {
             type="button"
             disabled={create.isPending}
             onClick={() => create.mutate()}
-            className="w-full py-2.5 rounded-xl font-semibold text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
+            className="jf-btn-primary w-full py-3 rounded-xl font-semibold"
           >
             {create.isPending ? <Loader2 className="size-4 animate-spin mx-auto" /> : "Salvar"}
           </button>

@@ -20,6 +20,7 @@ import {
   Receipt,
   CalendarDays,
   Check,
+  Repeat,
 } from "lucide-react";
 import {
   BarChart,
@@ -133,7 +134,7 @@ function Dashboard() {
   const categoryData = overview?.categories || [];
 
   return (
-    <div className="space-y-5 max-w-5xl">
+    <div className="space-y-5 w-full">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -390,24 +391,33 @@ function Dashboard() {
       )}
 
       {novoOpen && (
-        <FormModal title="+ Novo lançamento" onClose={() => setNovoOpen(false)}>
-          {[
-            { to: "/financas/receitas", label: "Receita" },
-            { to: "/financas/gastos", label: "Despesa" },
-            { to: "/financas/contas-do-mes", label: "Pagamento" },
-            { to: "/financas/contas-recorrentes", label: "Conta" },
-            { to: "/financas/dividas", label: "Dívida" },
-            { to: "/financas/reserva", label: "Depósito na reserva" },
-          ].map((item) => (
-            <Link
-              key={item.to + item.label}
-              to={item.to}
-              onClick={() => setNovoOpen(false)}
-              className="block w-full text-left px-3 py-2.5 rounded-xl border border-border hover:bg-white/[0.05] text-sm"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <FormModal title="Novo lançamento" onClose={() => setNovoOpen(false)}>
+          <p className="jf-sheet__hint">Escolha o que deseja registrar</p>
+          <div className="jf-sheet__list">
+            {[
+              { to: "/financas/receitas", label: "Receita", desc: "Salário, freela, entrada", icon: TrendingUp },
+              { to: "/financas/gastos", label: "Despesa", desc: "Gasto do dia a dia", icon: TrendingDown },
+              { to: "/financas/contas-do-mes", label: "Pagamento", desc: "Conta do mês a pagar", icon: Receipt },
+              { to: "/financas/contas-recorrentes", label: "Conta mensal", desc: "Conta que se repete", icon: Repeat },
+              { to: "/financas/dividas", label: "Dívida", desc: "Parcelas e credores", icon: Wallet },
+              { to: "/financas/reserva", label: "Reserva", desc: "Depósito na emergência", icon: PiggyBank },
+            ].map(({ to, label, desc, icon: Icon }) => (
+              <Link
+                key={to + label}
+                to={to}
+                onClick={() => setNovoOpen(false)}
+                className="jf-sheet__item"
+              >
+                <span className="jf-sheet__item-icon" aria-hidden>
+                  <Icon className="size-4" />
+                </span>
+                <span className="jf-sheet__item-text">
+                  <strong>{label}</strong>
+                  <small>{desc}</small>
+                </span>
+              </Link>
+            ))}
+          </div>
         </FormModal>
       )}
     </div>

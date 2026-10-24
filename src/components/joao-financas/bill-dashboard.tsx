@@ -98,7 +98,7 @@ export function BillDashboardView({
     source?.kind?.toLowerCase().includes("parcela") || stats.monthsTotal > 12;
 
   return (
-    <div className="space-y-6 max-w-6xl pb-12">
+    <div className="space-y-6 w-full pb-12">
       <Link
         to={backTo.to}
         className="text-sm text-muted-foreground inline-flex items-center gap-1.5 hover:text-foreground transition-colors"

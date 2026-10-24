@@ -1,6 +1,6 @@
 ﻿import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function FormModal({
@@ -33,39 +33,19 @@ export function FormModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-    >
-      <button
-        type="button"
-        aria-label="Fechar"
-        className="absolute inset-0 bg-black/75 backdrop-blur-[2px] border-0 cursor-default"
-        onClick={onClose}
-      />
+    <div className="jf-sheet" role="dialog" aria-modal="true" aria-label={title}>
+      <button type="button" className="jf-sheet__backdrop" aria-label="Fechar" onClick={onClose} />
       <div
-        className={cn(
-          "relative z-10 w-full rounded-t-2xl sm:rounded-2xl border border-border shadow-2xl",
-          "bg-[var(--surface-elevated)] text-foreground",
-          "max-h-[min(92dvh,640px)] sm:max-h-[min(85vh,640px)] flex flex-col",
-          "pb-[env(safe-area-inset-bottom,0px)]",
-          wide ? "sm:max-w-lg" : "sm:max-w-md",
-        )}
+        className={cn("jf-sheet__panel", wide && "jf-sheet__panel--wide")}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border shrink-0">
-          <h2 className="text-base font-bold">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-xs px-2.5 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
-          >
-            Fechar
+        <div className="jf-sheet__head">
+          <h2 className="jf-sheet__title">{title.replace(/^\+\s*/, "")}</h2>
+          <button type="button" className="jf-sheet__close" onClick={onClose} aria-label="Fechar">
+            <X className="size-4" />
           </button>
         </div>
-        <div className="p-4 space-y-3 overflow-y-auto overscroll-contain min-h-0">{children}</div>
+        <div className="jf-sheet__body space-y-3">{children}</div>
       </div>
     </div>,
     document.body,
@@ -73,7 +53,7 @@ export function FormModal({
 }
 
 export function FieldLabel({ children }: { children: ReactNode }) {
-  return <label className="block text-xs text-muted-foreground mb-1">{children}</label>;
+  return <label className="jf-field-label">{children}</label>;
 }
 
 export function FieldInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
@@ -127,7 +107,6 @@ export function DarkSelect({
     const onDoc = (e: MouseEvent) => {
       const target = e.target as Node;
       if (rootRef.current?.contains(target)) return;
-      // lista fixa no body — fecha se clicou fora do botão
       const list = document.getElementById(listId);
       if (list?.contains(target)) return;
       setOpen(false);
@@ -144,12 +123,12 @@ export function DarkSelect({
   }, [open, listId]);
 
   const menu =
-    open && coords && mountedPortal()
+    open && coords && typeof document !== "undefined"
       ? createPortal(
           <ul
             id={listId}
             role="listbox"
-            className="fixed z-[110] max-h-56 overflow-y-auto rounded-xl border border-border bg-[var(--surface-elevated)] shadow-xl py-1"
+            className="jf-select-menu"
             style={{
               left: coords.left,
               width: coords.width,
@@ -163,10 +142,7 @@ export function DarkSelect({
                   type="button"
                   role="option"
                   aria-selected={opt.value === value}
-                  className={cn(
-                    "w-full text-left px-3 py-2 text-sm text-foreground hover:bg-primary/15",
-                    opt.value === value && "bg-primary/20 font-medium",
-                  )}
+                  className="jf-select-option"
                   onClick={() => {
                     onChange(opt.value);
                     setOpen(false);
@@ -191,16 +167,12 @@ export function DarkSelect({
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => (open ? setOpen(false) : openMenu())}
-        className="field flex items-center justify-between gap-2 text-left cursor-pointer"
+        className="field flex items-center justify-between gap-2 text-left cursor-pointer text-foreground"
       >
-        <span className="truncate">{selected?.label || "Selecionar"}</span>
+        <span className="truncate text-foreground">{selected?.label || "Selecionar"}</span>
         <ChevronDown className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")} />
       </button>
       {menu}
     </div>
   );
-}
-
-function mountedPortal() {
-  return typeof document !== "undefined";
 }

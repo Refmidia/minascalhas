@@ -35,7 +35,7 @@ function RelatoriosPage() {
   const hasCats = (overview?.categories?.length || 0) > 0;
 
   return (
-    <div className="space-y-5 max-w-5xl">
+    <div className="space-y-5 w-full">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Relatórios</h1>
         <p className="text-sm text-muted-foreground">

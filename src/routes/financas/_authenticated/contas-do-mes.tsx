@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Outlet, useMatch } from "@tanstack/react-router";
+﻿import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMonthBills } from "@/lib/joao-financas/bills.functions";
@@ -22,11 +22,9 @@ export const Route = createFileRoute("/financas/_authenticated/contas-do-mes")({
 });
 
 function ContasDoMesLayout() {
-  const detail = useMatch({
-    from: "/_authenticated/contas-do-mes/$billId",
-    shouldThrow: false,
-  });
-  if (detail) return <Outlet />;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isDetail = /^\/financas\/contas-do-mes\/[^/]+\/?$/.test(pathname);
+  if (isDetail) return <Outlet />;
   return <ContasDoMesPage />;
 }
 
@@ -91,7 +89,7 @@ function ContasDoMesPage() {
     : 0;
 
   return (
-    <div className="space-y-4 max-w-5xl pb-8">
+    <div className="space-y-4 w-full pb-8">
       <header className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

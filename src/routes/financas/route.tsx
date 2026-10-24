@@ -21,27 +21,32 @@ export const Route = createFileRoute("/financas")({
 /** Remove CSS do painel/Bootstrap que sobra na navegação SPA e quebra o layout. */
 function useStripForeignStyles() {
   useEffect(() => {
-    const keep = (href: string) =>
-      href.includes("joao-financas") ||
-      href.includes("/src/styles.css") ||
-      href.includes("styles.css");
+    const isForeign = (href: string) =>
+      href.includes("bootstrap") ||
+      href.includes("bootstrap-icons") ||
+      href.includes("/admin/") ||
+      href.includes("modulos-hub");
 
-    document.querySelectorAll('link[rel="stylesheet"]').forEach((node) => {
-      const link = node as HTMLLinkElement;
-      const href = link.href || "";
-      if (
-        href.includes("bootstrap") ||
-        href.includes("bootstrap-icons") ||
-        href.includes("/admin/") ||
-        href.includes("modulos-hub")
-      ) {
-        if (!keep(href)) link.remove();
-      }
-    });
+    const strip = () => {
+      document.querySelectorAll('link[rel="stylesheet"]').forEach((node) => {
+        const link = node as HTMLLinkElement;
+        const href = link.href || "";
+        if (!isForeign(href)) return;
+        if (href.includes("joao-financas")) return;
+        link.disabled = true;
+        link.remove();
+      });
+    };
 
+    strip();
     document.documentElement.classList.add("jf-active");
     document.body.classList.add("jf-active");
+
+    const mo = new MutationObserver(() => strip());
+    mo.observe(document.head, { childList: true, subtree: true });
+
     return () => {
+      mo.disconnect();
       document.documentElement.classList.remove("jf-active");
       document.body.classList.remove("jf-active");
     };

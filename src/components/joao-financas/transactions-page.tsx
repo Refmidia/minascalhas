@@ -422,8 +422,7 @@ export function TransactionsPage({
             type="button"
             disabled={create.isPending}
             onClick={() => create.mutate()}
-            className="w-full py-2.5 rounded-xl font-semibold text-primary-foreground flex items-center justify-center gap-2"
-            style={{ background: "var(--gradient-primary)" }}
+            className="jf-btn-primary w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
           >
             {create.isPending && <Loader2 className="size-4 animate-spin" />}
             Salvar

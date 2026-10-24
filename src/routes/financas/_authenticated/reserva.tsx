@@ -51,7 +51,8 @@ function ReservePage() {
   const safety = num(data.reserve.safety_target);
   const pct = Math.min(100, Math.round((current / Math.max(1, target)) * 100));
   const remaining = Math.max(0, target - current);
-  const monthsCovered = 8530 > 0 ? current / 8530 : 0;
+  const monthlyBurn = safety > 0 ? safety / 3 : target > 0 ? target / 6 : 0;
+  const monthsCovered = monthlyBurn > 0 ? current / monthlyBurn : 0;
 
   return (
     <div className="space-y-6">

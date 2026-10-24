@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link, Outlet, useMatch, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -29,11 +29,9 @@ export const Route = createFileRoute("/financas/_authenticated/dividas")({
 });
 
 function DividasLayout() {
-  const detail = useMatch({
-    from: "/_authenticated/dividas/$debtId",
-    shouldThrow: false,
-  });
-  if (detail) return <Outlet />;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isDetail = /^\/financas\/dividas\/[^/]+\/?$/.test(pathname);
+  if (isDetail) return <Outlet />;
   return <DebtsPage />;
 }
 
@@ -97,7 +95,7 @@ function DebtsPage() {
   const totalUsd = usd.reduce((a, d) => a + debtBalance(d), 0);
 
   return (
-    <div className="space-y-5 max-w-5xl">
+    <div className="space-y-5 w-full">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dívidas</h1>
@@ -517,99 +515,100 @@ function CreateDebtModal({ onClose, onCreated }: { onClose: () => void; onCreate
   });
 
   return (
-    <FormModal title="Nova dívida" onClose={onClose}>
-      <div>
-        <FieldLabel>Credor</FieldLabel>
-        <FieldInput
-          placeholder="Ex: Havan, Imposto de Renda..."
-          value={form.creditor}
-          onChange={(e) => setForm({ ...form, creditor: e.target.value })}
-          autoFocus
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-2">
+    <FormModal title="Nova dívida" onClose={onClose} wide>
+      <div className="space-y-3">
         <div>
-          <FieldLabel>Valor total</FieldLabel>
+          <FieldLabel>Credor</FieldLabel>
+          <FieldInput
+            placeholder="Ex: Havan, Imposto de Renda..."
+            value={form.creditor}
+            onChange={(e) => setForm({ ...form, creditor: e.target.value })}
+            autoFocus
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <FieldLabel>Valor total</FieldLabel>
+            <FieldInput
+              inputMode="decimal"
+              placeholder="0,00"
+              value={form.total_amount}
+              onChange={(e) => setForm({ ...form, total_amount: e.target.value })}
+            />
+          </div>
+          <div>
+            <FieldLabel>Qtd. de parcelas</FieldLabel>
+            <FieldInput
+              inputMode="numeric"
+              placeholder="Ex: 5"
+              value={form.installments}
+              onChange={(e) => setForm({ ...form, installments: e.target.value })}
+            />
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Valor de cada parcela</FieldLabel>
           <FieldInput
             inputMode="decimal"
-            placeholder="0,00"
-            value={form.total_amount}
-            onChange={(e) => setForm({ ...form, total_amount: e.target.value })}
+            placeholder={autoInstallment ? String(autoInstallment).replace(".", ",") : "0,00"}
+            value={form.installment_amount}
+            onChange={(e) => setForm({ ...form, installment_amount: e.target.value })}
+          />
+          {autoInstallment > 0 && !form.installment_amount && (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Calculado: {formatMoney(autoInstallment)} × {count}
+            </p>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <FieldLabel>Dia do vencimento</FieldLabel>
+            <FieldInput
+              inputMode="numeric"
+              placeholder="Ex: 10"
+              value={form.due_day}
+              onChange={(e) => setForm({ ...form, due_day: e.target.value })}
+            />
+          </div>
+          <DarkSelect
+            label="Prioridade"
+            value={form.priority}
+            onChange={(priority) => setForm({ ...form, priority })}
+            options={[
+              { value: "essencial", label: "Essencial" },
+              { value: "alta", label: "Alta" },
+              { value: "media", label: "Média" },
+              { value: "baixa", label: "Baixa" },
+            ]}
           />
         </div>
-        <div>
-          <FieldLabel>Qtd. de parcelas</FieldLabel>
-          <FieldInput
-            inputMode="numeric"
-            placeholder="Ex: 5"
-            value={form.installments}
-            onChange={(e) => setForm({ ...form, installments: e.target.value })}
+        <div className="grid grid-cols-2 gap-2">
+          <DarkSelect
+            label="Moeda"
+            value={form.currency}
+            onChange={(currency) => setForm({ ...form, currency })}
+            options={[
+              { value: "BRL", label: "Real" },
+              { value: "USD", label: "Dólar" },
+            ]}
           />
+          <div>
+            <FieldLabel>Categoria</FieldLabel>
+            <FieldInput
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+            />
+          </div>
         </div>
+        <button
+          type="button"
+          disabled={create.isPending}
+          onClick={() => create.mutate()}
+          className="jf-btn-primary w-full py-3 rounded-xl font-semibold"
+        >
+          {create.isPending ? <Loader2 className="size-4 animate-spin mx-auto" /> : "Salvar e gerar parcelas"}
+        </button>
       </div>
-      <div>
-        <FieldLabel>Valor de cada parcela</FieldLabel>
-        <FieldInput
-          inputMode="decimal"
-          placeholder={autoInstallment ? String(autoInstallment).replace(".", ",") : "0,00"}
-          value={form.installment_amount}
-          onChange={(e) => setForm({ ...form, installment_amount: e.target.value })}
-        />
-        {autoInstallment > 0 && !form.installment_amount && (
-          <p className="text-[11px] text-muted-foreground mt-1">
-            Calculado: {formatMoney(autoInstallment)} × {count}
-          </p>
-        )}
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <FieldLabel>Dia do vencimento</FieldLabel>
-          <FieldInput
-            inputMode="numeric"
-            placeholder="Ex: 10"
-            value={form.due_day}
-            onChange={(e) => setForm({ ...form, due_day: e.target.value })}
-          />
-        </div>
-        <DarkSelect
-          label="Prioridade"
-          value={form.priority}
-          onChange={(priority) => setForm({ ...form, priority })}
-          options={[
-            { value: "essencial", label: "Essencial" },
-            { value: "alta", label: "Alta" },
-            { value: "media", label: "Média" },
-            { value: "baixa", label: "Baixa" },
-          ]}
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <DarkSelect
-          label="Moeda"
-          value={form.currency}
-          onChange={(currency) => setForm({ ...form, currency })}
-          options={[
-            { value: "BRL", label: "Real" },
-            { value: "USD", label: "Dólar" },
-          ]}
-        />
-        <div>
-          <FieldLabel>Categoria</FieldLabel>
-          <FieldInput
-            value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
-          />
-        </div>
-      </div>
-      <button
-        type="button"
-        disabled={create.isPending}
-        onClick={() => create.mutate()}
-        className="w-full py-2.5 rounded-xl font-semibold text-primary-foreground"
-        style={{ background: "var(--gradient-primary)" }}
-      >
-        {create.isPending ? <Loader2 className="size-4 animate-spin mx-auto" /> : "Salvar e gerar parcelas"}
-      </button>
     </FormModal>
   );
 }
@@ -692,8 +691,7 @@ function EditDebtModal({
         type="button"
         disabled={save.isPending}
         onClick={() => save.mutate()}
-        className="w-full py-2.5 rounded-xl font-semibold text-primary-foreground"
-        style={{ background: "var(--gradient-primary)" }}
+        className="jf-btn-primary w-full py-3 rounded-xl font-semibold"
       >
         {save.isPending ? <Loader2 className="size-4 animate-spin mx-auto" /> : "Salvar parcelas"}
       </button>

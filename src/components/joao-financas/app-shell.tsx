@@ -43,6 +43,7 @@ const drawerNav = [
   { to: "/financas/reserva", label: "Reserva", icon: PiggyBank },
   { to: "/financas/metas", label: "Metas", icon: Target },
   { to: "/financas/relatorios", label: "Relatórios", icon: BarChart3 },
+  { to: "/financas/plano-quitacao", label: "Plano de quitação", icon: Target },
   { to: "/financas/contas-recorrentes", label: "Contas mensais", icon: Repeat },
 ] as const;
 
@@ -134,32 +135,36 @@ export function AppShell({ children }: { children: ReactNode }) {
       )}
 
       {addOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:px-4"
-          onClick={() => setAddOpen(false)}
-        >
-          <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px]" aria-hidden />
-          <div
-            className="relative z-10 rounded-t-2xl sm:rounded-2xl border border-border bg-[var(--surface-elevated)] p-5 w-full sm:max-w-sm space-y-2 shadow-2xl pb-[max(1.25rem,env(safe-area-inset-bottom))]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-bold mb-1">+ Novo lançamento</h2>
-            {[
-              { to: "/financas/receitas", label: "Receita" },
-              { to: "/financas/gastos", label: "Despesa" },
-              { to: "/financas/contas-do-mes", label: "Pagamento" },
-              { to: "/financas/contas-recorrentes", label: "Conta" },
-              { to: "/financas/dividas", label: "Dívida" },
-              { to: "/financas/reserva", label: "Depósito na reserva" },
-            ].map((item) => (
-              <button
-                key={item.label}
-                onClick={() => go(item.to)}
-                className="block w-full text-left px-3 py-2.5 rounded-xl border border-border hover:bg-white/[0.05] text-sm"
-              >
-                {item.label}
+        <div className="jf-sheet" onClick={() => setAddOpen(false)} role="dialog" aria-modal="true" aria-label="Novo lançamento">
+          <div className="jf-sheet__backdrop" aria-hidden />
+          <div className="jf-sheet__panel" onClick={(e) => e.stopPropagation()}>
+            <div className="jf-sheet__head">
+              <h2 className="jf-sheet__title">Novo lançamento</h2>
+              <button type="button" className="jf-sheet__close" onClick={() => setAddOpen(false)} aria-label="Fechar">
+                <X className="size-4" />
               </button>
-            ))}
+            </div>
+            <p className="jf-sheet__hint">Escolha o que deseja registrar</p>
+            <div className="jf-sheet__list">
+              {[
+                { to: "/financas/receitas", label: "Receita", desc: "Salário, freela, entrada", icon: TrendingUp },
+                { to: "/financas/gastos", label: "Despesa", desc: "Gasto do dia a dia", icon: TrendingDown },
+                { to: "/financas/contas-do-mes", label: "Pagamento", desc: "Conta do mês a pagar", icon: Receipt },
+                { to: "/financas/contas-recorrentes", label: "Conta mensal", desc: "Conta que se repete", icon: Repeat },
+                { to: "/financas/dividas", label: "Dívida", desc: "Parcelas e credores", icon: Wallet },
+                { to: "/financas/reserva", label: "Reserva", desc: "Depósito na emergência", icon: PiggyBank },
+              ].map(({ to, label, desc, icon: Icon }) => (
+                <button key={label} type="button" className="jf-sheet__item" onClick={() => go(to)}>
+                  <span className="jf-sheet__item-icon" aria-hidden>
+                    <Icon className="size-4" />
+                  </span>
+                  <span className="jf-sheet__item-text">
+                    <strong>{label}</strong>
+                    <small>{desc}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -207,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         key: `d-${d.id}`,
                         label: d.creditor,
                         meta: `Dívida · ${formatMoney(num(d.total_amount) - num(d.paid_amount), d.currency || "BRL")}`,
-                        to: `/dividas/${d.id}`,
+                        to: `/financas/dividas/${d.id}`,
                       })),
                       ...results.incomes.map((i) => ({
                         key: `i-${i.id}`,
@@ -242,7 +247,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         key: `d-${d.id}`,
                         label: d.creditor,
                         meta: `Dívida · ${formatMoney(num(d.total_amount) - num(d.paid_amount), d.currency || "BRL")}`,
-                        to: `/dividas/${d.id}`,
+                        to: `/financas/dividas/${d.id}`,
                       })),
                       ...results.incomes.map((i) => ({
                         key: `i-${i.id}`,
@@ -312,7 +317,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="px-3 sm:px-4 md:px-6 py-4 md:py-6 max-w-6xl mx-auto relative z-10 animate-fade-up">
+        <div className="jf-content px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 w-full max-w-[1400px] mx-auto relative z-10 animate-fade-up">
           {children}
         </div>
 

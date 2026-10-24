@@ -385,8 +385,7 @@ function GoalsPage() {
             type="button"
             disabled={create.isPending}
             onClick={() => create.mutate()}
-            className="w-full py-2.5 rounded-xl font-semibold text-primary-foreground"
-            style={{ background: "var(--gradient-primary)" }}
+            className="jf-btn-primary w-full py-3 rounded-xl font-semibold"
           >
             {create.isPending ? <Loader2 className="size-4 animate-spin mx-auto" /> : "Salvar"}
           </button>
