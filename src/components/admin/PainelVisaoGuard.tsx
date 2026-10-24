@@ -7,6 +7,7 @@ import type { AdminVisao } from "@/lib/visao.server";
 /** Rotas que só o admin (visão admin) pode acessar. */
 const ADMIN_ONLY = [
   "/painel",
+  "/painel/modulos",
   "/painel/orcamentado",
   "/painel/confirmado",
   "/painel/finalizado",

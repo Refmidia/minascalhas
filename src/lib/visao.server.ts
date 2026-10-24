@@ -54,7 +54,7 @@ export function redirectAposVisao(visao: AdminVisao, fornecedorPreviewId: number
       ? `/painel/inicio-fornecedor?controle=${fornecedorPreviewId}`
       : "/painel/inicio-fornecedor";
   }
-  return "/painel";
+  return "/painel/modulos";
 }
 
 export function grupoEfetivo(visao: AdminVisao): AdminVisao {
@@ -64,3 +64,5 @@ export function grupoEfetivo(visao: AdminVisao): AdminVisao {
 export function ehVisaoAdmin(visao: AdminVisao): boolean {
   return visao === "admin";
 }
+
+export { ehJoaoAdmin } from "@/lib/visao-acesso";

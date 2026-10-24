@@ -17,8 +17,10 @@ import { Route as NotaEntregaRouteImport } from './routes/nota-entrega'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PainelRouteRouteImport } from './routes/painel/route'
+import { Route as FinancasRouteRouteImport } from './routes/financas/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PainelIndexRouteImport } from './routes/painel/index'
+import { Route as FinancasIndexRouteImport } from './routes/financas/index'
 import { Route as PainelVisitasRouteImport } from './routes/painel/visitas'
 import { Route as PainelUsuariosRouteImport } from './routes/painel/usuarios'
 import { Route as PainelProdutosGaleriaRouteImport } from './routes/painel/produtos-galeria'
@@ -26,6 +28,7 @@ import { Route as PainelProdutosRouteImport } from './routes/painel/produtos'
 import { Route as PainelPontoControleRouteImport } from './routes/painel/ponto-controle'
 import { Route as PainelPontoRouteImport } from './routes/painel/ponto'
 import { Route as PainelOrcamentadoRouteImport } from './routes/painel/orcamentado'
+import { Route as PainelModulosRouteImport } from './routes/painel/modulos'
 import { Route as PainelMaterialRouteImport } from './routes/painel/material'
 import { Route as PainelLogsRouteImport } from './routes/painel/logs'
 import { Route as PainelInicioFornecedorRouteImport } from './routes/painel/inicio-fornecedor'
@@ -39,10 +42,23 @@ import { Route as PainelCalculadoraBobinaRouteImport } from './routes/painel/cal
 import { Route as PainelAssinaturaRouteImport } from './routes/painel/assinatura'
 import { Route as PainelAgendarRouteImport } from './routes/painel/agendar'
 import { Route as GaleriaSlugRouteImport } from './routes/galeria/$slug'
+import { Route as FinancasAuthRouteImport } from './routes/financas/auth'
 import { Route as ApiOsRouteImport } from './routes/api/os'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiConsultaDocumentoRouteImport } from './routes/api/consulta-documento'
 import { Route as ApiAgendamentosRouteImport } from './routes/api/agendamentos'
+import { Route as FinancasAuthenticatedRouteRouteImport } from './routes/financas/_authenticated/route'
+import { Route as FinancasAuthenticatedReservaRouteImport } from './routes/financas/_authenticated/reserva'
+import { Route as FinancasAuthenticatedRelatoriosRouteImport } from './routes/financas/_authenticated/relatorios'
+import { Route as FinancasAuthenticatedReceitasRouteImport } from './routes/financas/_authenticated/receitas'
+import { Route as FinancasAuthenticatedPlanoQuitacaoRouteImport } from './routes/financas/_authenticated/plano-quitacao'
+import { Route as FinancasAuthenticatedMetasRouteImport } from './routes/financas/_authenticated/metas'
+import { Route as FinancasAuthenticatedGastosRouteImport } from './routes/financas/_authenticated/gastos'
+import { Route as FinancasAuthenticatedDividasRouteImport } from './routes/financas/_authenticated/dividas'
+import { Route as FinancasAuthenticatedDashboardRouteImport } from './routes/financas/_authenticated/dashboard'
+import { Route as FinancasAuthenticatedContasRecorrentesRouteImport } from './routes/financas/_authenticated/contas-recorrentes'
+import { Route as FinancasAuthenticatedContasDoMesRouteImport } from './routes/financas/_authenticated/contas-do-mes'
+import { Route as FinancasAuthenticatedCalendarioRouteImport } from './routes/financas/_authenticated/calendario'
 import { Route as ApiMediaBlobRouteImport } from './routes/api/media/blob'
 import { Route as ApiAgendamentosIdRouteImport } from './routes/api/agendamentos/$id'
 import { Route as ApiAdminVisaoRouteImport } from './routes/api/admin/visao'
@@ -63,10 +79,14 @@ import { Route as ApiAdminFornecedoresRouteImport } from './routes/api/admin/for
 import { Route as ApiAdminFornecedorPortalRouteImport } from './routes/api/admin/fornecedor-portal'
 import { Route as ApiAdminFornecedorInicioRouteImport } from './routes/api/admin/fornecedor-inicio'
 import { Route as ApiAdminFinanceiroRouteImport } from './routes/api/admin/financeiro'
+import { Route as ApiAdminDevLoginRouteImport } from './routes/api/admin/dev-login'
 import { Route as ApiAdminDashboardRouteImport } from './routes/api/admin/dashboard'
 import { Route as ApiAdminConsultaDocumentoRouteImport } from './routes/api/admin/consulta-documento'
 import { Route as ApiAdminConsultaCnpjRouteImport } from './routes/api/admin/consulta-cnpj'
 import { Route as ApiAdminClientesRouteImport } from './routes/api/admin/clientes'
+import { Route as FinancasAuthenticatedDividasDebtIdRouteImport } from './routes/financas/_authenticated/dividas.$debtId'
+import { Route as FinancasAuthenticatedContasRecorrentesAccountIdRouteImport } from './routes/financas/_authenticated/contas-recorrentes.$accountId'
+import { Route as FinancasAuthenticatedContasDoMesBillIdRouteImport } from './routes/financas/_authenticated/contas-do-mes.$billId'
 import { Route as ApiMediaProdutoFotoIdRouteImport } from './routes/api/media/produto-foto/$id'
 import { Route as ApiAgendamentosIdRecebimentosRouteImport } from './routes/api/agendamentos/$id/recebimentos'
 import { Route as ApiAgendamentosIdOrcamentoRouteImport } from './routes/api/agendamentos/$id/orcamento'
@@ -120,6 +140,11 @@ const PainelRouteRoute = PainelRouteRouteImport.update({
   path: '/painel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FinancasRouteRoute = FinancasRouteRouteImport.update({
+  id: '/financas',
+  path: '/financas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -129,6 +154,11 @@ const PainelIndexRoute = PainelIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PainelRouteRoute,
+} as any)
+const FinancasIndexRoute = FinancasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FinancasRouteRoute,
 } as any)
 const PainelVisitasRoute = PainelVisitasRouteImport.update({
   id: '/visitas',
@@ -163,6 +193,11 @@ const PainelPontoRoute = PainelPontoRouteImport.update({
 const PainelOrcamentadoRoute = PainelOrcamentadoRouteImport.update({
   id: '/orcamentado',
   path: '/orcamentado',
+  getParentRoute: () => PainelRouteRoute,
+} as any)
+const PainelModulosRoute = PainelModulosRouteImport.update({
+  id: '/modulos',
+  path: '/modulos',
   getParentRoute: () => PainelRouteRoute,
 } as any)
 const PainelMaterialRoute = PainelMaterialRouteImport.update({
@@ -230,6 +265,11 @@ const GaleriaSlugRoute = GaleriaSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => GaleriaRoute,
 } as any)
+const FinancasAuthRoute = FinancasAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => FinancasRouteRoute,
+} as any)
 const ApiOsRoute = ApiOsRouteImport.update({
   id: '/api/os',
   path: '/api/os',
@@ -250,6 +290,77 @@ const ApiAgendamentosRoute = ApiAgendamentosRouteImport.update({
   path: '/api/agendamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FinancasAuthenticatedRouteRoute =
+  FinancasAuthenticatedRouteRouteImport.update({
+    id: '/_authenticated',
+    getParentRoute: () => FinancasRouteRoute,
+  } as any)
+const FinancasAuthenticatedReservaRoute =
+  FinancasAuthenticatedReservaRouteImport.update({
+    id: '/reserva',
+    path: '/reserva',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedRelatoriosRoute =
+  FinancasAuthenticatedRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedReceitasRoute =
+  FinancasAuthenticatedReceitasRouteImport.update({
+    id: '/receitas',
+    path: '/receitas',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedPlanoQuitacaoRoute =
+  FinancasAuthenticatedPlanoQuitacaoRouteImport.update({
+    id: '/plano-quitacao',
+    path: '/plano-quitacao',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedMetasRoute =
+  FinancasAuthenticatedMetasRouteImport.update({
+    id: '/metas',
+    path: '/metas',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedGastosRoute =
+  FinancasAuthenticatedGastosRouteImport.update({
+    id: '/gastos',
+    path: '/gastos',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedDividasRoute =
+  FinancasAuthenticatedDividasRouteImport.update({
+    id: '/dividas',
+    path: '/dividas',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedDashboardRoute =
+  FinancasAuthenticatedDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedContasRecorrentesRoute =
+  FinancasAuthenticatedContasRecorrentesRouteImport.update({
+    id: '/contas-recorrentes',
+    path: '/contas-recorrentes',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedContasDoMesRoute =
+  FinancasAuthenticatedContasDoMesRouteImport.update({
+    id: '/contas-do-mes',
+    path: '/contas-do-mes',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
+const FinancasAuthenticatedCalendarioRoute =
+  FinancasAuthenticatedCalendarioRouteImport.update({
+    id: '/calendario',
+    path: '/calendario',
+    getParentRoute: () => FinancasAuthenticatedRouteRoute,
+  } as any)
 const ApiMediaBlobRoute = ApiMediaBlobRouteImport.update({
   id: '/api/media/blob',
   path: '/api/media/blob',
@@ -354,6 +465,11 @@ const ApiAdminFinanceiroRoute = ApiAdminFinanceiroRouteImport.update({
   path: '/api/admin/financeiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminDevLoginRoute = ApiAdminDevLoginRouteImport.update({
+  id: '/api/admin/dev-login',
+  path: '/api/admin/dev-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminDashboardRoute = ApiAdminDashboardRouteImport.update({
   id: '/api/admin/dashboard',
   path: '/api/admin/dashboard',
@@ -375,6 +491,24 @@ const ApiAdminClientesRoute = ApiAdminClientesRouteImport.update({
   path: '/api/admin/clientes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FinancasAuthenticatedDividasDebtIdRoute =
+  FinancasAuthenticatedDividasDebtIdRouteImport.update({
+    id: '/$debtId',
+    path: '/$debtId',
+    getParentRoute: () => FinancasAuthenticatedDividasRoute,
+  } as any)
+const FinancasAuthenticatedContasRecorrentesAccountIdRoute =
+  FinancasAuthenticatedContasRecorrentesAccountIdRouteImport.update({
+    id: '/$accountId',
+    path: '/$accountId',
+    getParentRoute: () => FinancasAuthenticatedContasRecorrentesRoute,
+  } as any)
+const FinancasAuthenticatedContasDoMesBillIdRoute =
+  FinancasAuthenticatedContasDoMesBillIdRouteImport.update({
+    id: '/$billId',
+    path: '/$billId',
+    getParentRoute: () => FinancasAuthenticatedContasDoMesRoute,
+  } as any)
 const ApiMediaProdutoFotoIdRoute = ApiMediaProdutoFotoIdRouteImport.update({
   id: '/api/media/produto-foto/$id',
   path: '/api/media/produto-foto/$id',
@@ -445,6 +579,7 @@ const ApiAdminProdutosIdFotosFotoIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/financas': typeof FinancasRouteRouteWithChildren
   '/painel': typeof PainelRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/galeria': typeof GaleriaRouteWithChildren
@@ -457,6 +592,7 @@ export interface FileRoutesByFullPath {
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
+  '/financas/auth': typeof FinancasAuthRoute
   '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
   '/painel/assinatura': typeof PainelAssinaturaRoute
@@ -470,6 +606,7 @@ export interface FileRoutesByFullPath {
   '/painel/inicio-fornecedor': typeof PainelInicioFornecedorRoute
   '/painel/logs': typeof PainelLogsRoute
   '/painel/material': typeof PainelMaterialRoute
+  '/painel/modulos': typeof PainelModulosRoute
   '/painel/orcamentado': typeof PainelOrcamentadoRoute
   '/painel/ponto': typeof PainelPontoRoute
   '/painel/ponto-controle': typeof PainelPontoControleRoute
@@ -477,11 +614,13 @@ export interface FileRoutesByFullPath {
   '/painel/produtos-galeria': typeof PainelProdutosGaleriaRoute
   '/painel/usuarios': typeof PainelUsuariosRoute
   '/painel/visitas': typeof PainelVisitasRoute
+  '/financas/': typeof FinancasIndexRoute
   '/painel/': typeof PainelIndexRoute
   '/api/admin/clientes': typeof ApiAdminClientesRoute
   '/api/admin/consulta-cnpj': typeof ApiAdminConsultaCnpjRoute
   '/api/admin/consulta-documento': typeof ApiAdminConsultaDocumentoRoute
   '/api/admin/dashboard': typeof ApiAdminDashboardRoute
+  '/api/admin/dev-login': typeof ApiAdminDevLoginRoute
   '/api/admin/financeiro': typeof ApiAdminFinanceiroRoute
   '/api/admin/fornecedor-inicio': typeof ApiAdminFornecedorInicioRoute
   '/api/admin/fornecedor-portal': typeof ApiAdminFornecedorPortalRoute
@@ -502,6 +641,17 @@ export interface FileRoutesByFullPath {
   '/api/admin/visao': typeof ApiAdminVisaoRoute
   '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
   '/api/media/blob': typeof ApiMediaBlobRoute
+  '/financas/calendario': typeof FinancasAuthenticatedCalendarioRoute
+  '/financas/contas-do-mes': typeof FinancasAuthenticatedContasDoMesRouteWithChildren
+  '/financas/contas-recorrentes': typeof FinancasAuthenticatedContasRecorrentesRouteWithChildren
+  '/financas/dashboard': typeof FinancasAuthenticatedDashboardRoute
+  '/financas/dividas': typeof FinancasAuthenticatedDividasRouteWithChildren
+  '/financas/gastos': typeof FinancasAuthenticatedGastosRoute
+  '/financas/metas': typeof FinancasAuthenticatedMetasRoute
+  '/financas/plano-quitacao': typeof FinancasAuthenticatedPlanoQuitacaoRoute
+  '/financas/receitas': typeof FinancasAuthenticatedReceitasRoute
+  '/financas/relatorios': typeof FinancasAuthenticatedRelatoriosRoute
+  '/financas/reserva': typeof FinancasAuthenticatedReservaRoute
   '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
   '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
@@ -509,6 +659,9 @@ export interface FileRoutesByFullPath {
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
   '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/media/produto-foto/$id': typeof ApiMediaProdutoFotoIdRoute
+  '/financas/contas-do-mes/$billId': typeof FinancasAuthenticatedContasDoMesBillIdRoute
+  '/financas/contas-recorrentes/$accountId': typeof FinancasAuthenticatedContasRecorrentesAccountIdRoute
+  '/financas/dividas/$debtId': typeof FinancasAuthenticatedDividasDebtIdRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/assinatura': typeof ApiAdminUsuariosIdAssinaturaRoute
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
@@ -524,10 +677,12 @@ export interface FileRoutesByTo {
   '/ponto-relatorio': typeof PontoRelatorioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/financas': typeof FinancasIndexRoute
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
+  '/financas/auth': typeof FinancasAuthRoute
   '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
   '/painel/assinatura': typeof PainelAssinaturaRoute
@@ -541,6 +696,7 @@ export interface FileRoutesByTo {
   '/painel/inicio-fornecedor': typeof PainelInicioFornecedorRoute
   '/painel/logs': typeof PainelLogsRoute
   '/painel/material': typeof PainelMaterialRoute
+  '/painel/modulos': typeof PainelModulosRoute
   '/painel/orcamentado': typeof PainelOrcamentadoRoute
   '/painel/ponto': typeof PainelPontoRoute
   '/painel/ponto-controle': typeof PainelPontoControleRoute
@@ -553,6 +709,7 @@ export interface FileRoutesByTo {
   '/api/admin/consulta-cnpj': typeof ApiAdminConsultaCnpjRoute
   '/api/admin/consulta-documento': typeof ApiAdminConsultaDocumentoRoute
   '/api/admin/dashboard': typeof ApiAdminDashboardRoute
+  '/api/admin/dev-login': typeof ApiAdminDevLoginRoute
   '/api/admin/financeiro': typeof ApiAdminFinanceiroRoute
   '/api/admin/fornecedor-inicio': typeof ApiAdminFornecedorInicioRoute
   '/api/admin/fornecedor-portal': typeof ApiAdminFornecedorPortalRoute
@@ -573,6 +730,17 @@ export interface FileRoutesByTo {
   '/api/admin/visao': typeof ApiAdminVisaoRoute
   '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
   '/api/media/blob': typeof ApiMediaBlobRoute
+  '/financas/calendario': typeof FinancasAuthenticatedCalendarioRoute
+  '/financas/contas-do-mes': typeof FinancasAuthenticatedContasDoMesRouteWithChildren
+  '/financas/contas-recorrentes': typeof FinancasAuthenticatedContasRecorrentesRouteWithChildren
+  '/financas/dashboard': typeof FinancasAuthenticatedDashboardRoute
+  '/financas/dividas': typeof FinancasAuthenticatedDividasRouteWithChildren
+  '/financas/gastos': typeof FinancasAuthenticatedGastosRoute
+  '/financas/metas': typeof FinancasAuthenticatedMetasRoute
+  '/financas/plano-quitacao': typeof FinancasAuthenticatedPlanoQuitacaoRoute
+  '/financas/receitas': typeof FinancasAuthenticatedReceitasRoute
+  '/financas/relatorios': typeof FinancasAuthenticatedRelatoriosRoute
+  '/financas/reserva': typeof FinancasAuthenticatedReservaRoute
   '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
   '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
@@ -580,6 +748,9 @@ export interface FileRoutesByTo {
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
   '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/media/produto-foto/$id': typeof ApiMediaProdutoFotoIdRoute
+  '/financas/contas-do-mes/$billId': typeof FinancasAuthenticatedContasDoMesBillIdRoute
+  '/financas/contas-recorrentes/$accountId': typeof FinancasAuthenticatedContasRecorrentesAccountIdRoute
+  '/financas/dividas/$debtId': typeof FinancasAuthenticatedDividasDebtIdRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/assinatura': typeof ApiAdminUsuariosIdAssinaturaRoute
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
@@ -589,6 +760,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/financas': typeof FinancasRouteRouteWithChildren
   '/painel': typeof PainelRouteRouteWithChildren
   '/admin': typeof AdminRoute
   '/galeria': typeof GaleriaRouteWithChildren
@@ -597,10 +769,12 @@ export interface FileRoutesById {
   '/ponto-relatorio': typeof PontoRelatorioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/financas/_authenticated': typeof FinancasAuthenticatedRouteRouteWithChildren
   '/api/agendamentos': typeof ApiAgendamentosRouteWithChildren
   '/api/consulta-documento': typeof ApiConsultaDocumentoRoute
   '/api/health': typeof ApiHealthRoute
   '/api/os': typeof ApiOsRoute
+  '/financas/auth': typeof FinancasAuthRoute
   '/galeria/$slug': typeof GaleriaSlugRoute
   '/painel/agendar': typeof PainelAgendarRoute
   '/painel/assinatura': typeof PainelAssinaturaRoute
@@ -614,6 +788,7 @@ export interface FileRoutesById {
   '/painel/inicio-fornecedor': typeof PainelInicioFornecedorRoute
   '/painel/logs': typeof PainelLogsRoute
   '/painel/material': typeof PainelMaterialRoute
+  '/painel/modulos': typeof PainelModulosRoute
   '/painel/orcamentado': typeof PainelOrcamentadoRoute
   '/painel/ponto': typeof PainelPontoRoute
   '/painel/ponto-controle': typeof PainelPontoControleRoute
@@ -621,11 +796,13 @@ export interface FileRoutesById {
   '/painel/produtos-galeria': typeof PainelProdutosGaleriaRoute
   '/painel/usuarios': typeof PainelUsuariosRoute
   '/painel/visitas': typeof PainelVisitasRoute
+  '/financas/': typeof FinancasIndexRoute
   '/painel/': typeof PainelIndexRoute
   '/api/admin/clientes': typeof ApiAdminClientesRoute
   '/api/admin/consulta-cnpj': typeof ApiAdminConsultaCnpjRoute
   '/api/admin/consulta-documento': typeof ApiAdminConsultaDocumentoRoute
   '/api/admin/dashboard': typeof ApiAdminDashboardRoute
+  '/api/admin/dev-login': typeof ApiAdminDevLoginRoute
   '/api/admin/financeiro': typeof ApiAdminFinanceiroRoute
   '/api/admin/fornecedor-inicio': typeof ApiAdminFornecedorInicioRoute
   '/api/admin/fornecedor-portal': typeof ApiAdminFornecedorPortalRoute
@@ -646,6 +823,17 @@ export interface FileRoutesById {
   '/api/admin/visao': typeof ApiAdminVisaoRoute
   '/api/agendamentos/$id': typeof ApiAgendamentosIdRouteWithChildren
   '/api/media/blob': typeof ApiMediaBlobRoute
+  '/financas/_authenticated/calendario': typeof FinancasAuthenticatedCalendarioRoute
+  '/financas/_authenticated/contas-do-mes': typeof FinancasAuthenticatedContasDoMesRouteWithChildren
+  '/financas/_authenticated/contas-recorrentes': typeof FinancasAuthenticatedContasRecorrentesRouteWithChildren
+  '/financas/_authenticated/dashboard': typeof FinancasAuthenticatedDashboardRoute
+  '/financas/_authenticated/dividas': typeof FinancasAuthenticatedDividasRouteWithChildren
+  '/financas/_authenticated/gastos': typeof FinancasAuthenticatedGastosRoute
+  '/financas/_authenticated/metas': typeof FinancasAuthenticatedMetasRoute
+  '/financas/_authenticated/plano-quitacao': typeof FinancasAuthenticatedPlanoQuitacaoRoute
+  '/financas/_authenticated/receitas': typeof FinancasAuthenticatedReceitasRoute
+  '/financas/_authenticated/relatorios': typeof FinancasAuthenticatedRelatoriosRoute
+  '/financas/_authenticated/reserva': typeof FinancasAuthenticatedReservaRoute
   '/api/admin/produtos/$id': typeof ApiAdminProdutosIdRouteWithChildren
   '/api/admin/usuarios/$id': typeof ApiAdminUsuariosIdRouteWithChildren
   '/api/agendamentos/$id/cliente': typeof ApiAgendamentosIdClienteRoute
@@ -653,6 +841,9 @@ export interface FileRoutesById {
   '/api/agendamentos/$id/orcamento': typeof ApiAgendamentosIdOrcamentoRoute
   '/api/agendamentos/$id/recebimentos': typeof ApiAgendamentosIdRecebimentosRoute
   '/api/media/produto-foto/$id': typeof ApiMediaProdutoFotoIdRoute
+  '/financas/_authenticated/contas-do-mes/$billId': typeof FinancasAuthenticatedContasDoMesBillIdRoute
+  '/financas/_authenticated/contas-recorrentes/$accountId': typeof FinancasAuthenticatedContasRecorrentesAccountIdRoute
+  '/financas/_authenticated/dividas/$debtId': typeof FinancasAuthenticatedDividasDebtIdRoute
   '/api/admin/produtos/$id/fotos': typeof ApiAdminProdutosIdFotosRouteWithChildren
   '/api/admin/usuarios/$id/assinatura': typeof ApiAdminUsuariosIdAssinaturaRoute
   '/api/admin/usuarios/$id/thumb': typeof ApiAdminUsuariosIdThumbRoute
@@ -663,6 +854,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/financas'
     | '/painel'
     | '/admin'
     | '/galeria'
@@ -675,6 +867,7 @@ export interface FileRouteTypes {
     | '/api/consulta-documento'
     | '/api/health'
     | '/api/os'
+    | '/financas/auth'
     | '/galeria/$slug'
     | '/painel/agendar'
     | '/painel/assinatura'
@@ -688,6 +881,7 @@ export interface FileRouteTypes {
     | '/painel/inicio-fornecedor'
     | '/painel/logs'
     | '/painel/material'
+    | '/painel/modulos'
     | '/painel/orcamentado'
     | '/painel/ponto'
     | '/painel/ponto-controle'
@@ -695,11 +889,13 @@ export interface FileRouteTypes {
     | '/painel/produtos-galeria'
     | '/painel/usuarios'
     | '/painel/visitas'
+    | '/financas/'
     | '/painel/'
     | '/api/admin/clientes'
     | '/api/admin/consulta-cnpj'
     | '/api/admin/consulta-documento'
     | '/api/admin/dashboard'
+    | '/api/admin/dev-login'
     | '/api/admin/financeiro'
     | '/api/admin/fornecedor-inicio'
     | '/api/admin/fornecedor-portal'
@@ -720,6 +916,17 @@ export interface FileRouteTypes {
     | '/api/admin/visao'
     | '/api/agendamentos/$id'
     | '/api/media/blob'
+    | '/financas/calendario'
+    | '/financas/contas-do-mes'
+    | '/financas/contas-recorrentes'
+    | '/financas/dashboard'
+    | '/financas/dividas'
+    | '/financas/gastos'
+    | '/financas/metas'
+    | '/financas/plano-quitacao'
+    | '/financas/receitas'
+    | '/financas/relatorios'
+    | '/financas/reserva'
     | '/api/admin/produtos/$id'
     | '/api/admin/usuarios/$id'
     | '/api/agendamentos/$id/cliente'
@@ -727,6 +934,9 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/orcamento'
     | '/api/agendamentos/$id/recebimentos'
     | '/api/media/produto-foto/$id'
+    | '/financas/contas-do-mes/$billId'
+    | '/financas/contas-recorrentes/$accountId'
+    | '/financas/dividas/$debtId'
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/assinatura'
     | '/api/admin/usuarios/$id/thumb'
@@ -742,10 +952,12 @@ export interface FileRouteTypes {
     | '/ponto-relatorio'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/financas'
     | '/api/agendamentos'
     | '/api/consulta-documento'
     | '/api/health'
     | '/api/os'
+    | '/financas/auth'
     | '/galeria/$slug'
     | '/painel/agendar'
     | '/painel/assinatura'
@@ -759,6 +971,7 @@ export interface FileRouteTypes {
     | '/painel/inicio-fornecedor'
     | '/painel/logs'
     | '/painel/material'
+    | '/painel/modulos'
     | '/painel/orcamentado'
     | '/painel/ponto'
     | '/painel/ponto-controle'
@@ -771,6 +984,7 @@ export interface FileRouteTypes {
     | '/api/admin/consulta-cnpj'
     | '/api/admin/consulta-documento'
     | '/api/admin/dashboard'
+    | '/api/admin/dev-login'
     | '/api/admin/financeiro'
     | '/api/admin/fornecedor-inicio'
     | '/api/admin/fornecedor-portal'
@@ -791,6 +1005,17 @@ export interface FileRouteTypes {
     | '/api/admin/visao'
     | '/api/agendamentos/$id'
     | '/api/media/blob'
+    | '/financas/calendario'
+    | '/financas/contas-do-mes'
+    | '/financas/contas-recorrentes'
+    | '/financas/dashboard'
+    | '/financas/dividas'
+    | '/financas/gastos'
+    | '/financas/metas'
+    | '/financas/plano-quitacao'
+    | '/financas/receitas'
+    | '/financas/relatorios'
+    | '/financas/reserva'
     | '/api/admin/produtos/$id'
     | '/api/admin/usuarios/$id'
     | '/api/agendamentos/$id/cliente'
@@ -798,6 +1023,9 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/orcamento'
     | '/api/agendamentos/$id/recebimentos'
     | '/api/media/produto-foto/$id'
+    | '/financas/contas-do-mes/$billId'
+    | '/financas/contas-recorrentes/$accountId'
+    | '/financas/dividas/$debtId'
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/assinatura'
     | '/api/admin/usuarios/$id/thumb'
@@ -806,6 +1034,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/financas'
     | '/painel'
     | '/admin'
     | '/galeria'
@@ -814,10 +1043,12 @@ export interface FileRouteTypes {
     | '/ponto-relatorio'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/financas/_authenticated'
     | '/api/agendamentos'
     | '/api/consulta-documento'
     | '/api/health'
     | '/api/os'
+    | '/financas/auth'
     | '/galeria/$slug'
     | '/painel/agendar'
     | '/painel/assinatura'
@@ -831,6 +1062,7 @@ export interface FileRouteTypes {
     | '/painel/inicio-fornecedor'
     | '/painel/logs'
     | '/painel/material'
+    | '/painel/modulos'
     | '/painel/orcamentado'
     | '/painel/ponto'
     | '/painel/ponto-controle'
@@ -838,11 +1070,13 @@ export interface FileRouteTypes {
     | '/painel/produtos-galeria'
     | '/painel/usuarios'
     | '/painel/visitas'
+    | '/financas/'
     | '/painel/'
     | '/api/admin/clientes'
     | '/api/admin/consulta-cnpj'
     | '/api/admin/consulta-documento'
     | '/api/admin/dashboard'
+    | '/api/admin/dev-login'
     | '/api/admin/financeiro'
     | '/api/admin/fornecedor-inicio'
     | '/api/admin/fornecedor-portal'
@@ -863,6 +1097,17 @@ export interface FileRouteTypes {
     | '/api/admin/visao'
     | '/api/agendamentos/$id'
     | '/api/media/blob'
+    | '/financas/_authenticated/calendario'
+    | '/financas/_authenticated/contas-do-mes'
+    | '/financas/_authenticated/contas-recorrentes'
+    | '/financas/_authenticated/dashboard'
+    | '/financas/_authenticated/dividas'
+    | '/financas/_authenticated/gastos'
+    | '/financas/_authenticated/metas'
+    | '/financas/_authenticated/plano-quitacao'
+    | '/financas/_authenticated/receitas'
+    | '/financas/_authenticated/relatorios'
+    | '/financas/_authenticated/reserva'
     | '/api/admin/produtos/$id'
     | '/api/admin/usuarios/$id'
     | '/api/agendamentos/$id/cliente'
@@ -870,6 +1115,9 @@ export interface FileRouteTypes {
     | '/api/agendamentos/$id/orcamento'
     | '/api/agendamentos/$id/recebimentos'
     | '/api/media/produto-foto/$id'
+    | '/financas/_authenticated/contas-do-mes/$billId'
+    | '/financas/_authenticated/contas-recorrentes/$accountId'
+    | '/financas/_authenticated/dividas/$debtId'
     | '/api/admin/produtos/$id/fotos'
     | '/api/admin/usuarios/$id/assinatura'
     | '/api/admin/usuarios/$id/thumb'
@@ -879,6 +1127,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FinancasRouteRoute: typeof FinancasRouteRouteWithChildren
   PainelRouteRoute: typeof PainelRouteRouteWithChildren
   AdminRoute: typeof AdminRoute
   GaleriaRoute: typeof GaleriaRouteWithChildren
@@ -895,6 +1144,7 @@ export interface RootRouteChildren {
   ApiAdminConsultaCnpjRoute: typeof ApiAdminConsultaCnpjRoute
   ApiAdminConsultaDocumentoRoute: typeof ApiAdminConsultaDocumentoRoute
   ApiAdminDashboardRoute: typeof ApiAdminDashboardRoute
+  ApiAdminDevLoginRoute: typeof ApiAdminDevLoginRoute
   ApiAdminFinanceiroRoute: typeof ApiAdminFinanceiroRoute
   ApiAdminFornecedorInicioRoute: typeof ApiAdminFornecedorInicioRoute
   ApiAdminFornecedorPortalRoute: typeof ApiAdminFornecedorPortalRoute
@@ -975,6 +1225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/financas': {
+      id: '/financas'
+      path: '/financas'
+      fullPath: '/financas'
+      preLoaderRoute: typeof FinancasRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -988,6 +1245,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/painel/'
       preLoaderRoute: typeof PainelIndexRouteImport
       parentRoute: typeof PainelRouteRoute
+    }
+    '/financas/': {
+      id: '/financas/'
+      path: '/'
+      fullPath: '/financas/'
+      preLoaderRoute: typeof FinancasIndexRouteImport
+      parentRoute: typeof FinancasRouteRoute
     }
     '/painel/visitas': {
       id: '/painel/visitas'
@@ -1036,6 +1300,13 @@ declare module '@tanstack/react-router' {
       path: '/orcamentado'
       fullPath: '/painel/orcamentado'
       preLoaderRoute: typeof PainelOrcamentadoRouteImport
+      parentRoute: typeof PainelRouteRoute
+    }
+    '/painel/modulos': {
+      id: '/painel/modulos'
+      path: '/modulos'
+      fullPath: '/painel/modulos'
+      preLoaderRoute: typeof PainelModulosRouteImport
       parentRoute: typeof PainelRouteRoute
     }
     '/painel/material': {
@@ -1129,6 +1400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GaleriaSlugRouteImport
       parentRoute: typeof GaleriaRoute
     }
+    '/financas/auth': {
+      id: '/financas/auth'
+      path: '/auth'
+      fullPath: '/financas/auth'
+      preLoaderRoute: typeof FinancasAuthRouteImport
+      parentRoute: typeof FinancasRouteRoute
+    }
     '/api/os': {
       id: '/api/os'
       path: '/api/os'
@@ -1156,6 +1434,90 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/agendamentos'
       preLoaderRoute: typeof ApiAgendamentosRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/financas/_authenticated': {
+      id: '/financas/_authenticated'
+      path: ''
+      fullPath: '/financas'
+      preLoaderRoute: typeof FinancasAuthenticatedRouteRouteImport
+      parentRoute: typeof FinancasRouteRoute
+    }
+    '/financas/_authenticated/reserva': {
+      id: '/financas/_authenticated/reserva'
+      path: '/reserva'
+      fullPath: '/financas/reserva'
+      preLoaderRoute: typeof FinancasAuthenticatedReservaRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/relatorios': {
+      id: '/financas/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/financas/relatorios'
+      preLoaderRoute: typeof FinancasAuthenticatedRelatoriosRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/receitas': {
+      id: '/financas/_authenticated/receitas'
+      path: '/receitas'
+      fullPath: '/financas/receitas'
+      preLoaderRoute: typeof FinancasAuthenticatedReceitasRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/plano-quitacao': {
+      id: '/financas/_authenticated/plano-quitacao'
+      path: '/plano-quitacao'
+      fullPath: '/financas/plano-quitacao'
+      preLoaderRoute: typeof FinancasAuthenticatedPlanoQuitacaoRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/metas': {
+      id: '/financas/_authenticated/metas'
+      path: '/metas'
+      fullPath: '/financas/metas'
+      preLoaderRoute: typeof FinancasAuthenticatedMetasRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/gastos': {
+      id: '/financas/_authenticated/gastos'
+      path: '/gastos'
+      fullPath: '/financas/gastos'
+      preLoaderRoute: typeof FinancasAuthenticatedGastosRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/dividas': {
+      id: '/financas/_authenticated/dividas'
+      path: '/dividas'
+      fullPath: '/financas/dividas'
+      preLoaderRoute: typeof FinancasAuthenticatedDividasRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/dashboard': {
+      id: '/financas/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/financas/dashboard'
+      preLoaderRoute: typeof FinancasAuthenticatedDashboardRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/contas-recorrentes': {
+      id: '/financas/_authenticated/contas-recorrentes'
+      path: '/contas-recorrentes'
+      fullPath: '/financas/contas-recorrentes'
+      preLoaderRoute: typeof FinancasAuthenticatedContasRecorrentesRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/contas-do-mes': {
+      id: '/financas/_authenticated/contas-do-mes'
+      path: '/contas-do-mes'
+      fullPath: '/financas/contas-do-mes'
+      preLoaderRoute: typeof FinancasAuthenticatedContasDoMesRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
+    }
+    '/financas/_authenticated/calendario': {
+      id: '/financas/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/financas/calendario'
+      preLoaderRoute: typeof FinancasAuthenticatedCalendarioRouteImport
+      parentRoute: typeof FinancasAuthenticatedRouteRoute
     }
     '/api/media/blob': {
       id: '/api/media/blob'
@@ -1297,6 +1659,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminFinanceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/dev-login': {
+      id: '/api/admin/dev-login'
+      path: '/api/admin/dev-login'
+      fullPath: '/api/admin/dev-login'
+      preLoaderRoute: typeof ApiAdminDevLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/dashboard': {
       id: '/api/admin/dashboard'
       path: '/api/admin/dashboard'
@@ -1324,6 +1693,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/clientes'
       preLoaderRoute: typeof ApiAdminClientesRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/financas/_authenticated/dividas/$debtId': {
+      id: '/financas/_authenticated/dividas/$debtId'
+      path: '/$debtId'
+      fullPath: '/financas/dividas/$debtId'
+      preLoaderRoute: typeof FinancasAuthenticatedDividasDebtIdRouteImport
+      parentRoute: typeof FinancasAuthenticatedDividasRoute
+    }
+    '/financas/_authenticated/contas-recorrentes/$accountId': {
+      id: '/financas/_authenticated/contas-recorrentes/$accountId'
+      path: '/$accountId'
+      fullPath: '/financas/contas-recorrentes/$accountId'
+      preLoaderRoute: typeof FinancasAuthenticatedContasRecorrentesAccountIdRouteImport
+      parentRoute: typeof FinancasAuthenticatedContasRecorrentesRoute
+    }
+    '/financas/_authenticated/contas-do-mes/$billId': {
+      id: '/financas/_authenticated/contas-do-mes/$billId'
+      path: '/$billId'
+      fullPath: '/financas/contas-do-mes/$billId'
+      preLoaderRoute: typeof FinancasAuthenticatedContasDoMesBillIdRouteImport
+      parentRoute: typeof FinancasAuthenticatedContasDoMesRoute
     }
     '/api/media/produto-foto/$id': {
       id: '/api/media/produto-foto/$id'
@@ -1412,6 +1802,105 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface FinancasAuthenticatedContasDoMesRouteChildren {
+  FinancasAuthenticatedContasDoMesBillIdRoute: typeof FinancasAuthenticatedContasDoMesBillIdRoute
+}
+
+const FinancasAuthenticatedContasDoMesRouteChildren: FinancasAuthenticatedContasDoMesRouteChildren =
+  {
+    FinancasAuthenticatedContasDoMesBillIdRoute:
+      FinancasAuthenticatedContasDoMesBillIdRoute,
+  }
+
+const FinancasAuthenticatedContasDoMesRouteWithChildren =
+  FinancasAuthenticatedContasDoMesRoute._addFileChildren(
+    FinancasAuthenticatedContasDoMesRouteChildren,
+  )
+
+interface FinancasAuthenticatedContasRecorrentesRouteChildren {
+  FinancasAuthenticatedContasRecorrentesAccountIdRoute: typeof FinancasAuthenticatedContasRecorrentesAccountIdRoute
+}
+
+const FinancasAuthenticatedContasRecorrentesRouteChildren: FinancasAuthenticatedContasRecorrentesRouteChildren =
+  {
+    FinancasAuthenticatedContasRecorrentesAccountIdRoute:
+      FinancasAuthenticatedContasRecorrentesAccountIdRoute,
+  }
+
+const FinancasAuthenticatedContasRecorrentesRouteWithChildren =
+  FinancasAuthenticatedContasRecorrentesRoute._addFileChildren(
+    FinancasAuthenticatedContasRecorrentesRouteChildren,
+  )
+
+interface FinancasAuthenticatedDividasRouteChildren {
+  FinancasAuthenticatedDividasDebtIdRoute: typeof FinancasAuthenticatedDividasDebtIdRoute
+}
+
+const FinancasAuthenticatedDividasRouteChildren: FinancasAuthenticatedDividasRouteChildren =
+  {
+    FinancasAuthenticatedDividasDebtIdRoute:
+      FinancasAuthenticatedDividasDebtIdRoute,
+  }
+
+const FinancasAuthenticatedDividasRouteWithChildren =
+  FinancasAuthenticatedDividasRoute._addFileChildren(
+    FinancasAuthenticatedDividasRouteChildren,
+  )
+
+interface FinancasAuthenticatedRouteRouteChildren {
+  FinancasAuthenticatedCalendarioRoute: typeof FinancasAuthenticatedCalendarioRoute
+  FinancasAuthenticatedContasDoMesRoute: typeof FinancasAuthenticatedContasDoMesRouteWithChildren
+  FinancasAuthenticatedContasRecorrentesRoute: typeof FinancasAuthenticatedContasRecorrentesRouteWithChildren
+  FinancasAuthenticatedDashboardRoute: typeof FinancasAuthenticatedDashboardRoute
+  FinancasAuthenticatedDividasRoute: typeof FinancasAuthenticatedDividasRouteWithChildren
+  FinancasAuthenticatedGastosRoute: typeof FinancasAuthenticatedGastosRoute
+  FinancasAuthenticatedMetasRoute: typeof FinancasAuthenticatedMetasRoute
+  FinancasAuthenticatedPlanoQuitacaoRoute: typeof FinancasAuthenticatedPlanoQuitacaoRoute
+  FinancasAuthenticatedReceitasRoute: typeof FinancasAuthenticatedReceitasRoute
+  FinancasAuthenticatedRelatoriosRoute: typeof FinancasAuthenticatedRelatoriosRoute
+  FinancasAuthenticatedReservaRoute: typeof FinancasAuthenticatedReservaRoute
+}
+
+const FinancasAuthenticatedRouteRouteChildren: FinancasAuthenticatedRouteRouteChildren =
+  {
+    FinancasAuthenticatedCalendarioRoute: FinancasAuthenticatedCalendarioRoute,
+    FinancasAuthenticatedContasDoMesRoute:
+      FinancasAuthenticatedContasDoMesRouteWithChildren,
+    FinancasAuthenticatedContasRecorrentesRoute:
+      FinancasAuthenticatedContasRecorrentesRouteWithChildren,
+    FinancasAuthenticatedDashboardRoute: FinancasAuthenticatedDashboardRoute,
+    FinancasAuthenticatedDividasRoute:
+      FinancasAuthenticatedDividasRouteWithChildren,
+    FinancasAuthenticatedGastosRoute: FinancasAuthenticatedGastosRoute,
+    FinancasAuthenticatedMetasRoute: FinancasAuthenticatedMetasRoute,
+    FinancasAuthenticatedPlanoQuitacaoRoute:
+      FinancasAuthenticatedPlanoQuitacaoRoute,
+    FinancasAuthenticatedReceitasRoute: FinancasAuthenticatedReceitasRoute,
+    FinancasAuthenticatedRelatoriosRoute: FinancasAuthenticatedRelatoriosRoute,
+    FinancasAuthenticatedReservaRoute: FinancasAuthenticatedReservaRoute,
+  }
+
+const FinancasAuthenticatedRouteRouteWithChildren =
+  FinancasAuthenticatedRouteRoute._addFileChildren(
+    FinancasAuthenticatedRouteRouteChildren,
+  )
+
+interface FinancasRouteRouteChildren {
+  FinancasAuthenticatedRouteRoute: typeof FinancasAuthenticatedRouteRouteWithChildren
+  FinancasAuthRoute: typeof FinancasAuthRoute
+  FinancasIndexRoute: typeof FinancasIndexRoute
+}
+
+const FinancasRouteRouteChildren: FinancasRouteRouteChildren = {
+  FinancasAuthenticatedRouteRoute: FinancasAuthenticatedRouteRouteWithChildren,
+  FinancasAuthRoute: FinancasAuthRoute,
+  FinancasIndexRoute: FinancasIndexRoute,
+}
+
+const FinancasRouteRouteWithChildren = FinancasRouteRoute._addFileChildren(
+  FinancasRouteRouteChildren,
+)
+
 interface PainelRouteRouteChildren {
   PainelAgendarRoute: typeof PainelAgendarRoute
   PainelAssinaturaRoute: typeof PainelAssinaturaRoute
@@ -1425,6 +1914,7 @@ interface PainelRouteRouteChildren {
   PainelInicioFornecedorRoute: typeof PainelInicioFornecedorRoute
   PainelLogsRoute: typeof PainelLogsRoute
   PainelMaterialRoute: typeof PainelMaterialRoute
+  PainelModulosRoute: typeof PainelModulosRoute
   PainelOrcamentadoRoute: typeof PainelOrcamentadoRoute
   PainelPontoRoute: typeof PainelPontoRoute
   PainelPontoControleRoute: typeof PainelPontoControleRoute
@@ -1448,6 +1938,7 @@ const PainelRouteRouteChildren: PainelRouteRouteChildren = {
   PainelInicioFornecedorRoute: PainelInicioFornecedorRoute,
   PainelLogsRoute: PainelLogsRoute,
   PainelMaterialRoute: PainelMaterialRoute,
+  PainelModulosRoute: PainelModulosRoute,
   PainelOrcamentadoRoute: PainelOrcamentadoRoute,
   PainelPontoRoute: PainelPontoRoute,
   PainelPontoControleRoute: PainelPontoControleRoute,
@@ -1567,6 +2058,7 @@ const ApiAdminUsuariosRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FinancasRouteRoute: FinancasRouteRouteWithChildren,
   PainelRouteRoute: PainelRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   GaleriaRoute: GaleriaRouteWithChildren,
@@ -1583,6 +2075,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminConsultaCnpjRoute: ApiAdminConsultaCnpjRoute,
   ApiAdminConsultaDocumentoRoute: ApiAdminConsultaDocumentoRoute,
   ApiAdminDashboardRoute: ApiAdminDashboardRoute,
+  ApiAdminDevLoginRoute: ApiAdminDevLoginRoute,
   ApiAdminFinanceiroRoute: ApiAdminFinanceiroRoute,
   ApiAdminFornecedorInicioRoute: ApiAdminFornecedorInicioRoute,
   ApiAdminFornecedorPortalRoute: ApiAdminFornecedorPortalRoute,

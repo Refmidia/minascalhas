@@ -1,0 +1,427 @@
+/* Hub de módulos — Minas Calhas + João Finanças (amarelo da marca) */
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap");
+
+.mc-hub {
+  --mc-gold: #f5c518;
+  --mc-gold-deep: #d4a017;
+  --mc-gold-soft: #facc15;
+  --mc-ink: #f8fafc;
+  --mc-muted: #94a3b8;
+  --mc-line: rgba(148, 163, 184, 0.16);
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: var(--mc-ink);
+  background: #07090f;
+}
+
+.mc-hub__bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 12% 18%, rgba(245, 197, 24, 0.18), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 88% 78%, rgba(245, 197, 24, 0.1), transparent 50%),
+    linear-gradient(160deg, #0b1018 0%, #070a0f 45%, #12100a 100%);
+}
+
+.mc-hub__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+
+.mc-hub__loading {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: 0.85rem;
+  text-align: center;
+  color: var(--mc-muted);
+}
+
+.mc-hub__spinner {
+  width: 2rem;
+  height: 2rem;
+  margin: 0 auto;
+  border: 2px solid rgba(245, 197, 24, 0.25);
+  border-top-color: var(--mc-gold);
+  border-radius: 50%;
+  animation: mc-hub-spin 0.7s linear infinite;
+}
+
+@keyframes mc-hub-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mc-hub__top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.mc-hub__brand {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.mc-hub__logo {
+  height: 2.5rem;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.mc-hub__user {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--mc-muted);
+  font-size: 0.9rem;
+}
+
+.mc-hub__user strong {
+  color: var(--mc-ink);
+  font-weight: 600;
+}
+
+.mc-hub__logout {
+  border: 1px solid var(--mc-line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--mc-ink);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.mc-hub__logout:hover {
+  border-color: rgba(245, 197, 24, 0.45);
+  background: rgba(245, 197, 24, 0.12);
+}
+
+.mc-hub__main {
+  position: relative;
+  z-index: 1;
+  width: min(980px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(1.5rem, 6vh, 3.5rem) 0 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.mc-hub__intro {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.mc-hub__kicker {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc-gold-soft);
+}
+
+.mc-hub__intro h1 {
+  margin: 0;
+  font-family: "Outfit", "DM Sans", sans-serif;
+  font-size: clamp(1.9rem, 4.2vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.mc-hub__sub {
+  margin: 0.75rem auto 0;
+  max-width: 34rem;
+  color: var(--mc-muted);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.mc-hub__divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 1.35rem auto 0;
+  max-width: 280px;
+}
+
+.mc-hub__divider span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.55), transparent);
+}
+
+.mc-hub__divider i {
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--mc-gold);
+  box-shadow: 0 0 8px rgba(245, 197, 24, 0.55);
+  display: block;
+  transform: rotate(45deg);
+}
+
+.mc-hub__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.mc-hub__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: left;
+  padding: 1.35rem 1.35rem 1.25rem;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-left: 2px solid var(--mc-gold);
+  background: linear-gradient(145deg, rgba(18, 24, 36, 0.82), rgba(12, 16, 24, 0.88));
+  backdrop-filter: blur(14px);
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.mc-hub__card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 197, 24, 0.4);
+  box-shadow:
+    0 24px 52px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(245, 197, 24, 0.14),
+    0 0 36px rgba(245, 197, 24, 0.12);
+}
+
+.mc-hub__card:focus-visible {
+  outline: 2px solid var(--mc-gold);
+  outline-offset: 3px;
+}
+
+.mc-hub__card-watermark {
+  position: absolute;
+  right: -0.2rem;
+  bottom: -0.4rem;
+  font-size: 7.5rem;
+  line-height: 1;
+  color: rgba(245, 197, 24, 0.08);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mc-hub__card-tag {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fde68a;
+  background: rgba(245, 197, 24, 0.14);
+  border: 1px solid rgba(245, 197, 24, 0.35);
+}
+
+.mc-hub__card-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.95rem;
+  width: 100%;
+}
+
+.mc-hub__card-icon {
+  flex-shrink: 0;
+  width: 3.15rem;
+  height: 3.15rem;
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, rgba(245, 197, 24, 0.4), rgba(180, 130, 20, 0.22));
+  color: var(--mc-gold-soft);
+  font-size: 1.25rem;
+  box-shadow: 0 0 0 1px rgba(245, 197, 24, 0.32);
+}
+
+.mc-hub__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  padding-top: 0.15rem;
+}
+
+.mc-hub__card-title {
+  font-family: "Outfit", "DM Sans", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.mc-hub__card-desc {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--mc-muted);
+  max-width: 18rem;
+}
+
+.mc-hub__card-cta {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 197, 24, 0.5);
+  background: transparent;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--mc-gold-soft);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.mc-hub__card:hover .mc-hub__card-cta {
+  background: rgba(245, 197, 24, 0.12);
+  border-color: rgba(245, 197, 24, 0.75);
+}
+
+.mc-hub__features {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  background: rgba(12, 16, 24, 0.72);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
+.mc-hub__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.1rem 1.15rem;
+}
+
+.mc-hub__feature + .mc-hub__feature {
+  border-left: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.mc-hub__feature-icon {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(245, 197, 24, 0.12);
+  color: var(--mc-gold-soft);
+  font-size: 1rem;
+}
+
+.mc-hub__feature strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+
+.mc-hub__feature p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--mc-muted);
+}
+
+.mc-hub__copy {
+  margin: 1.35rem 0 0;
+  text-align: center;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.mc-hub__hint {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #fbbf24;
+}
+
+@media (max-width: 840px) {
+  .mc-hub__features {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-hub__feature + .mc-hub__feature {
+    border-left: 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+  }
+}
+
+@media (max-width: 720px) {
+  .mc-hub__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-hub__top {
+    padding: 1rem 1.1rem;
+  }
+
+  .mc-hub__logo {
+    height: 2.2rem;
+  }
+
+  .mc-hub__user {
+    font-size: 0.82rem;
+  }
+
+  .mc-hub__card-desc {
+    max-width: none;
+  }
+}

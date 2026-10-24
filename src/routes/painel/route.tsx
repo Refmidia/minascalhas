@@ -1,5 +1,6 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, Outlet, useRouterState } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { AdminAuthProvider, useAdminAuth } from "@/components/admin/admin-auth";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -41,9 +42,24 @@ function PainelLayout() {
 }
 
 function PainelGate() {
-  const { ready, authenticated } = useAdminAuth();
+  const { ready, authenticated, refreshSession } = useAdminAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [devLogin, setDevLogin] = useState<"idle" | "tentando" | "feito">(
+    import.meta.env.DEV ? "idle" : "feito",
+  );
 
-  if (!ready) {
+  useEffect(() => {
+    if (!ready || authenticated || devLogin !== "idle") return;
+    setDevLogin("tentando");
+    fetch("/api/admin/dev-login", { method: "POST", credentials: "include" })
+      .then(async (res) => {
+        if (res.ok) await refreshSession();
+      })
+      .catch(() => undefined)
+      .finally(() => setDevLogin("feito"));
+  }, [ready, authenticated, devLogin, refreshSession]);
+
+  if (!ready || (!authenticated && devLogin !== "feito")) {
     return (
       <main className="min-h-screen grid place-items-center">
         <Loader2 className="animate-spin text-emerald-500" size={32} aria-label="Carregando" />
@@ -54,5 +70,11 @@ function PainelGate() {
   if (!authenticated) {
     return <Navigate to="/" search={{ painel: "login" }} replace />;
   }
+
+  // Tela de módulos: full-bleed sem sidebar do painel.
+  if (pathname === "/painel/modulos" || pathname.startsWith("/painel/modulos/")) {
+    return <Outlet />;
+  }
+
   return <AdminShell />;
 }

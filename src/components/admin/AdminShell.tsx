@@ -223,6 +223,11 @@ export function AdminShell() {
               </span>
             </summary>
             <div className="dash-topbar__dropdown-panel">
+              {isAdminVisao ? (
+                <Link to="/painel/modulos" onClick={() => setUserMenuOpen(false)}>
+                  <i className="bi bi-grid-1x2" aria-hidden="true" /> Módulos
+                </Link>
+              ) : null}
               <button type="button" onClick={() => void logout()}>
                 <i className="bi bi-box-arrow-right" aria-hidden="true" /> Sair
               </button>
