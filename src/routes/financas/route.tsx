@@ -18,14 +18,16 @@ export const Route = createFileRoute("/financas")({
   component: FinancasLayout,
 });
 
-/** Remove CSS do painel/Bootstrap que sobra na navegação SPA e quebra o layout. */
+/** Remove CSS/classes do painel que bloqueiam o scroll e quebram o layout. */
 function useStripForeignStyles() {
   useEffect(() => {
     const isForeign = (href: string) =>
       href.includes("bootstrap") ||
       href.includes("bootstrap-icons") ||
       href.includes("/admin/") ||
-      href.includes("modulos-hub");
+      href.includes("modulos-hub") ||
+      href.includes("dashboard-saas") ||
+      href.includes("painel.css");
 
     const strip = () => {
       document.querySelectorAll('link[rel="stylesheet"]').forEach((node) => {
@@ -36,6 +38,18 @@ function useStripForeignStyles() {
         link.disabled = true;
         link.remove();
       });
+
+      // Classes do painel: body.dashboard-app { overflow:hidden; height:100vh }
+      document.body.classList.remove(
+        "dashboard-app",
+        "dashboard-app--react",
+        "dashboard-sidebar-mini",
+        "dashboard-has-visao-banner",
+      );
+      document.body.style.removeProperty("overflow");
+      document.body.style.removeProperty("height");
+      document.documentElement.style.removeProperty("overflow");
+      document.documentElement.style.removeProperty("height");
     };
 
     strip();
@@ -44,6 +58,7 @@ function useStripForeignStyles() {
 
     const mo = new MutationObserver(() => strip());
     mo.observe(document.head, { childList: true, subtree: true });
+    mo.observe(document.body, { attributes: true, attributeFilter: ["class", "style"] });
 
     return () => {
       mo.disconnect();

@@ -102,8 +102,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
-      <div className="pointer-events-none fixed inset-0 opacity-40" style={{ background: "var(--gradient-glow)" }} aria-hidden />
+    <div className="min-h-dvh bg-background text-foreground relative overflow-x-clip">
+      <div className="pointer-events-none fixed inset-0 -z-10 opacity-40" style={{ background: "var(--gradient-glow)" }} aria-hidden />
       <Sidebar />
 
       {mobileOpen && (
