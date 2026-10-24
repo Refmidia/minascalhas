@@ -164,7 +164,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="lg:pl-64 relative">
+      <main className="jf-main relative">
         <header className="sticky top-0 z-30 bg-background/70 backdrop-blur-xl border-b border-border pt-safe">
           <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-8 h-14 min-h-[3.5rem]">
             <button

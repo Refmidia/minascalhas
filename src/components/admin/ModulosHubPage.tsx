@@ -52,7 +52,8 @@ export function ModulosHubPage() {
     setAbrindoFinancas(true);
     try {
       await enterJoaoFinancas();
-      await navigate({ to: "/financas/dashboard" });
+      // Full reload: evita CSS do Bootstrap/painel sobrando e quebrando o layout
+      window.location.assign("/financas/dashboard");
     } catch (err) {
       setAbrindoFinancas(false);
       const detail = err instanceof Error ? err.message : "Erro inesperado";

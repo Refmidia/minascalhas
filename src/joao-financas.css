@@ -133,6 +133,36 @@
   min-height: 100dvh;
 }
 
+/* Conteúdo ao lado da sidebar fixa (não depende só do utilitário Tailwind) */
+.jf-main {
+  position: relative;
+  min-width: 0;
+  padding-left: 0;
+}
+@media (min-width: 1024px) {
+  .jf-main {
+    padding-left: 16rem; /* w-64 */
+  }
+}
+
+/* Isola do Bootstrap do painel, se ainda estiver no documento */
+html.jf-active,
+body.jf-active {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: oklch(0.16 0.012 265) !important;
+  overflow-x: hidden;
+}
+.jf-root,
+.jf-root * {
+  box-sizing: border-box;
+}
+.jf-root img,
+.jf-root svg {
+  max-width: none;
+  vertical-align: initial;
+}
+
 @layer base {
   .jf-root * {
     border-color: var(--color-border);
@@ -141,6 +171,7 @@
     overflow-x: hidden;
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
+    isolation: isolate;
   }
   @media (pointer: coarse) {
     .jf-root button,
