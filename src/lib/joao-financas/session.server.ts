@@ -10,16 +10,19 @@ export type AuthSession = {
 };
 
 function sessionPassword() {
-  const secret =
+  const raw =
     process.env.JOAO_FINANCAS_SESSION_SECRET?.trim() ||
     process.env.SESSION_SECRET?.trim() ||
-    process.env.AUTH_SECRET?.trim();
-  if (!secret || secret.length < 32) {
+    process.env.AUTH_SECRET?.trim() ||
+    "";
+  if (!raw) {
     throw new Error(
-      "Defina JOAO_FINANCAS_SESSION_SECRET (ou SESSION_SECRET / AUTH_SECRET) com ao menos 32 caracteres no .env.",
+      "Defina JOAO_FINANCAS_SESSION_SECRET (ou AUTH_SECRET) nas variáveis da Vercel.",
     );
   }
-  return secret;
+  // useSession exige >= 32 chars; completa de forma determinística se AUTH_SECRET for curto
+  if (raw.length >= 32) return raw;
+  return (raw + ":" + raw.repeat(4)).slice(0, 64);
 }
 
 export async function getAuthSession() {

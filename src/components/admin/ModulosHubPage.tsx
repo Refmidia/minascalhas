@@ -35,9 +35,10 @@ export function ModulosHubPage() {
     try {
       await enterJoaoFinancas();
       await navigate({ to: "/financas/dashboard" });
-    } catch {
+    } catch (err) {
       setAbrindoFinancas(false);
-      window.alert("Não foi possível abrir o João Finanças. Confirme que o banco MySQL está configurado.");
+      const msg = err instanceof Error ? err.message : "Erro inesperado";
+      window.alert(`Não foi possível abrir o João Finanças.\n\n${msg}`);
     }
   }
 
