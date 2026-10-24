@@ -10,6 +10,8 @@ import { PainelVisaoGuard } from "@/components/admin/PainelVisaoGuard";
 import { DashRadio } from "@/components/admin/DashRadio";
 import { UserThumb } from "@/components/admin/UserThumb";
 import type { AdminVisao } from "@/lib/visao.server";
+import { ehJoaoAdmin } from "@/lib/visao-acesso";
+import { enterJoaoFinancas } from "@/lib/joao-financas/auth.functions";
 
 type ProdutoMenu = { id: number; nome: string };
 
@@ -66,6 +68,8 @@ export function AdminShell() {
   const [navMobile, setNavMobile] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [abrindoFinancas, setAbrindoFinancas] = useState(false);
+  const [modulosErro, setModulosErro] = useState("");
 
   useEffect(() => {
     document.body.classList.toggle("dashboard-has-visao-banner", Boolean(user?.simulando));
@@ -103,10 +107,26 @@ export function AdminShell() {
   const isFornVisao = visao === "fornecedor";
   const isContadorVisao = visao === "contador";
   const podeSimular = Boolean(user?.podeSimular);
+  const podeModulos = Boolean(user && isAdminVisao && ehJoaoAdmin(user));
+  const footerAtivo = podeModulos || podeSimular;
 
   async function trocar(v: AdminVisao) {
     setSidebarOpen(false);
     await setVisao(v);
+  }
+
+  async function abrirJoaoFinancas() {
+    if (abrindoFinancas) return;
+    setAbrindoFinancas(true);
+    setModulosErro("");
+    setSidebarOpen(false);
+    try {
+      await enterJoaoFinancas();
+      window.location.assign("/financas/dashboard");
+    } catch (err) {
+      setAbrindoFinancas(false);
+      setModulosErro(err instanceof Error ? err.message : "Não foi possível abrir o João Finanças");
+    }
   }
 
   function toggleSidebar() {
@@ -238,7 +258,7 @@ export function AdminShell() {
 
       <aside
         id="nav-menu"
-        className={`dash-sidebar${podeSimular ? " dash-sidebar--visao-switch" : ""}${sidebarMini ? " dash-sidebar--mini" : ""}${sidebarOpen ? " is-open" : ""}`}
+        className={`dash-sidebar${footerAtivo ? " dash-sidebar--visao-switch" : ""}${sidebarMini ? " dash-sidebar--mini" : ""}${sidebarOpen ? " is-open" : ""}`}
         aria-label="Menu principal"
       >
         <div className="dash-sidebar__brand">
@@ -440,47 +460,104 @@ export function AdminShell() {
           </ul>
         </nav>
 
-        {podeSimular && (
+        {footerAtivo && (
           <div className="dash-sidebar__footer">
-            <p className="dash-sidebar__visao-label">Ver sistema como</p>
-            <div className="dash-sidebar__visao-switch" role="group" aria-label="Alternar visão do sistema">
-              <button
-                type="button"
-                className={`dash-sidebar__visao-btn${visao === "admin" ? " is-active" : ""}`}
-                title="Administrador"
-                aria-label="Visão administrador"
-                aria-pressed={visao === "admin"}
-                onClick={() => void trocar("admin")}
-              >
-                <svg className="dash-sidebar__visao-svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M2.5 12h11v1h-11v-1zm0-1l1.2-4.8 2.3 2.2L8 3.5l2 4.9 2.3-2.2L13.5 11H2.5z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className={`dash-sidebar__visao-btn${visao === "funcionário" ? " is-active" : ""}`}
-                title="Funcionário"
-                aria-label="Visão funcionário"
-                aria-pressed={visao === "funcionário"}
-                onClick={() => void trocar("funcionário")}
-              >
-                <i className="bi bi-person" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className={`dash-sidebar__visao-btn${visao === "fornecedor" ? " is-active" : ""}`}
-                title="Fornecedor"
-                aria-label="Visão fornecedor"
-                aria-pressed={visao === "fornecedor"}
-                onClick={() => void trocar("fornecedor")}
-              >
-                <i className="bi bi-truck" aria-hidden="true" />
-              </button>
-            </div>
-            {user?.simulando && (
-              <p className="dash-sidebar__visao-hint">
-                Modo demonstração — seu acesso real continua sendo admin.
-              </p>
+            {podeModulos && (
+              <div className="dash-sidebar__modulos-block">
+                <p className="dash-sidebar__visao-label">Trocar módulo</p>
+                <div className="dash-sidebar__modulos" role="group" aria-label="Trocar módulo">
+                  <span
+                    className="dash-sidebar__modulo is-active"
+                    title="Minas Calhas"
+                    aria-current="page"
+                  >
+                    <img
+                      src="/images/logo/icon.png"
+                      alt=""
+                      className="dash-sidebar__modulo-img"
+                      width={28}
+                      height={28}
+                    />
+                    <span className="dash-sidebar__modulo-text">
+                      <strong>Minas Calhas</strong>
+                      <small>Atual</small>
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    className="dash-sidebar__modulo"
+                    title="João Finanças"
+                    disabled={abrindoFinancas}
+                    onClick={() => void abrirJoaoFinancas()}
+                  >
+                    <img
+                      src="/joao-financas/avatar.png"
+                      alt=""
+                      className="dash-sidebar__modulo-img dash-sidebar__modulo-img--avatar"
+                      width={28}
+                      height={28}
+                    />
+                    <span className="dash-sidebar__modulo-text">
+                      <strong>{abrindoFinancas ? "Abrindo…" : "João Finanças"}</strong>
+                      <small>Finanças</small>
+                    </span>
+                  </button>
+                </div>
+                <Link
+                  to="/painel/modulos"
+                  className="dash-sidebar__modulos-hub"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <i className="bi bi-grid-1x2" aria-hidden="true" />
+                  <span>Ver todos os módulos</span>
+                </Link>
+                {modulosErro ? <p className="dash-sidebar__modulos-erro">{modulosErro}</p> : null}
+              </div>
+            )}
+
+            {podeSimular && (
+              <>
+                <p className="dash-sidebar__visao-label">Ver sistema como</p>
+                <div className="dash-sidebar__visao-switch" role="group" aria-label="Alternar visão do sistema">
+                  <button
+                    type="button"
+                    className={`dash-sidebar__visao-btn${visao === "admin" ? " is-active" : ""}`}
+                    title="Administrador"
+                    aria-label="Visão administrador"
+                    aria-pressed={visao === "admin"}
+                    onClick={() => void trocar("admin")}
+                  >
+                    <svg className="dash-sidebar__visao-svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <path d="M2.5 12h11v1h-11v-1zm0-1l1.2-4.8 2.3 2.2L8 3.5l2 4.9 2.3-2.2L13.5 11H2.5z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className={`dash-sidebar__visao-btn${visao === "funcionário" ? " is-active" : ""}`}
+                    title="Funcionário"
+                    aria-label="Visão funcionário"
+                    aria-pressed={visao === "funcionário"}
+                    onClick={() => void trocar("funcionário")}
+                  >
+                    <i className="bi bi-person" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className={`dash-sidebar__visao-btn${visao === "fornecedor" ? " is-active" : ""}`}
+                    title="Fornecedor"
+                    aria-label="Visão fornecedor"
+                    aria-pressed={visao === "fornecedor"}
+                    onClick={() => void trocar("fornecedor")}
+                  >
+                    <i className="bi bi-truck" aria-hidden="true" />
+                  </button>
+                </div>
+                {user?.simulando && (
+                  <p className="dash-sidebar__visao-hint">
+                    Modo demonstração — seu acesso real continua sendo admin.
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}
