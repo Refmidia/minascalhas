@@ -1,15 +1,33 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAdminAuth } from "@/components/admin/admin-auth";
 import { enterJoaoFinancas } from "@/lib/joao-financas/auth.functions";
 
 const YEAR = new Date().getFullYear();
 
+type HubToast = {
+  id: number;
+  variant: "error" | "success" | "info";
+  title: string;
+  detail?: string;
+};
+
 export function ModulosHubPage() {
   const { user, logout, ready } = useAdminAuth();
   const navigate = useNavigate();
   const [abrindoFinancas, setAbrindoFinancas] = useState(false);
+  const [toast, setToast] = useState<HubToast | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(null), 6500);
+    return () => window.clearTimeout(t);
+  }, [toast]);
+
+  function showToast(next: Omit<HubToast, "id">) {
+    setToast({ ...next, id: Date.now() });
+  }
 
   if (!ready) {
     return (
@@ -37,8 +55,12 @@ export function ModulosHubPage() {
       await navigate({ to: "/financas/dashboard" });
     } catch (err) {
       setAbrindoFinancas(false);
-      const msg = err instanceof Error ? err.message : "Erro inesperado";
-      window.alert(`Não foi possível abrir o João Finanças.\n\n${msg}`);
+      const detail = err instanceof Error ? err.message : "Erro inesperado";
+      showToast({
+        variant: "error",
+        title: "Não foi possível abrir o João Finanças",
+        detail,
+      });
     }
   }
 
@@ -47,9 +69,42 @@ export function ModulosHubPage() {
     window.location.assign("/?painel=login");
   }
 
+  const toastIcon =
+    toast?.variant === "success"
+      ? "bi-check-circle-fill"
+      : toast?.variant === "info"
+        ? "bi-info-circle-fill"
+        : "bi-exclamation-triangle-fill";
+
   return (
     <main className="mc-hub">
       <div className="mc-hub__bg" aria-hidden="true" />
+
+      {toast ? (
+        <div className="mc-hub__toast-stack" aria-live="polite">
+          <div
+            key={toast.id}
+            className={`mc-hub__toast mc-hub__toast--${toast.variant}`}
+            role="status"
+          >
+            <span className="mc-hub__toast-icon" aria-hidden="true">
+              <i className={`bi ${toastIcon}`} />
+            </span>
+            <div className="mc-hub__toast-body">
+              <strong>{toast.title}</strong>
+              {toast.detail ? <p>{toast.detail}</p> : null}
+            </div>
+            <button
+              type="button"
+              className="mc-hub__toast-close"
+              aria-label="Fechar notificação"
+              onClick={() => setToast(null)}
+            >
+              <i className="bi bi-x-lg" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <header className="mc-hub__top">
         <Link to="/" className="mc-hub__brand" aria-label="Minas Calhas">

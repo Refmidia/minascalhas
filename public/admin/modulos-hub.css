@@ -425,3 +425,120 @@
     max-width: none;
   }
 }
+
+/* Notificações do hub (substitui alert nativo) */
+.mc-hub__toast-stack {
+  position: fixed;
+  top: 1.15rem;
+  right: 1.15rem;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: min(22.5rem, calc(100vw - 1.5rem));
+  pointer-events: none;
+}
+
+.mc-hub__toast {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(245, 197, 24, 0.22);
+  background: linear-gradient(165deg, rgba(18, 22, 32, 0.96), rgba(10, 12, 18, 0.94));
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  backdrop-filter: blur(14px);
+  animation: mc-hub-toast-in 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes mc-hub-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mc-hub__toast-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: rgba(245, 197, 24, 0.12);
+  color: var(--mc-gold);
+}
+
+.mc-hub__toast--error .mc-hub__toast-icon {
+  background: rgba(248, 113, 113, 0.14);
+  color: #f87171;
+}
+
+.mc-hub__toast--success .mc-hub__toast-icon {
+  background: rgba(52, 211, 153, 0.14);
+  color: #34d399;
+}
+
+.mc-hub__toast--info .mc-hub__toast-icon {
+  background: rgba(96, 165, 250, 0.14);
+  color: #60a5fa;
+}
+
+.mc-hub__toast-body {
+  min-width: 0;
+  padding-top: 0.1rem;
+}
+
+.mc-hub__toast-body strong {
+  display: block;
+  font-family: Outfit, "DM Sans", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #f8fafc;
+  line-height: 1.3;
+}
+
+.mc-hub__toast-body p {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #94a3b8;
+  word-break: break-word;
+}
+
+.mc-hub__toast-close {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.mc-hub__toast-close:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 720px) {
+  .mc-hub__toast-stack {
+    top: auto;
+    bottom: 1rem;
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
